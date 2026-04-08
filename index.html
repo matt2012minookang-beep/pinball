@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>뽑기게임</title>
+  <script src="https://cdn.jsdelivr.net/npm/matter-js@0.20.0/build/matter.min.js"></script>
+  <style>
+    :root{
+      --bg:#000000;
+      --deep:#050505;
+      --inner:#111111;
+      --panel:rgba(150,150,150,0.18);
+      --panelBorder:rgba(255,255,255,0.18);
+      --text:#f7f7f7;
+      --muted:#cfcfcf;
+      --white:#f5f5f5;
+    }
+    *{box-sizing:border-box}
+    html,body{
+      margin:0;
+      width:100%;
+      height:100%;
+      overflow:hidden;
+      background:#000;
+      color:var(--text);
+      font-family:"Malgun Gothic","Apple SD Gothic Neo",sans-serif;
+    }
+    body{
+      background:
+        radial-gradient(circle at 50% 10%, rgba(255,255,255,0.05), transparent 18%),
+        radial-gradient(circle at 12% 42%, rgba(255,255,255,0.02), transparent 20%),
+        radial-gradient(circle at 88% 50%, rgba(255,255,255,0.02), transparent 20%),
+        #000;
+    }
+    #app{
+      position:relative;
+      width:100vw;
+      height:100vh;
+      overflow:hidden;
+    }
+    #scene{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      display:block;
+      background:
+        radial-gradient(circle at 50% 8%, rgba(255,255,255,0.06), transparent 14%),
+        linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.00) 28%),
+        #030303;
+    }
+    .glass{
+      background:var(--panel);
+      border:1px solid var(--panelBorder);
+      border-radius:18px;
+      box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,0.04),
+        0 0 26px rgba(255,255,255,0.06);
+      backdrop-filter: blur(7px);
+      -webkit-backdrop-filter: blur(7px);
+    }
+    #leftUI{
+      position:absolute;
+      left:18px;
+      top:18px;
+      bottom:18px;
+      width:320px;
+      z-index:20;
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+    }
+    #miniWrap{
+      padding:14px;
+      height:245px;
+      flex:0 0 auto;
+    }
+    #miniTitle{
+      font-size:15px;
+      font-weight:800;
+      margin-bottom:10px;
+    }
+    #miniMap{
+      width:100%;
+      height:185px;
+      display:block;
+      background:#070707;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,0.14);
+    }
+    #controlWrap{
+      padding:14px;
+      flex:1 1 auto;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      min-height:0;
+    }
+    .label{
+      font-size:13px;
+      color:var(--muted);
+      margin-bottom:6px;
+      font-weight:700;
+    }
+    textarea,input{
+      width:100%;
+      border:none;
+      outline:none;
+      border-radius:12px;
+      background:rgba(255,255,255,0.08);
+      color:#fff;
+      padding:12px;
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,0.08);
+      font-size:15px;
+    }
+    textarea{
+      resize:none;
+      height:160px;
+      line-height:1.45;
+    }
+    input{height:44px}
+    button{
+      border:none;
+      outline:none;
+      cursor:pointer;
+      border-radius:14px;
+      color:#fff;
+      font-weight:900;
+      background:linear-gradient(180deg, rgba(255,255,255,0.18), rgba(255,255,255,0.08));
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.12),
+        0 8px 20px rgba(0,0,0,0.25),
+        0 0 14px rgba(255,255,255,0.06);
+      transition:transform .08s ease, filter .12s ease;
+    }
+    button:hover{filter:brightness(1.08)}
+    button:active{transform:translateY(1px)}
+    #shuffleBtn{
+      height:58px;
+      font-size:28px;
+      letter-spacing:-1px;
+    }
+    #startBtn{
+      height:72px;
+      font-size:34px;
+      letter-spacing:-1px;
+    }
+    #infoText{
+      font-size:12px;
+      color:#dfdfdf;
+      line-height:1.45;
+      white-space:pre-line;
+      opacity:0.93;
+    }
+    #rankBoard{
+      position:absolute;
+      right:18px;
+      top:18px;
+      z-index:20;
+      min-width:220px;
+      max-width:280px;
+      padding:14px 16px;
+      font-size:18px;
+      line-height:1.55;
+      font-weight:800;
+    }
+    #rankBoard .title{
+      font-size:20px;
+      margin-bottom:8px;
+      color:#fff;
+    }
+    #winnerBanner{
+      position:absolute;
+      left:50%;
+      bottom:20px;
+      transform:translateX(-50%);
+      z-index:20;
+      padding:14px 24px;
+      border-radius:999px;
+      background:rgba(255,255,255,0.10);
+      border:1px solid rgba(255,255,255,0.25);
+      box-shadow:0 0 26px rgba(255,255,255,0.14);
+      font-size:38px;
+      font-weight:900;
+      letter-spacing:-1px;
+      opacity:0;
+      transition:opacity .2s ease;
+      pointer-events:none;
+      text-shadow:0 0 16px rgba(255,255,255,0.32);
+    }
+    #winnerBanner.show{opacity:1}
+    #statusBar{
+      position:absolute;
+      left:356px;
+      bottom:18px;
+      z-index:20;
+      padding:10px 14px;
+      font-size:13px;
+      color:#efefef;
+      max-width:520px;
+    }
+    @media (max-width:900px){
+      #leftUI{width:280px}
+      #statusBar{
+        left:18px;
+        bottom:18px;
+        max-width:calc(100vw - 36px);
+      }
+      #rankBoard{
+        font-size:15px;
+        min-width:170px;
+      }
+      #winnerBanner{font-size:28px}
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+  <canvas id="scene"></canvas>
+
+  <div id="leftUI">
+    <div id="miniWrap" class="glass">
+      <div id="miniTitle">전체 맵</div>
+      <canvas id="miniMap" width="292" height="185"></canvas>
+    </div>
+
+    <div id="controlWrap" class="glass">
+      <div>
+        <div class="label">이름 입력 (쉼표로 구분, 중복 가능)</div>
+        <textarea id="namesInput">지,원,민수,지,은지,승호,수지,원,민수,하람,지우,지훈,은지,도윤,예린</textarea>
+      </div>
+
+      <div>
+        <div class="label">몇 번째가 당첨인지</div>
+        <input id="targetInput" type="number" min="1" value="10" />
+      </div>
+
+      <button id="shuffleBtn">셔플</button>
+      <button id="startBtn">시작</button>
+
+      <div id="infoText">시작 전에는 공이 공중에 떠 있음
+시작하면 중력/관성/충돌/작용반작용 적용
+카메라는 가장 앞선 공 추적
+왼쪽 위 전체 맵으로 전체 진행 확인 가능</div>
+    </div>
+  </div>
+
+  <div id="rankBoard" class="glass">
+    <div class="title">현재 순위</div>
+    <div id="rankText">아직 시작 전</div>
+  </div>
+
+  <div id="winnerBanner"></div>
+  <div id="statusBar" class="glass">대기 중</div>
+</div>
+
+<script>
+(() => {
+  if (!window.Matter) {
+    alert("Matter.js 로드 실패. 인터넷 연결 상태를 확인해줘.");
+    return;
+  }
+
+  const {
+    Engine, World, Bodies, Body, Composite, Events
+  } = Matter;
+
+  const canvas = document.getElementById("scene");
+  const ctx = canvas.getContext("2d");
+
+  const miniCanvas = document.getElementById("miniMap");
+  const miniCtx = miniCanvas.getContext("2d");
+
+  const namesInput = document.getElementById("namesInput");
+  const targetInput = document.getElementById("targetInput");
+  const shuffleBtn = document.getElementById("shuffleBtn");
+  const startBtn = document.getElementById("startBtn");
+  const rankText = document.getElementById("rankText");
+  const winnerBanner = document.getElementById("winnerBanner");
+  const statusBar = document.getElementById("statusBar");
+
+  let W = window.innerWidth;
+  let H = window.innerHeight;
+  canvas.width = W;
+  canvas.height = H;
+
+  const engine = Engine.create();
+  engine.gravity.x = 0;
+  engine.gravity.y = 1.08;
+  engine.gravity.scale = 0.00175;
+  const world = engine.world;
+
+  const WORLD_W = 6000;
+  const WORLD_H = 30000;
+
+  const camera = {
+    x: WORLD_W / 2,
+    y: 1200,
+    zoom: 0.26,
+    smooth: 0.07
+  };
+
+  const walls = [];
+  const pegs = [];
+  const spinners = [];
+  const sensors = [];
+  let balls = [];
+  let rankings = [];
+  let started = false;
+  let targetRank = 10;
+  let winnerInfo = null;
+  let shuffledNames = [];
+
+  const ballPalette = [
+    "#ffffff", "#e5e5e5", "#d6d6d6", "#f2f2f2", "#cccccc",
+    "#ededed", "#dbdbdb", "#f8f8f8", "#c8c8c8", "#e0e0e0"
+  ];
+
+  function resize(){
+    W = window.innerWidth;
+    H = window.innerHeight;
+    canvas.width = W;
+    canvas.height = H;
+  }
+  window.addEventListener("resize", resize);
+
+  function escapeHtml(s){
+    return s.replace(/[&<>"']/g, ch => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    }[ch]));
+  }
+
+  function parseNames(){
+    return namesInput.value
+      .split(",")
+      .map(v => v.trim())
+      .filter(Boolean);
+  }
+
+  function shuffleArray(arr){
+    const a = [...arr];
+    for(let i = a.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function clearWorld(){
+    const all = Composite.allBodies(world);
+    for (const b of all) World.remove(world, b);
+
+    walls.length = 0;
+    pegs.length = 0;
+    spinners.length = 0;
+    sensors.length = 0;
+    balls.length = 0;
+    rankings.length = 0;
+    winnerInfo = null;
+    winnerBanner.classList.remove("show");
+    winnerBanner.textContent = "";
+  }
+
+  function addWall(x1, y1, x2, y2, thickness = 28, extra = {}) {
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+    const len = Math.hypot(dx, dy);
+    const angle = Math.atan2(dy, dx);
+
+    const body = Bodies.rectangle((x1 + x2) / 2, (y1 + y2) / 2, len, thickness, {
+      isStatic: true,
+      restitution: 0.15,
+      friction: 0.18,
+      frictionStatic: 0.5,
+      chamfer: { radius: Math.min(12, thickness / 2) },
+      renderKind: "wall",
+      ...extra
+    });
+
+    Body.setAngle(body, angle);
+    body._p1 = { x: x1, y: y1 };
+    body._p2 = { x: x2, y: y2 };
+    walls.push(body);
+    World.add(world, body);
+    return body;
+  }
+
+  function addPeg(x, y, r = 24){
+    const body = Bodies.circle(x, y, r, {
+      isStatic: true,
+      restitution: 0.86,
+      friction: 0.01,
+      renderKind: "peg"
+    });
+    pegs.push(body);
+    World.add(world, body);
+    return body;
+  }
+
+  function addSpinner(x, y, length = 320, thickness = 20, speed = 0.03){
+    const body = Bodies.rectangle(x, y, length, thickness, {
+      isStatic: true,
+      restitution: 0.7,
+      friction: 0.02,
+      renderKind: "spinner"
+    });
+    body.spinSpeed = speed;
+    spinners.push(body);
+    World.add(world, body);
+    return body;
+  }
+
+  function addSensor(x, y, w, h, label){
+    const body = Bodies.rectangle(x, y, w, h, {
+      isStatic: true,
+      isSensor: true,
+      renderKind: "sensor"
+    });
+    body.sensorLabel = label;
+    sensors.push(body);
+    World.add(world, body);
+    return body;
+  }
+
+  function createOuterChamber(){
+    addWall(700, 200, 700, WORLD_H - 900, 46);
+    addWall(WORLD_W - 700, 200, WORLD_W - 700, WORLD_H - 900, 46);
+    addWall(700, 200, WORLD_W - 700, 200, 46);
+
+    addWall(950, 700, WORLD_W - 950, 700, 18);
+    addWall(1000, 1050, WORLD_W - 1000, 1050, 18);
+  }
+
+  function createVarietyCourse(){
+    // 시작부 떠있는 라인
+    addWall(1150, 1350, 1850, 1580, 20);
+    addWall(2200, 1420, 2850, 1420, 20);
+    addWall(3150, 1420, 3800, 1420, 20);
+    addWall(4150, 1580, 4850, 1350, 20);
+
+    // 1구역: 갈라짐
+    addWall(1000, 2200, 2550, 2500, 30);
+    addWall(3450, 2500, 5000, 2200, 30);
+    addWall(2400, 2800, 1750, 3500, 26);
+    addWall(3600, 2800, 4250, 3500, 26);
+    addWall(1700, 3600, 2650, 3900, 24);
+    addWall(3350, 3900, 4300, 3600, 24);
+
+    // 2구역: 모이는 깔때기
+    addWall(1350, 4700, 2400, 5400, 28);
+    addWall(4650, 4700, 3600, 5400, 28);
+    addWall(2450, 5400, 3050, 6000, 22);
+    addWall(3550, 5400, 3050, 6000, 22);
+    addWall(2800, 6000, 2800, 6550, 16);
+    addWall(3300, 6000, 3300, 6550, 16);
+
+    // 3구역: 벌어짐 + 지그재그
+    addWall(1000, 7200, 2600, 7550, 28);
+    addWall(3400, 7550, 5000, 7200, 28);
+    addWall(1800, 8100, 2950, 8600, 24);
+    addWall(4200, 8150, 3050, 8750, 24);
+    addWall(1100, 9200, 2200, 9800, 26);
+    addWall(4900, 9200, 3800, 9800, 26);
+    addWall(2200, 10100, 3000, 10550, 22);
+    addWall(3800, 10100, 3000, 10550, 22);
+
+    // 4구역: 기운 벽 다량
+    addWall(900, 11400, 2200, 11680, 28);
+    addWall(2500, 11750, 3900, 11350, 28);
+    addWall(4200, 11600, 5050, 11900, 26);
+
+    addWall(1200, 12600, 2600, 13150, 26);
+    addWall(4650, 12650, 3300, 13250, 26);
+    addWall(1100, 13880, 2500, 14280, 28);
+    addWall(4900, 13880, 3500, 14460, 28);
+
+    // 5구역: 큰 분기
+    addWall(1700, 15250, 3000, 15800, 28);
+    addWall(4300, 15250, 3000, 15800, 28);
+    addWall(1000, 16350, 2250, 16650, 26);
+    addWall(5000, 16350, 3750, 16650, 26);
+    addWall(2350, 17000, 1600, 17750, 24);
+    addWall(3650, 17000, 4400, 17750, 24);
+
+    // 6구역: 좁은 통로
+    addWall(2500, 18050, 2500, 18650, 16);
+    addWall(2920, 18050, 2920, 18650, 16);
+    addWall(3340, 18050, 3340, 18650, 16);
+    addWall(3760, 18050, 3760, 18650, 16);
+    addWall(1700, 18950, 2600, 19400, 24);
+    addWall(4500, 18950, 3600, 19400, 24);
+
+    // 7구역: 다시 모이고 벌어짐
+    addWall(900, 20100, 2600, 20460, 30);
+    addWall(5000, 20100, 3400, 20520, 30);
+    addWall(1950, 21000, 2850, 21550, 24);
+    addWall(4050, 21000, 3150, 21550, 24);
+    addWall(1100, 22100, 2400, 22620, 28);
+    addWall(4900, 22100, 3600, 22620, 28);
+
+    // 8구역: 길고 복잡한 마지막
+    addWall(1500, 23200, 3100, 23620, 28);
+    addWall(4550, 23250, 2950, 23820, 28);
+    addWall(950, 24150, 2150, 24750, 26);
+    addWall(5050, 24150, 3850, 24750, 26);
+    addWall(2250, 24850, 2950, 25300, 22);
+    addWall(3750, 24850, 3050, 25300, 22);
+
+    // 최종 1인 입구
+    addWall(2700, 25250, 2700, WORLD_H - 1000, 18);
+    addWall(3120, 25250, 3120, WORLD_H - 1000, 18);
+    addWall(2700, WORLD_H - 1000, 3120, WORLD_H - 1000, 28);
+
+    addSensor(2910, WORLD_H - 1250, 280, 140, "finish");
+  }
+
+  function createPegFields(){
+    const zones = [
+      { y1: 2300, y2: 4700, cols: 11, stepY: 470 },
+      { y1: 6600, y2: 10900, cols: 12, stepY: 500 },
+      { y1: 11600, y2: 14900, cols: 11, stepY: 500 },
+      { y1: 16000, y2: 19900, cols: 12, stepY: 500 },
+      { y1: 20600, y2: 24600, cols: 12, stepY: 520 }
+    ];
+
+    for (const zone of zones) {
+      let row = 0;
+      for (let y = zone.y1; y <= zone.y2; y += zone.stepY) {
+        const margin = 1050;
+        const usable = WORLD_W - margin * 2;
+        const stepX = usable / (zone.cols - 1);
+        const offset = (row % 2) * (stepX * 0.5);
+        for (let i = 0; i < zone.cols; i++) {
+          const x = margin + i * stepX + offset;
+          if (x > 920 && x < WORLD_W - 920) {
+            addPeg(x, y, 18 + ((i + row) % 4) * 2);
+          }
+        }
+        row++;
+      }
+    }
+  }
+
+  function createSpinners(){
+    addSpinner(3000, 3200, 360, 18, 0.03);
+    addSpinner(1500, 8800, 340, 18, -0.027);
+    addSpinner(4500, 9400, 340, 18, 0.026);
+    addSpinner(3000, 13350, 420, 20, -0.03);
+    addSpinner(3000, 17450, 380, 20, 0.03);
+    addSpinner(2200, 21450, 360, 18, -0.028);
+    addSpinner(3900, 21950, 360, 18, 0.028);
+  }
+
+  function createSafetyBounds(){
+    addWall(700, WORLD_H - 850, 2500, WORLD_H - 850, 26, { renderKind: "hidden" });
+    addWall(3300, WORLD_H - 850, WORLD_W - 700, WORLD_H - 850, 26, { renderKind: "hidden" });
+  }
+
+  function buildMap(){
+    clearWorld();
+    createOuterChamber();
+    createVarietyCourse();
+    createPegFields();
+    createSpinners();
+    createSafetyBounds();
+  }
+
+  function buildBalls(names){
+    const r = 56;
+    const gap = 185;
+    const totalWidth = (names.length - 1) * gap;
+    const startX = WORLD_W / 2 - totalWidth / 2;
+    const startY = 420; // 공중에 떠 있게
+
+    balls = names.map((name, i) => {
+      const b = Bodies.circle(startX + i * gap, startY, r, {
+        isStatic: true,
+        restitution: 0.58,
+        friction: 0.01,
+        frictionAir: 0.0007,
+        density: 0.0023,
+        slop: 0.02,
+        renderKind: "ball"
+      });
+      b.ballName = name;
+      b.ballColor = ballPalette[i % ballPalette.length];
+      b.finished = false;
+      b.finishOrder = 0;
+      World.add(world, b);
+      return b;
+    });
+  }
+
+  function rebuildGame(useCurrentShuffle){
+    targetRank = Math.max(1, parseInt(targetInput.value || "1", 10));
+    const rawNames = parseNames();
+    if (rawNames.length === 0) {
+      rawNames.push("이름없음");
+    }
+
+    if (!useCurrentShuffle || shuffledNames.length !== rawNames.length) {
+      shuffledNames = [...rawNames];
+    }
+
+    started = false;
+    rankings = [];
+    winnerInfo = null;
+    winnerBanner.classList.remove("show");
+    winnerBanner.textContent = "";
+    statusBar.textContent = "대기 중";
+    rankText.textContent = "아직 시작 전";
+
+    buildMap();
+    buildBalls(shuffledNames);
+
+    camera.x = WORLD_W / 2;
+    camera.y = 1100;
+    camera.zoom = 0.20; // 시작 시점이 맵의 1/100 가까운 느낌으로 매우 축소
+  }
+
+  function doShuffle(){
+    const rawNames = parseNames();
+    shuffledNames = shuffleArray(rawNames);
+    rebuildGame(true);
+    statusBar.textContent = "셔플 완료";
+  }
+
+  function startGame(){
+    if (started) return;
+    if (balls.length === 0) return;
+    started = true;
+    statusBar.textContent = "시작! 가장 빠른 공 추적 중";
+    for (const b of balls) {
+      Body.setStatic(b, false);
+      Body.setVelocity(b, {
+        x: (Math.random() - 0.5) * 0.9,
+        y: 0.2 + Math.random() * 0.15
+      });
+      Body.setAngularVelocity(b, (Math.random() - 0.5) * 0.04);
+    }
+  }
+
+  shuffleBtn.addEventListener("click", doShuffle);
+  startBtn.addEventListener("click", startGame);
+
+  targetInput.addEventListener("change", () => {
+    targetRank = Math.max(1, parseInt(targetInput.value || "1", 10));
+    if (winnerInfo) {
+      winnerBanner.textContent = `${winnerInfo.rank}번째 통과 - ${winnerInfo.name} win!`;
+    }
+  });
+
+  namesInput.addEventListener("change", () => {
+    shuffledNames = parseNames();
+    rebuildGame(true);
+  });
+
+  Events.on(engine, "collisionStart", event => {
+    for (const pair of event.pairs) {
+      handleSensor(pair.bodyA, pair.bodyB);
+      handleSensor(pair.bodyB, pair.bodyA);
+    }
+  });
+
+  function handleSensor(a, b){
+    if (!a.isSensor || a.sensorLabel !== "finish") return;
+    if (!b.ballName || b.finished) return;
+
+    b.finished = true;
+    rankings.push(b);
+    b.finishOrder = rankings.length;
+
+    Body.setVelocity(b, { x: 0, y: Math.min(2.2, b.velocity.y) });
+
+    rankText.innerHTML = rankings.slice(0, 15)
+      .map((ball, i) => `${i + 1}등: ${escapeHtml(ball.ballName)}`)
+      .join("<br>");
+
+    if (!winnerInfo && b.finishOrder === targetRank) {
+      winnerInfo = { rank: b.finishOrder, name: b.ballName };
+      winnerBanner.textContent = `${winnerInfo.rank}번째 통과 - ${winnerInfo.name} win!`;
+      winnerBanner.classList.add("show");
+      statusBar.textContent = `${b.finishOrder}번째 당첨: ${b.ballName}`;
+    } else {
+      statusBar.textContent = `${b.finishOrder}등 통과: ${b.ballName}`;
+    }
+  }
+
+  function getLeaderBall(){
+    let leader = null;
+    let maxY = -Infinity;
+    for (const b of balls) {
+      if (!b.finished && b.position.y > maxY) {
+        maxY = b.position.y;
+        leader = b;
+      }
+    }
+    if (!leader) {
+      leader = balls.find(b => b.finished) || balls[0] || null;
+    }
+    return leader;
+  }
+
+  function updateCamera(){
+    const leader = getLeaderBall();
+    if (!leader) return;
+
+    const desiredZoom = started ? 0.34 : 0.20;
+    camera.zoom += (desiredZoom - camera.zoom) * 0.035;
+
+    camera.x += (leader.position.x - camera.x) * camera.smooth;
+    camera.y += (leader.position.y - camera.y) * camera.smooth;
+
+    const halfViewW = W / camera.zoom / 2;
+    const halfViewH = H / camera.zoom / 2;
+
+    camera.x = Math.max(900 + halfViewW * 0.25, Math.min(WORLD_W - 900 - halfViewW * 0.25, camera.x));
+    camera.y = Math.max(halfViewH + 120, Math.min(WORLD_H - halfViewH - 120, camera.y));
+  }
+
+  function updateSpinners(){
+    for (const s of spinners) {
+      Body.setAngle(s, s.angle + s.spinSpeed);
+    }
+  }
+
+  function constrainBalls(){
+    for (const b of balls) {
+      if (b.position.x < 760) Body.setPosition(b, { x: 760, y: b.position.y });
+      if (b.position.x > WORLD_W - 760) Body.setPosition(b, { x: WORLD_W - 760, y: b.position.y });
+
+      if (started && !b.finished && b.position.y > WORLD_H - 1800) {
+        const pullX = 2910 - b.position.x;
+        Body.applyForce(b, b.position, { x: pullX * 0.00000085, y: 0.000001 });
+      }
+    }
+  }
+
+  function worldToScreen(x, y){
+    return {
+      x: (x - camera.x) * camera.zoom + W / 2,
+      y: (y - camera.y) * camera.zoom + H / 2
+    };
+  }
+
+  function drawBackground(){
+    ctx.clearRect(0, 0, W, H);
+
+    const grad = ctx.createRadialGradient(W * 0.5, H * 0.08, 20, W * 0.5, H * 0.08, H * 0.8);
+    grad.addColorStop(0, "rgba(255,255,255,0.06)");
+    grad.addColorStop(1, "rgba(255,255,255,0)");
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+  }
+
+  function drawWall(body){
+    if (body.renderKind === "hidden") return;
+    const verts = body.vertices.map(v => worldToScreen(v.x, v.y));
+
+    ctx.beginPath();
+    ctx.moveTo(verts[0].x, verts[0].y);
+    for (let i = 1; i < verts.length; i++) ctx.lineTo(verts[i].x, verts[i].y);
+    ctx.closePath();
+
+    const g = ctx.createLinearGradient(verts[0].x, verts[0].y, verts[2].x, verts[2].y);
+    g.addColorStop(0, "rgba(255,255,255,0.98)");
+    g.addColorStop(1, "rgba(215,215,215,0.84)");
+
+    ctx.fillStyle = g;
+    ctx.shadowColor = "rgba(255,255,255,0.18)";
+    ctx.shadowBlur = 14;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+  }
+
+  function drawPeg(body){
+    const p = worldToScreen(body.position.x, body.position.y);
+    const r = body.circleRadius * camera.zoom;
+    if (r < 1.2) return;
+
+    const g = ctx.createRadialGradient(p.x - r * 0.35, p.y - r * 0.4, r * 0.1, p.x, p.y, r);
+    g.addColorStop(0, "#ffffff");
+    g.addColorStop(0.45, "#dddddd");
+    g.addColorStop(1, "#888888");
+
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+    ctx.fillStyle = g;
+    ctx.shadowColor = "rgba(255,255,255,0.10)";
+    ctx.shadowBlur = 10;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+  }
+
+  function drawBall(body){
+    const p = worldToScreen(body.position.x, body.position.y);
+    const r = body.circleRadius * camera.zoom;
+    if (p.x < -r * 3 || p.x > W + r * 3 || p.y < -r * 3 || p.y > H + r * 3) return;
+
+    const g = ctx.createRadialGradient(p.x - r * 0.35, p.y - r * 0.45, r * 0.12, p.x, p.y, r);
+    g.addColorStop(0, "#ffffff");
+    g.addColorStop(0.45, body.ballColor);
+    g.addColorStop(1, "#737373");
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+    ctx.fillStyle = g;
+    ctx.shadowColor = "rgba(255,255,255,0.16)";
+    ctx.shadowBlur = 16;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    ctx.strokeStyle = "rgba(0,0,0,0.5)";
+    ctx.lineWidth = Math.max(1, r * 0.08);
+    ctx.stroke();
+
+    ctx.translate(p.x, p.y);
+    ctx.rotate(body.angle);
+    ctx.fillStyle = "#111";
+    ctx.font = `900 ${Math.max(10, r * 0.42)}px Malgun Gothic, sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    let txt = body.ballName;
+    if (txt.length > 3) txt = txt.slice(0, 3);
+    ctx.fillText(txt, 0, 0);
+    ctx.restore();
+
+    if (body.finished) {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, r + 5, 0, Math.PI * 2);
+      ctx.strokeStyle = "rgba(255,255,255,0.85)";
+      ctx.lineWidth = Math.max(2, r * 0.08);
+      ctx.stroke();
+    }
+  }
+
+  function drawWorld(){
+    drawBackground();
+
+    const tl = worldToScreen(700, 200);
+    const br = worldToScreen(WORLD_W - 700, WORLD_H - 900);
+    ctx.fillStyle = "#121212";
+    ctx.fillRect(tl.x, tl.y, br.x - tl.x, br.y - tl.y);
+
+    for (const w of walls) drawWall(w);
+    for (const p of pegs) drawPeg(p);
+    for (const s of spinners) drawWall(s);
+    for (const b of balls) drawBall(b);
+
+    const gateTop = worldToScreen(2700, 25250);
+    const gateBottom = worldToScreen(3120, WORLD_H - 1000);
+    ctx.save();
+    ctx.strokeStyle = "rgba(255,255,255,0.8)";
+    ctx.lineWidth = 3;
+    ctx.setLineDash([10, 8]);
+    ctx.strokeRect(gateTop.x, gateTop.y, gateBottom.x - gateTop.x, gateBottom.y - gateTop.y);
+    ctx.restore();
+  }
+
+  function drawMiniMap(){
+    const mw = miniCanvas.width;
+    const mh = miniCanvas.height;
+    miniCtx.clearRect(0, 0, mw, mh);
+    miniCtx.fillStyle = "#070707";
+    miniCtx.fillRect(0, 0, mw, mh);
+
+    const pad = 8;
+    const scaleX = (mw - pad * 2) / WORLD_W;
+    const scaleY = (mh - pad * 2) / WORLD_H;
+    const scale = Math.min(scaleX, scaleY);
+
+    function mx(x){ return pad + x * scale; }
+    function my(y){ return pad + y * scale; }
+
+    miniCtx.fillStyle = "#101010";
+    miniCtx.fillRect(mx(700), my(200), (WORLD_W - 1400) * scale, (WORLD_H - 1100) * scale);
+
+    miniCtx.strokeStyle = "rgba(255,255,255,0.9)";
+    miniCtx.lineWidth = 1;
+    for (const w of walls) {
+      if (w.renderKind === "hidden") continue;
+      miniCtx.beginPath();
+      miniCtx.moveTo(mx(w._p1.x), my(w._p1.y));
+      miniCtx.lineTo(mx(w._p2.x), my(w._p2.y));
+      miniCtx.stroke();
+    }
+
+    miniCtx.fillStyle = "rgba(255,255,255,0.65)";
+    for (const p of pegs) {
+      miniCtx.beginPath();
+      miniCtx.arc(mx(p.position.x), my(p.position.y), Math.max(0.8, p.circleRadius * scale), 0, Math.PI * 2);
+      miniCtx.fill();
+    }
+
+    for (const b of balls) {
+      miniCtx.beginPath();
+      miniCtx.fillStyle = b.finished ? "#ffffff" : "#cfcfcf";
+      miniCtx.arc(mx(b.position.x), my(b.position.y), Math.max(1.4, b.circleRadius * scale * 1.05), 0, Math.PI * 2);
+      miniCtx.fill();
+    }
+
+    const viewW = W / camera.zoom;
+    const viewH = H / camera.zoom;
+    const vx = camera.x - viewW / 2;
+    const vy = camera.y - viewH / 2;
+
+    miniCtx.strokeStyle = "rgba(255,255,255,0.95)";
+    miniCtx.lineWidth = 1.2;
+    miniCtx.strokeRect(mx(vx), my(vy), viewW * scale, viewH * scale);
+  }
+
+  function tick(){
+    updateSpinners();
+    Engine.update(engine, 1000 / 60);
+    constrainBalls();
+    updateCamera();
+    drawWorld();
+    drawMiniMap();
+    requestAnimationFrame(tick);
+  }
+
+  shuffledNames = parseNames();
+  rebuildGame(true);
+  tick();
+})();
+</script>
+</body>
+</html>
