@@ -237,9 +237,9 @@
         <button id="startBtn">시작</button>
 
         <div id="hint">예) 1*20 = 이름이 1인 공 20개
-시작 전엔 절대 안 움직임
-시작 후 1.2초 뒤부터 선두 공 추적
-원형 네온 패드에 닿으면 안으로 들어가 1초 뒤 아래로 팡!</div>
+맵 폭 넓힘 / 막히는 경사 제거
+원형 네온 패드에 닿으면 안으로 들어가 1초 뒤 아래로 팡!
+시작 전엔 절대 안 움직임</div>
       </div>
     </div>
 
@@ -272,14 +272,14 @@
       const winnerBanner = document.getElementById("winnerBanner");
       const statusBar = document.getElementById("statusBar");
 
-      const WORLD_W = 1800;
-      let WORLD_TOP = -5000;
-      let WORLD_BOTTOM = 17000;
+      const WORLD_W = 2200;
+      let WORLD_TOP = -6000;
+      let WORLD_BOTTOM = 18200;
 
-      const GRAVITY = 1850;
-      const AIR = 0.0010;
-      const RESTITUTION = 0.74;
-      const TANGENT_FRICTION = 0.986;
+      const GRAVITY = 1880;
+      const AIR = 0.001;
+      const RESTITUTION = 0.76;
+      const TANGENT_FRICTION = 0.988;
       const MAX_DT = 1 / 30;
       const FIXED_DT = 1 / 120;
 
@@ -373,7 +373,7 @@
         segments.push({ x1, y1, x2, y2, thickness, kind });
       }
 
-      function addPeg(x, y, r = 12) {
+      function addPeg(x, y, r = 11) {
         pegs.push({ x, y, r });
       }
 
@@ -381,12 +381,12 @@
         spinners.push({ x, y, length, thickness, angle: 0, speed });
       }
 
-      function addLaunchPad(x, y, r = 54) {
+      function addLaunchPad(x, y, r = 56) {
         launchPads.push({ x, y, r, pulse: Math.random() * Math.PI * 2 });
-        addSegment(x - 82, y - 56, x - 16, y + 10, 16);
-        addSegment(x + 82, y - 56, x + 16, y + 10, 16);
-        addSegment(x - 18, y + 16, x - 54, y + 118, 14);
-        addSegment(x + 18, y + 16, x + 54, y + 118, 14);
+        addSegment(x - 86, y - 56, x - 18, y + 10, 16);
+        addSegment(x + 86, y - 56, x + 18, y + 10, 16);
+        addSegment(x - 18, y + 16, x - 56, y + 118, 14);
+        addSegment(x + 18, y + 16, x + 56, y + 118, 14);
       }
 
       function setFinishSensor(x, y, w, h) {
@@ -396,119 +396,116 @@
       function buildMap(spawnRows) {
         resetWorld();
 
-        const topBuffer = Math.max(5200, spawnRows * 82 + 2600);
+        const topBuffer = Math.max(6200, spawnRows * 82 + 3000);
         WORLD_TOP = -topBuffer;
 
-        const baseY = 1500;
+        const baseY = 1600;
 
-        // 2번째 사진 느낌의 꺾인 외벽
         const leftPts = [
-          [340, WORLD_TOP],
-          [340, baseY + 100],
-          [520, baseY + 1100],
-          [520, baseY + 1850],
-          [760, baseY + 2750],
-          [760, baseY + 4550],
-          [560, baseY + 5750],
-          [560, baseY + 7050],
-          [820, baseY + 8350],
-          [820, baseY + 10450],
-          [620, baseY + 11850],
-          [620, baseY + 13950],
-          [790, baseY + 15400]
+          [360, WORLD_TOP],
+          [360, baseY + 100],
+          [620, baseY + 1200],
+          [620, baseY + 2100],
+          [980, baseY + 3200],
+          [980, baseY + 5000],
+          [700, baseY + 6400],
+          [700, baseY + 8000],
+          [1060, baseY + 9600],
+          [1060, baseY + 11600],
+          [760, baseY + 13200],
+          [760, baseY + 15200],
+          [940, baseY + 16800]
         ];
 
         const rightPts = [
-          [1460, WORLD_TOP],
-          [1460, baseY + 100],
-          [1280, baseY + 1100],
-          [1280, baseY + 1850],
-          [1040, baseY + 2750],
-          [1040, baseY + 4550],
-          [1240, baseY + 5750],
-          [1240, baseY + 7050],
-          [980, baseY + 8350],
-          [980, baseY + 10450],
-          [1180, baseY + 11850],
-          [1180, baseY + 13950],
-          [1010, baseY + 15400]
+          [1840, WORLD_TOP],
+          [1840, baseY + 100],
+          [1580, baseY + 1200],
+          [1580, baseY + 2100],
+          [1220, baseY + 3200],
+          [1220, baseY + 5000],
+          [1500, baseY + 6400],
+          [1500, baseY + 8000],
+          [1140, baseY + 9600],
+          [1140, baseY + 11600],
+          [1440, baseY + 13200],
+          [1440, baseY + 15200],
+          [1260, baseY + 16800]
         ];
 
         for (let i = 0; i < leftPts.length - 1; i++) {
-          addSegment(leftPts[i][0], leftPts[i][1], leftPts[i + 1][0], leftPts[i + 1][1], 28);
+          addSegment(leftPts[i][0], leftPts[i][1], leftPts[i + 1][0], leftPts[i + 1][1], 30);
         }
         for (let i = 0; i < rightPts.length - 1; i++) {
-          addSegment(rightPts[i][0], rightPts[i][1], rightPts[i + 1][0], rightPts[i + 1][1], 28);
+          addSegment(rightPts[i][0], rightPts[i][1], rightPts[i + 1][0], rightPts[i + 1][1], 30);
         }
-        addSegment(leftPts[0][0], leftPts[0][1], rightPts[0][0], rightPts[0][1], 28);
+        addSegment(leftPts[0][0], leftPts[0][1], rightPts[0][0], rightPts[0][1], 30);
 
-        // 첫 진입은 V 모양 후 바로 빠짐
-        addSegment(620, baseY + 700, 840, baseY + 1280, 18);
-        addSegment(1180, baseY + 700, 960, baseY + 1280, 18);
-        addSegment(840, baseY + 1280, 900, baseY + 1460, 14);
-        addSegment(960, baseY + 1280, 900, baseY + 1460, 14);
+        // 넓은 첫 진입
+        addSegment(820, baseY + 820, 1020, baseY + 1280, 18);
+        addSegment(1380, baseY + 820, 1180, baseY + 1280, 18);
+        addSegment(1020, baseY + 1280, 1100, baseY + 1490, 14);
+        addSegment(1180, baseY + 1280, 1100, baseY + 1490, 14);
 
-        // 막히는 긴 받침대형 구조 삭제, 대신 짧은 방향 전환들
-        addSegment(680, baseY + 2200, 1060, baseY + 2380, 18);
-        addSegment(1080, baseY + 2760, 860, baseY + 2980, 18);
+        // 넓은 채널형 방향 전환들
+        addSegment(860, baseY + 2400, 1320, baseY + 2610, 18);
+        addSegment(1360, baseY + 3200, 1040, baseY + 3500, 18);
 
-        addSegment(700, baseY + 3480, 1040, baseY + 3650, 18);
-        addSegment(1060, baseY + 4020, 860, baseY + 4240, 18);
+        addSegment(900, baseY + 4300, 1300, baseY + 4490, 18);
+        addSegment(1340, baseY + 5180, 1040, baseY + 5470, 18);
 
-        // 첫 발사 장치
-        addLaunchPad(900, baseY + 5000);
+        // 첫 발사장치
+        addLaunchPad(1100, baseY + 6350);
 
-        // 발사 후 아래로 흐르는 채널
-        addSegment(720, baseY + 5860, 1030, baseY + 6030, 18);
-        addSegment(1050, baseY + 6420, 860, baseY + 6610, 18);
+        // 넓은 발사 후 채널
+        addSegment(920, baseY + 7380, 1300, baseY + 7570, 18);
+        addSegment(1330, baseY + 8250, 1060, baseY + 8510, 18);
 
         // 회전막대 존
-        addSpinner(900, baseY + 7450, 230, 14, 0.95);
+        addSpinner(1100, baseY + 9400, 280, 14, 0.9);
+        addSpinner(930, baseY + 9960, 170, 12, -0.82);
+        addSpinner(1270, baseY + 9960, 170, 12, 0.82);
 
-        addSegment(730, baseY + 8150, 1030, baseY + 8320, 18);
-        addSegment(1050, baseY + 8720, 860, baseY + 8910, 18);
+        addSegment(930, baseY + 10840, 1290, baseY + 11020, 18);
+        addSegment(1320, baseY + 11680, 1060, baseY + 11940, 18);
 
-        // 두 번째 발사 장치
-        addLaunchPad(900, baseY + 9700);
+        // 두 번째 발사장치
+        addLaunchPad(1100, baseY + 12700);
 
-        addSegment(720, baseY + 10580, 1030, baseY + 10760, 18);
-        addSegment(1050, baseY + 11170, 860, baseY + 11370, 18);
+        // 청록 체브론 느낌
+        addSegment(900, baseY + 13620, 960, baseY + 13750, 10, "accent");
+        addSegment(1020, baseY + 13620, 1080, baseY + 13750, 10, "accent");
+        addSegment(1140, baseY + 13620, 1200, baseY + 13750, 10, "accent");
+        addSegment(1260, baseY + 13620, 1320, baseY + 13750, 10, "accent");
 
-        // 청록 장식 느낌
-        addSegment(700, baseY + 11880, 760, baseY + 12010, 10, "accent");
-        addSegment(810, baseY + 11880, 870, baseY + 12010, 10, "accent");
-        addSegment(920, baseY + 11880, 980, baseY + 12010, 10, "accent");
-        addSegment(1030, baseY + 11880, 1090, baseY + 12010, 10, "accent");
+        addSegment(930, baseY + 14380, 1280, baseY + 14570, 18);
+        addSegment(1310, baseY + 15220, 1080, baseY + 15460, 18);
 
-        // 마지막 한 줄 진입
-        addSegment(730, baseY + 12780, 870, baseY + 13520, 18);
-        addSegment(1070, baseY + 12780, 930, baseY + 13520, 18);
+        // 마지막 좁혀짐 - 폭 조금 넓게
+        addSegment(980, baseY + 16050, 1070, baseY + 16780, 18);
+        addSegment(1220, baseY + 16050, 1130, baseY + 16780, 18);
 
-        addSegment(885, baseY + 13520, 885, baseY + 15000, 14);
-        addSegment(915, baseY + 13520, 915, baseY + 15000, 14);
+        addSegment(1088, baseY + 16780, 1088, baseY + 17480, 14);
+        addSegment(1112, baseY + 16780, 1112, baseY + 17480, 14);
 
-        setFinishSensor(900, baseY + 15120, 100, 90);
-        WORLD_BOTTOM = baseY + 15600;
+        setFinishSensor(1100, baseY + 17600, 92, 90);
+        WORLD_BOTTOM = baseY + 18100;
 
         // 청록 핀
-        for (let y = baseY + 1780; y <= baseY + 12400; y += 760) {
-          const row = Math.floor((y - (baseY + 1780)) / 760);
+        for (let y = baseY + 1900; y <= baseY + 15500; y += 900) {
+          const row = Math.floor((y - (baseY + 1900)) / 900);
           const cols = row % 2 === 0 ? 4 : 3;
-          const sx = cols === 4 ? 640 : 710;
+          const sx = cols === 4 ? 900 : 960;
           for (let i = 0; i < cols; i++) {
             addPeg(sx + i * 120, y, 10);
           }
         }
-
-        // 보조 회전막대
-        addSpinner(760, baseY + 5650, 150, 12, -0.8);
-        addSpinner(1040, baseY + 5650, 150, 12, 0.8);
       }
 
       function buildBalls(names) {
         const r = 24;
-        const spawnLeft = 470;
-        const spawnRight = 1330;
+        const spawnLeft = 620;
+        const spawnRight = 1580;
         const gapX = 52;
         const gapY = 60;
         const cols = Math.max(1, Math.floor((spawnRight - spawnLeft) / gapX));
@@ -549,10 +546,10 @@
       function setInitialCamera(instant = true) {
         const vw = scene.width;
         const vh = scene.height;
-        const z = Math.min(vw / (WORLD_W + 180), vh / 3600);
+        const z = Math.min(vw / (WORLD_W + 240), vh / 3800);
 
         camera.targetX = WORLD_W / 2;
-        camera.targetY = WORLD_TOP + 1700;
+        camera.targetY = WORLD_TOP + 1800;
         camera.targetZoom = z;
 
         if (instant) {
@@ -569,7 +566,7 @@
           shuffledNames = [...rawNames];
         }
 
-        const estimatedCols = Math.max(1, Math.floor((1330 - 470) / 52));
+        const estimatedCols = Math.max(1, Math.floor((1580 - 620) / 52));
         const spawnRows = Math.ceil(shuffledNames.length / estimatedCols);
         buildMap(spawnRows);
         buildBalls(shuffledNames);
@@ -599,7 +596,7 @@
         startTime = performance.now();
         statusBar.textContent = "시작! 상단 고정 후 추적 전환";
 
-        const followZoom = Math.min(scene.width / 980, scene.height / 1900);
+        const followZoom = Math.min(scene.width / 1180, scene.height / 2000);
         camera.targetZoom = followZoom;
 
         for (const b of balls) {
@@ -636,12 +633,12 @@
 
         if (!followEnabled) {
           camera.targetX = WORLD_W / 2;
-          camera.targetY = WORLD_TOP + 2100;
+          camera.targetY = WORLD_TOP + 2200;
         } else {
           const leader = getLeaderBall();
           if (leader) {
-            camera.targetX = Math.max(360, Math.min(WORLD_W - 360, leader.x));
-            camera.targetY = Math.max(WORLD_TOP + 1400, Math.min(WORLD_BOTTOM - 1200, leader.y));
+            camera.targetX = Math.max(440, Math.min(WORLD_W - 440, leader.x));
+            camera.targetY = Math.max(WORLD_TOP + 1500, Math.min(WORLD_BOTTOM - 1300, leader.y));
           }
         }
 
@@ -788,8 +785,8 @@
               b.launchQueued = false;
               b.flashUntil = now + 450;
               const side = Math.random() < 0.5 ? -1 : 1;
-              b.vx = side * (170 + Math.random() * 180);
-              b.vy = 560 + Math.random() * 220;
+              b.vx = side * (190 + Math.random() * 160);
+              b.vy = 600 + Math.random() * 180;
               b.av = (Math.random() - 0.5) * 6;
             }
             continue;
@@ -839,8 +836,8 @@
               const cp = closestPointOnSegment(b.x, b.y, x1, y1, x2, y2);
               const rx = cp.x - spinner.x;
               const ry = cp.y - spinner.y;
-              const surfaceVx = -spinner.speed * ry * 90;
-              const surfaceVy = spinner.speed * rx * 90;
+              const surfaceVx = -spinner.speed * ry * 100;
+              const surfaceVy = spinner.speed * rx * 100;
               resolveBallSegment(b, x1, y1, x2, y2, spinner.thickness, surfaceVx, surfaceVy);
             }
           }
@@ -860,10 +857,10 @@
           if (speed < 18 && b.y > WORLD_TOP + 800) b.slowTimer += dt;
           else b.slowTimer = 0;
 
-          if (b.slowTimer > 0.45) {
-            b.vy += 150 + Math.random() * 50;
+          if (b.slowTimer > 0.35) {
+            b.vy += 180 + Math.random() * 45;
             b.vx += (Math.random() - 0.5) * 12;
-            b.slowTimer = 0.08;
+            b.slowTimer = 0.06;
           }
 
           for (let p = 0; p < launchPads.length; p++) {
