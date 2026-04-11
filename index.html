@@ -243,9 +243,9 @@
         <button id="shuffleBtn">셔플</button>
         <button id="startBtn">시작</button>
 
-        <div id="hint">시작 전엔 절대 움직이지 않음
+        <div id="hint">시작 전엔 절대 안 움직임
 시작 후 1.2초 뒤부터 선두 공 추적
-막히면 약하게 아래쪽 보정
+공이 끼면 아주 약하게 아래로 보정
 파란 네온 패드: 1초 후 팡! 아래 방향 랜덤 발사</div>
       </div>
     </div>
@@ -280,13 +280,13 @@
       const statusBar = document.getElementById("statusBar");
 
       const WORLD_W = 1700;
-      const WORLD_H = 13200;
+      const WORLD_H = 13600;
       const LEFT = 260;
       const RIGHT = WORLD_W - 260;
       const TOP = 120;
       const BOTTOM = WORLD_H - 180;
 
-      const GRAVITY = 1750;
+      const GRAVITY = 1780;
       const AIR = 0.0010;
       const RESTITUTION = 0.72;
       const TANGENT_FRICTION = 0.985;
@@ -329,19 +329,12 @@
 
       function escapeHtml(s) {
         return s.replace(/[&<>"']/g, ch => ({
-          "&":"&amp;",
-          "<":"&lt;",
-          ">":"&gt;",
-          "\"":"&quot;",
-          "'":"&#39;"
+          "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"
         }[ch]));
       }
 
       function parseNames() {
-        return namesInput.value
-          .split(",")
-          .map(v => v.trim())
-          .filter(Boolean);
+        return namesInput.value.split(",").map(v => v.trim()).filter(Boolean);
       }
 
       function shuffleArray(arr) {
@@ -385,10 +378,10 @@
 
       function addLaunchPad(x, y, r = 54) {
         launchPads.push({ x, y, r, pulse: Math.random() * Math.PI * 2 });
-        addSegment(x - 86, y - 55, x - 18, y + 10, 16, "wall");
-        addSegment(x + 86, y - 55, x + 18, y + 10, 16, "wall");
-        addSegment(x - 20, y + 18, x - 58, y + 125, 14, "wall");
-        addSegment(x + 20, y + 18, x + 58, y + 125, 14, "wall");
+        addSegment(x - 86, y - 55, x - 18, y + 10, 16);
+        addSegment(x + 86, y - 55, x + 18, y + 10, 16);
+        addSegment(x - 20, y + 18, x - 58, y + 125, 14);
+        addSegment(x + 20, y + 18, x + 58, y + 125, 14);
       }
 
       function setFinishSensor(x, y, w, h) {
@@ -402,73 +395,65 @@
         addSegment(RIGHT, TOP, RIGHT, BOTTOM, 30);
         addSegment(LEFT, TOP, RIGHT, TOP, 30);
 
-        addSegment(355, 560, 805, 735, 18);
-        addSegment(930, 700, 1290, 700, 18);
+        // 위쪽
+        addSegment(350, 560, 830, 760, 18);
+        addSegment(920, 760, 1320, 760, 18);
 
-        addSegment(360, 1030, 945, 1240, 20);
-        addSegment(1340, 1090, 820, 1365, 20);
+        addSegment(360, 1110, 980, 1340, 20);
+        addSegment(1320, 1170, 760, 1470, 20);
 
-        addSegment(390, 1680, 800, 1985, 18);
-        addSegment(1310, 1680, 900, 1985, 18);
-        addSegment(800, 1985, 900, 2335, 14);
-        addSegment(900, 1985, 800, 2335, 14);
+        // 흐르는 메인 경사들
+        addSegment(380, 1800, 1180, 2100, 18);
+        addSegment(1280, 2200, 760, 2500, 18);
 
-        addSegment(365, 2730, 790, 2895, 18);
-        addSegment(1000, 3040, 1340, 2790, 18);
+        addSegment(360, 2850, 980, 3120, 18);
+        addSegment(1320, 3190, 760, 3480, 18);
 
-        addSegment(390, 3470, 880, 3810, 18);
-        addSegment(1310, 3525, 820, 3885, 18);
+        addSegment(380, 3820, 1140, 4140, 18);
+        addSegment(1290, 4250, 760, 4550, 18);
 
-        addSegment(365, 4300, 930, 4545, 18);
-        addSegment(1335, 4360, 770, 4630, 18);
+        addSegment(360, 4920, 960, 5200, 18);
+        addSegment(1340, 5280, 780, 5600, 18);
 
-        addSegment(470, 5050, 835, 5410, 16);
-        addSegment(1230, 5050, 865, 5410, 16);
+        addLaunchPad(860, 6020);
 
-        addLaunchPad(850, 5800);
+        addSegment(380, 6500, 1120, 6820, 18);
+        addSegment(1310, 6920, 780, 7220, 18);
 
-        addSegment(370, 6350, 820, 6660, 18);
-        addSegment(1330, 6350, 880, 6660, 18);
-        addSegment(820, 6660, 910, 7010, 14);
-        addSegment(880, 6660, 790, 7010, 14);
+        addSegment(360, 7600, 1000, 7870, 18);
+        addSegment(1340, 7960, 770, 8280, 18);
 
-        addSegment(350, 7450, 960, 7690, 18);
-        addSegment(1350, 7500, 740, 7770, 18);
+        addSegment(380, 8660, 1150, 8980, 18);
+        addSegment(1310, 9100, 780, 9400, 18);
 
-        addSegment(420, 8290, 835, 8610, 18);
-        addSegment(1280, 8290, 865, 8610, 18);
+        addSpinner(860, 9800, 220, 14, 0.95);
 
-        addSegment(360, 9150, 910, 9400, 18);
-        addSegment(1340, 9200, 790, 9475, 18);
+        addSegment(370, 10280, 980, 10550, 18);
+        addSegment(1330, 10630, 780, 10930, 18);
 
-        addSpinner(850, 9960, 230, 14, 0.95);
+        addLaunchPad(860, 11320);
 
-        addSegment(420, 10480, 820, 10780, 18);
-        addSegment(1280, 10480, 880, 10780, 18);
+        addSegment(390, 11820, 1120, 12140, 18);
+        addSegment(1320, 12220, 820, 12520, 18);
 
-        addLaunchPad(850, 11260);
+        addSegment(820, 12650, 820, 13100, 14);
+        addSegment(900, 12650, 900, 13100, 14);
 
-        addSegment(410, 11920, 830, 12240, 18);
-        addSegment(1290, 11920, 870, 12240, 18);
+        setFinishSensor(860, 13220, 150, 90);
 
-        addSegment(810, 12380, 810, 12800, 14);
-        addSegment(890, 12380, 890, 12800, 14);
-
-        setFinishSensor(850, 12920, 150, 90);
-
-        for (let y = 1380; y <= 11880; y += 440) {
-          const row = Math.floor((y - 1380) / 440);
-          const cols = row % 2 === 0 ? 6 : 5;
-          const sx = cols === 6 ? 470 : 545;
+        // 핀은 너무 촘촘하지 않게
+        for (let y = 1500; y <= 11800; y += 520) {
+          const row = Math.floor((y - 1500) / 520);
+          const cols = row % 2 === 0 ? 5 : 4;
+          const sx = cols === 5 ? 500 : 575;
           for (let i = 0; i < cols; i++) {
-            addPeg(sx + i * 145, y, 12 + ((i + row) % 2));
+            addPeg(sx + i * 160, y, 11 + ((i + row) % 2));
           }
         }
 
-        addSpinner(850, 2480, 200, 14, 0.9);
-        addSpinner(600, 5530, 180, 14, -0.85);
-        addSpinner(1100, 5530, 180, 14, 0.85);
-        addSpinner(850, 7240, 220, 14, -0.92);
+        // 보조 회전
+        addSpinner(620, 5550, 170, 14, -0.82);
+        addSpinner(1100, 5550, 170, 14, 0.82);
       }
 
       function buildBalls(names) {
@@ -480,7 +465,7 @@
         const gap = count > 1 ? Math.min(95, usableWidth / (count - 1)) : 0;
         const totalWidth = gap * (count - 1);
         const startX = (usableLeft + usableRight) / 2 - totalWidth / 2;
-        const startY = 290;
+        const startY = 300;
 
         balls = names.map((name, i) => ({
           x: startX + i * gap,
@@ -504,10 +489,10 @@
       function setInitialCamera(instant = true) {
         const vw = scene.width;
         const vh = scene.height;
-        const z = Math.min(vw / (WORLD_W + 180), vh / 3000);
+        const z = Math.min(vw / (WORLD_W + 180), vh / 3100);
 
         camera.targetX = WORLD_W / 2;
-        camera.targetY = 1550;
+        camera.targetY = 1700;
         camera.targetZoom = z;
 
         if (instant) {
@@ -520,11 +505,9 @@
       function rebuildGame(useCurrentShuffle) {
         targetRank = Math.max(1, parseInt(targetInput.value || "1", 10));
         const rawNames = parseNames().length ? parseNames() : ["1", "2", "3", "4", "5"];
-
         if (!useCurrentShuffle || shuffledNames.length !== rawNames.length) {
           shuffledNames = [...rawNames];
         }
-
         buildMap();
         buildBalls(shuffledNames);
         setInitialCamera(true);
@@ -535,10 +518,7 @@
           rankText.innerHTML = started ? "아직 통과한 공 없음" : "아직 시작 전";
           return;
         }
-        rankText.innerHTML = rankings
-          .slice(0, 15)
-          .map((b, i) => `${i + 1}등: ${escapeHtml(b.name)}`)
-          .join("<br>");
+        rankText.innerHTML = rankings.slice(0, 15).map((b, i) => `${i + 1}등: ${escapeHtml(b.name)}`).join("<br>");
       }
 
       function doShuffle() {
@@ -593,12 +573,12 @@
 
         if (!followEnabled) {
           camera.targetX = WORLD_W / 2;
-          camera.targetY = 1650;
+          camera.targetY = 1750;
         } else {
           const leader = getLeaderBall();
           if (leader) {
             camera.targetX = Math.max(LEFT + 280, Math.min(RIGHT - 280, leader.x));
-            camera.targetY = Math.max(1300, Math.min(WORLD_H - 1200, leader.y));
+            camera.targetY = Math.max(1400, Math.min(WORLD_H - 1200, leader.y));
           }
         }
 
@@ -625,9 +605,7 @@
         const minDist = ball.r + thickness * 0.5;
 
         if (dist === 0) {
-          dx = 0;
-          dy = -1;
-          dist = 1;
+          dx = 0; dy = -1; dist = 1;
         }
 
         if (dist < minDist) {
@@ -653,8 +631,6 @@
           const vt = ball.vx * tx + ball.vy * ty;
           ball.vx -= tx * vt * (1 - TANGENT_FRICTION);
           ball.vy -= ty * vt * (1 - TANGENT_FRICTION);
-
-          ball.av *= 0.985;
         }
       }
 
@@ -665,9 +641,7 @@
         const minDist = ball.r + peg.r;
 
         if (dist === 0) {
-          dx = 0;
-          dy = -1;
-          dist = 1;
+          dx = 0; dy = -1; dist = 1;
         }
 
         if (dist < minDist) {
@@ -684,12 +658,6 @@
             ball.vx += nx * bounce;
             ball.vy += ny * bounce;
           }
-
-          const tx = -ny;
-          const ty = nx;
-          const vt = ball.vx * tx + ball.vy * ty;
-          ball.vx -= tx * vt * 0.015;
-          ball.vy -= ty * vt * 0.015;
         }
       }
 
@@ -700,9 +668,7 @@
         const minDist = a.r + b.r;
 
         if (dist === 0) {
-          dx = 1;
-          dy = 0;
-          dist = 1;
+          dx = 1; dy = 0; dist = 1;
         }
 
         if (dist < minDist) {
@@ -748,7 +714,6 @@
             b.y = 320;
             b.vx = 0;
             b.vy = 0;
-            b.av = 0;
           }
 
           b.vy += GRAVITY * dt;
@@ -790,7 +755,6 @@
               const ry = cp.y - spinner.y;
               const surfaceVx = -spinner.speed * ry * 90;
               const surfaceVy = spinner.speed * rx * 90;
-
               resolveBallSegment(b, x1, y1, x2, y2, spinner.thickness, surfaceVx, surfaceVy);
             }
           }
@@ -807,16 +771,13 @@
           if (b.finished) continue;
 
           const speed = Math.hypot(b.vx, b.vy);
-          if (speed < 18 && b.y > 600) {
-            b.slowTimer += dt;
-          } else {
-            b.slowTimer = 0;
-          }
+          if (speed < 18 && b.y > 700) b.slowTimer += dt;
+          else b.slowTimer = 0;
 
-          if (b.slowTimer > 0.9) {
-            b.vy += 45 + Math.random() * 30;
-            b.vx += (Math.random() - 0.5) * 18;
-            b.slowTimer = 0.2;
+          if (b.slowTimer > 0.75) {
+            b.vy += 75 + Math.random() * 35;
+            b.vx += (Math.random() - 0.5) * 12;
+            b.slowTimer = 0.15;
           }
 
           for (const pad of launchPads) {
@@ -834,7 +795,7 @@
             b.flashUntil = now + 450;
             const side = Math.random() < 0.5 ? -1 : 1;
             b.vx = side * (180 + Math.random() * 200);
-            b.vy = 540 + Math.random() * 240;
+            b.vy = 560 + Math.random() * 230;
             b.av = (Math.random() - 0.5) * 6;
           }
 
@@ -882,8 +843,6 @@
       }
 
       function drawSegment(seg) {
-        if (seg.kind === "hidden") return;
-
         const p1 = worldToScreen(seg.x1, seg.y1);
         const p2 = worldToScreen(seg.x2, seg.y2);
         const angle = Math.atan2(p2.y - p1.y, p2.x - p1.x);
@@ -1026,7 +985,6 @@
       function drawMainScene(now) {
         drawBackground();
         drawChamberFill();
-
         for (const seg of segments) drawSegment(seg);
         for (const peg of pegs) drawPeg(peg);
         for (const pad of launchPads) drawLaunchPad(pad, now);
@@ -1053,7 +1011,6 @@
         miniCtx.strokeStyle = "rgba(255,255,255,0.88)";
         miniCtx.lineWidth = 1;
         for (const seg of segments) {
-          if (seg.kind === "hidden") continue;
           miniCtx.beginPath();
           miniCtx.moveTo(mx(seg.x1), my(seg.y1));
           miniCtx.lineTo(mx(seg.x2), my(seg.y2));
