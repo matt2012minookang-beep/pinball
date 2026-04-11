@@ -280,6 +280,9 @@
       const statusBar = document.getElementById("statusBar");
 
       const WORLD_W = 1800;
+      let WORLD_TOP = -5000;
+      let WORLD_BOTTOM = 15500;
+
       const GRAVITY = 1820;
       const AIR = 0.0010;
       const RESTITUTION = 0.72;
@@ -287,15 +290,15 @@
       const MAX_DT = 1 / 30;
       const FIXED_DT = 1 / 120;
 
-      let WORLD_TOP = -4000;
-      let WORLD_BOTTOM = 14000;
+      const LEFT_LIMIT = 260;
+      const RIGHT_LIMIT = WORLD_W - 260;
 
       const camera = {
         x: WORLD_W / 2,
-        y: 1200,
+        y: 1500,
         zoom: 1,
         targetX: WORLD_W / 2,
-        targetY: 1200,
+        targetY: 1500,
         targetZoom: 1
       };
 
@@ -331,24 +334,19 @@
       }
 
       function parseNames() {
-        const raw = namesInput.value
-          .split(",")
-          .map(v => v.trim())
-          .filter(Boolean);
-
+        const raw = namesInput.value.split(",").map(v => v.trim()).filter(Boolean);
         const out = [];
         for (const token of raw) {
           const m = token.match(/^(.*?)\*(\d+)$/);
           if (m) {
-            const label = m[1].trim();
+            const label = m[1].trim() || "공";
             const count = Math.max(1, Math.min(5000, parseInt(m[2], 10) || 1));
-            const name = label === "" ? "공" : label;
-            for (let i = 0; i < count; i++) out.push(name);
+            for (let i = 0; i < count; i++) out.push(label);
           } else {
             out.push(token);
           }
         }
-        return out.length ? out : ["1", "2", "3"];
+        return out.length ? out : ["1","2","3"];
       }
 
       function shuffleArray(arr) {
@@ -382,7 +380,7 @@
         segments.push({ x1, y1, x2, y2, thickness, kind });
       }
 
-      function addPeg(x, y, r = 13) {
+      function addPeg(x, y, r = 12) {
         pegs.push({ x, y, r });
       }
 
@@ -405,104 +403,129 @@
       function buildMap(spawnRows) {
         resetWorld();
 
-        const topBuffer = Math.max(4200, spawnRows * 110 + 2400);
+        const topBuffer = Math.max(5200, spawnRows * 82 + 2600);
         WORLD_TOP = -topBuffer;
 
-        const courseY = 1200;
-        const L = [
-          [300, WORLD_TOP],
-          [300, courseY + 150],
-          [470, courseY + 1200],
-          [390, courseY + 2450],
-          [560, courseY + 3900],
-          [430, courseY + 5500],
-          [610, courseY + 7150],
-          [470, courseY + 9000],
-          [640, courseY + 11000],
+        const baseY = 1400;
+
+        // 2번째 이미지 느낌의 꺾인 외벽
+        const leftPoints = [
+          [340, WORLD_TOP],
+          [340, baseY + 200],
+          [520, baseY + 1450],
+          [520, baseY + 2300],
+          [740, baseY + 3200],
+          [740, baseY + 4700],
+          [560, baseY + 5750],
+          [560, baseY + 7150],
+          [760, baseY + 8350],
+          [760, baseY + 10150],
+          [620, baseY + 11300],
+          [620, baseY + 12950],
+          [760, baseY + 13850]
         ];
 
-        const R = [
-          [1500, WORLD_TOP],
-          [1500, courseY + 150],
-          [1330, courseY + 1200],
-          [1410, courseY + 2450],
-          [1240, courseY + 3900],
-          [1370, courseY + 5500],
-          [1190, courseY + 7150],
-          [1330, courseY + 9000],
-          [1160, courseY + 11000],
+        const rightPoints = [
+          [1460, WORLD_TOP],
+          [1460, baseY + 200],
+          [1280, baseY + 1450],
+          [1280, baseY + 2300],
+          [1060, baseY + 3200],
+          [1060, baseY + 4700],
+          [1240, baseY + 5750],
+          [1240, baseY + 7150],
+          [1040, baseY + 8350],
+          [1040, baseY + 10150],
+          [1180, baseY + 11300],
+          [1180, baseY + 12950],
+          [1040, baseY + 13850]
         ];
 
-        for (let i = 0; i < L.length - 1; i++) {
-          addSegment(L[i][0], L[i][1], L[i + 1][0], L[i + 1][1], 30);
+        for (let i = 0; i < leftPoints.length - 1; i++) {
+          addSegment(leftPoints[i][0], leftPoints[i][1], leftPoints[i + 1][0], leftPoints[i + 1][1], 28);
         }
-        for (let i = 0; i < R.length - 1; i++) {
-          addSegment(R[i][0], R[i][1], R[i + 1][0], R[i + 1][1], 30);
+        for (let i = 0; i < rightPoints.length - 1; i++) {
+          addSegment(rightPoints[i][0], rightPoints[i][1], rightPoints[i + 1][0], rightPoints[i + 1][1], 28);
         }
-        addSegment(L[0][0], L[0][1], R[0][0], R[0][1], 30);
+        addSegment(leftPoints[0][0], leftPoints[0][1], rightPoints[0][0], rightPoints[0][1], 28);
 
-        // 첫 진입: 두 막대가 모이는 구조
-        addSegment(520, courseY + 500, 790, courseY + 1180, 18);
-        addSegment(1180, courseY + 500, 910, courseY + 1180, 18);
+        // 첫 모이는 구조
+        addSegment(560, baseY + 620, 830, baseY + 1230, 18);
+        addSegment(1240, baseY + 620, 970, baseY + 1230, 18);
 
-        // 이후 흐르게
-        addSegment(420, courseY + 1650, 1150, courseY + 1970, 18);
-        addSegment(1260, courseY + 2280, 760, courseY + 2570, 18);
+        // 첫 채널
+        addSegment(590, baseY + 1760, 1130, baseY + 1990, 18);
 
-        addSegment(500, courseY + 3050, 1130, courseY + 3340, 18);
-        addSegment(1240, courseY + 3650, 770, courseY + 3940, 18);
+        // 중간 꺾이는 벽 내부 가이드들
+        addSegment(610, baseY + 2700, 1110, baseY + 2980, 18);
+        addSegment(1170, baseY + 3370, 860, baseY + 3670, 18);
 
-        addSegment(430, courseY + 4460, 1180, courseY + 4780, 18);
-        addSegment(1270, courseY + 5100, 770, courseY + 5400, 18);
+        // 첫 발사장치 위 방
+        addSegment(650, baseY + 4220, 1080, baseY + 4440, 18);
 
-        addLaunchPad(900, courseY + 5950);
+        addLaunchPad(900, baseY + 5150);
 
-        addSegment(470, courseY + 6480, 1170, courseY + 6780, 18);
-        addSegment(1260, courseY + 7100, 790, courseY + 7400, 18);
+        // 발사 후 아래로 이어지는 채널
+        addSegment(660, baseY + 5940, 1110, baseY + 6200, 18);
+        addSegment(1150, baseY + 6700, 850, baseY + 6970, 18);
 
-        addSpinner(900, courseY + 7920, 220, 14, 0.9);
+        // 회전 막대 방
+        addSpinner(900, baseY + 7820, 220, 14, 0.95);
+        addSegment(640, baseY + 8400, 1110, baseY + 8640, 18);
 
-        addSegment(440, courseY + 8420, 1140, courseY + 8720, 18);
-        addSegment(1250, courseY + 9040, 800, courseY + 9350, 18);
+        // 지그 흐름
+        addSegment(1120, baseY + 9120, 820, baseY + 9400, 18);
+        addSegment(660, baseY + 9860, 1100, baseY + 10120, 18);
 
-        addLaunchPad(900, courseY + 9940);
+        addLaunchPad(900, baseY + 10920);
 
-        addSegment(470, courseY + 10550, 1150, courseY + 10860, 18);
-        addSegment(1240, courseY + 11170, 820, courseY + 11490, 18);
+        addSegment(680, baseY + 11650, 1120, baseY + 11910, 18);
+        addSegment(1130, baseY + 12380, 840, baseY + 12660, 18);
 
-        // 마지막: 좁혀지는 구조
-        addSegment(470, courseY + 11920, 820, courseY + 12620, 18);
-        addSegment(1330, courseY + 11920, 980, courseY + 12620, 18);
+        // 마지막 좁혀지는 구조
+        addSegment(690, baseY + 13120, 860, baseY + 13680, 18);
+        addSegment(1110, baseY + 13120, 940, baseY + 13680, 18);
 
-        addSegment(840, courseY + 12620, 840, courseY + 13120, 14);
-        addSegment(960, courseY + 12620, 960, courseY + 13120, 14);
+        addSegment(880, baseY + 13680, 880, baseY + 14180, 14);
+        addSegment(920, baseY + 13680, 920, baseY + 14180, 14);
 
-        setFinishSensor(900, courseY + 13260, 120, 90);
-        WORLD_BOTTOM = courseY + 13650;
+        setFinishSensor(900, baseY + 14300, 110, 90);
+        WORLD_BOTTOM = baseY + 14750;
 
-        for (let y = courseY + 1450; y <= courseY + 11800; y += 580) {
-          const row = Math.floor((y - (courseY + 1450)) / 580);
-          const cols = row % 2 === 0 ? 4 : 3;
-          const sx = cols === 4 ? 590 : 670;
+        // 내부 청록 핀 느낌
+        for (let y = baseY + 1550; y <= baseY + 12800; y += 760) {
+          const row = Math.floor((y - (baseY + 1550)) / 760);
+          const cols = row % 2 === 0 ? 3 : 4;
+          const sx = cols === 3 ? 720 : 640;
           for (let i = 0; i < cols; i++) {
-            addPeg(sx + i * 160, y, 11 + ((i + row) % 2));
+            addPeg(sx + i * 140, y, 10 + ((i + row) % 2));
           }
         }
 
-        addSpinner(650, courseY + 6180, 170, 14, -0.82);
-        addSpinner(1150, courseY + 6180, 170, 14, 0.82);
+        // 청록 체브론 느낌의 보조 가이드
+        addSegment(690, baseY + 7200, 760, baseY + 7350, 10, "accent");
+        addSegment(820, baseY + 7200, 890, baseY + 7350, 10, "accent");
+        addSegment(950, baseY + 7200, 1020, baseY + 7350, 10, "accent");
+        addSegment(1080, baseY + 7200, 1150, baseY + 7350, 10, "accent");
+
+        addSegment(720, baseY + 12220, 790, baseY + 12380, 10, "accent");
+        addSegment(870, baseY + 12220, 940, baseY + 12380, 10, "accent");
+        addSegment(1020, baseY + 12220, 1090, baseY + 12380, 10, "accent");
+
+        // 보조 회전
+        addSpinner(760, baseY + 5610, 150, 12, -0.8);
+        addSpinner(1040, baseY + 5610, 150, 12, 0.8);
       }
 
       function buildBalls(names) {
-        const r = 28;
-        const left = 420;
-        const right = 1380;
-        const gapX = 62;
-        const gapY = 74;
-        const cols = Math.max(1, Math.floor((right - left) / gapX));
+        const r = 24;
+        const spawnLeft = 450;
+        const spawnRight = 1350;
+        const gapX = 52;
+        const gapY = 60;
+        const cols = Math.max(1, Math.floor((spawnRight - spawnLeft) / gapX));
         const rows = Math.ceil(names.length / cols);
-
-        const startY = WORLD_TOP + 380;
+        const startY = WORLD_TOP + 320;
 
         balls = names.map((name, i) => {
           const row = Math.floor(i / cols);
@@ -536,7 +559,7 @@
       function setInitialCamera(instant = true) {
         const vw = scene.width;
         const vh = scene.height;
-        const z = Math.min(vw / (WORLD_W + 180), vh / 3400);
+        const z = Math.min(vw / (WORLD_W + 180), vh / 3600);
 
         camera.targetX = WORLD_W / 2;
         camera.targetY = WORLD_TOP + 1700;
@@ -556,8 +579,9 @@
           shuffledNames = [...rawNames];
         }
 
-        const tempRows = Math.ceil(shuffledNames.length / Math.max(1, Math.floor((1380 - 420) / 62)));
-        buildMap(tempRows);
+        const estimatedCols = Math.max(1, Math.floor((1350 - 450) / 52));
+        const spawnRows = Math.ceil(shuffledNames.length / estimatedCols);
+        buildMap(spawnRows);
         buildBalls(shuffledNames);
         setInitialCamera(true);
       }
@@ -626,13 +650,13 @@
         } else {
           const leader = getLeaderBall();
           if (leader) {
-            camera.targetX = Math.max(380, Math.min(WORLD_W - 380, leader.x));
+            camera.targetX = Math.max(360, Math.min(WORLD_W - 360, leader.x));
             camera.targetY = Math.max(WORLD_TOP + 1400, Math.min(WORLD_BOTTOM - 1200, leader.y));
           }
         }
 
-        camera.x += (camera.targetX - camera.x) * 0.12;
-        camera.y += (camera.targetY - camera.y) * 0.12;
+        camera.x += (camera.targetX - camera.x) * 0.13;
+        camera.y += (camera.targetY - camera.y) * 0.13;
         camera.zoom += (camera.targetZoom - camera.zoom) * 0.05;
       }
 
@@ -697,6 +721,7 @@
           const nx = dx / dist;
           const ny = dy / dist;
           const overlap = minDist - dist;
+
           ball.x += nx * overlap;
           ball.y += ny * overlap;
 
@@ -777,8 +802,8 @@
           for (const b of balls) {
             if (b.finished) continue;
 
-            if (b.x < 260 + b.r) { b.x = 260 + b.r; b.vx = Math.abs(b.vx) * 0.45; }
-            if (b.x > WORLD_W - 260 - b.r) { b.x = WORLD_W - 260 - b.r; b.vx = -Math.abs(b.vx) * 0.45; }
+            if (b.x < LEFT_LIMIT + b.r) { b.x = LEFT_LIMIT + b.r; b.vx = Math.abs(b.vx) * 0.45; }
+            if (b.x > RIGHT_LIMIT - b.r) { b.x = RIGHT_LIMIT - b.r; b.vx = -Math.abs(b.vx) * 0.45; }
             if (b.y < WORLD_TOP + b.r) { b.y = WORLD_TOP + b.r; b.vy = Math.abs(b.vy) * 0.2; }
 
             for (const seg of segments) {
@@ -797,6 +822,7 @@
               const y1 = spinner.y - sin * half;
               const x2 = spinner.x + cos * half;
               const y2 = spinner.y + sin * half;
+
               const cp = closestPointOnSegment(b.x, b.y, x1, y1, x2, y2);
               const rx = cp.x - spinner.x;
               const ry = cp.y - spinner.y;
@@ -821,10 +847,10 @@
           if (speed < 18 && b.y > WORLD_TOP + 800) b.slowTimer += dt;
           else b.slowTimer = 0;
 
-          if (b.slowTimer > 0.65) {
-            b.vy += 95 + Math.random() * 35;
+          if (b.slowTimer > 0.6) {
+            b.vy += 100 + Math.random() * 40;
             b.vx += (Math.random() - 0.5) * 10;
-            b.slowTimer = 0.1;
+            b.slowTimer = 0.12;
           }
 
           for (const pad of launchPads) {
@@ -883,8 +909,8 @@
       }
 
       function drawChamberFill() {
-        const tl = worldToScreen(260, WORLD_TOP);
-        const br = worldToScreen(WORLD_W - 260, WORLD_BOTTOM);
+        const tl = worldToScreen(LEFT_LIMIT, WORLD_TOP);
+        const br = worldToScreen(RIGHT_LIMIT, WORLD_BOTTOM);
         ctx.fillStyle = "#101010";
         ctx.fillRect(tl.x, tl.y, br.x - tl.x, br.y - tl.y);
       }
@@ -899,13 +925,23 @@
         ctx.translate((p1.x + p2.x) / 2, (p1.y + p2.y) / 2);
         ctx.rotate(angle);
 
+        let fillA = "rgba(255,255,255,0.98)";
+        let fillB = "rgba(214,214,214,0.84)";
+        let shadow = "rgba(255,255,255,0.14)";
+
+        if (seg.kind === "accent") {
+          fillA = "rgba(40,220,255,0.95)";
+          fillB = "rgba(0,150,255,0.85)";
+          shadow = "rgba(0,180,255,0.45)";
+        }
+
         const g = ctx.createLinearGradient(-len / 2, 0, len / 2, 0);
-        g.addColorStop(0, "rgba(255,255,255,0.98)");
-        g.addColorStop(1, "rgba(214,214,214,0.84)");
+        g.addColorStop(0, fillA);
+        g.addColorStop(1, fillB);
 
         ctx.fillStyle = g;
-        ctx.shadowColor = "rgba(255,255,255,0.14)";
-        ctx.shadowBlur = 10;
+        ctx.shadowColor = shadow;
+        ctx.shadowBlur = seg.kind === "accent" ? 18 : 10;
         ctx.fillRect(-len / 2, -(seg.thickness * camera.zoom) / 2, len, seg.thickness * camera.zoom);
         ctx.shadowBlur = 0;
         ctx.restore();
@@ -917,14 +953,17 @@
         if (r < 1) return;
 
         const g = ctx.createRadialGradient(p.x - r * 0.35, p.y - r * 0.35, r * 0.12, p.x, p.y, r);
-        g.addColorStop(0, "#ffffff");
-        g.addColorStop(0.55, "#d8d8d8");
-        g.addColorStop(1, "#8a8a8a");
+        g.addColorStop(0, "#7ef2ff");
+        g.addColorStop(0.6, "#25cfff");
+        g.addColorStop(1, "#0e8fff");
 
         ctx.beginPath();
         ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
         ctx.fillStyle = g;
+        ctx.shadowColor = "rgba(0,180,255,0.45)";
+        ctx.shadowBlur = 12;
         ctx.fill();
+        ctx.shadowBlur = 0;
       }
 
       function drawLaunchPad(pad, now) {
@@ -977,13 +1016,13 @@
         ctx.lineWidth = Math.max(1, r * 0.08);
         ctx.stroke();
 
-        if (camera.zoom > 0.22 && balls.length <= 300) {
+        if (camera.zoom > 0.24 && balls.length <= 250) {
           ctx.translate(p.x, p.y);
           ctx.rotate(ball.angle);
           ctx.fillStyle = "#111";
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
-          ctx.font = `900 ${Math.max(9, r * 0.52)}px Malgun Gothic, sans-serif`;
+          ctx.font = `900 ${Math.max(8, r * 0.5)}px Malgun Gothic, sans-serif`;
           let txt = ball.name;
           if (txt.length > 3) txt = txt.slice(0, 3);
           ctx.fillText(txt, 0, 0);
@@ -1055,11 +1094,11 @@
         const my = y => pad + (y - WORLD_TOP) * scale;
 
         miniCtx.fillStyle = "#101010";
-        miniCtx.fillRect(mx(260), my(WORLD_TOP), (WORLD_W - 520) * scale, (WORLD_BOTTOM - WORLD_TOP) * scale);
+        miniCtx.fillRect(mx(LEFT_LIMIT), my(WORLD_TOP), (RIGHT_LIMIT - LEFT_LIMIT) * scale, (WORLD_BOTTOM - WORLD_TOP) * scale);
 
-        miniCtx.strokeStyle = "rgba(255,255,255,0.88)";
-        miniCtx.lineWidth = 1;
         for (const seg of segments) {
+          miniCtx.strokeStyle = seg.kind === "accent" ? "rgba(60,220,255,0.95)" : "rgba(255,255,255,0.88)";
+          miniCtx.lineWidth = 1;
           miniCtx.beginPath();
           miniCtx.moveTo(mx(seg.x1), my(seg.y1));
           miniCtx.lineTo(mx(seg.x2), my(seg.y2));
@@ -1073,7 +1112,7 @@
           miniCtx.stroke();
         }
 
-        miniCtx.fillStyle = "rgba(255,255,255,0.55)";
+        miniCtx.fillStyle = "rgba(60,220,255,0.8)";
         for (const peg of pegs) {
           miniCtx.beginPath();
           miniCtx.arc(mx(peg.x), my(peg.y), Math.max(0.8, peg.r * scale), 0, Math.PI * 2);
