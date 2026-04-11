@@ -13,12 +13,12 @@
       height: 100%;
       overflow: hidden;
       font-family: "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+      color: #fff;
       background:
         radial-gradient(circle at 50% 8%, rgba(255,255,255,0.08), transparent 16%),
         radial-gradient(circle at 15% 50%, rgba(255,255,255,0.03), transparent 20%),
         radial-gradient(circle at 85% 50%, rgba(255,255,255,0.03), transparent 20%),
         #000;
-      color: #fff;
     }
 
     #app {
@@ -27,18 +27,17 @@
       display: flex;
       gap: 16px;
       padding: 16px;
-      background: transparent;
     }
 
     .panel {
-      background: rgba(140, 140, 140, 0.18);
-      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(140, 140, 140, 0.15);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 20px;
       box-shadow:
-        inset 0 0 0 1px rgba(255,255,255,0.04),
-        0 0 24px rgba(255,255,255,0.05);
-      backdrop-filter: blur(7px);
-      -webkit-backdrop-filter: blur(7px);
-      border-radius: 18px;
+        inset 0 0 0 1px rgba(255,255,255,0.03),
+        0 0 24px rgba(255,255,255,0.04);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
     }
 
     #leftPanel {
@@ -46,7 +45,8 @@
       display: flex;
       flex-direction: column;
       gap: 14px;
-      z-index: 10;
+      flex-shrink: 0;
+      z-index: 20;
     }
 
     #miniPanel {
@@ -55,18 +55,18 @@
     }
 
     #miniTitle {
-      font-weight: 800;
-      margin-bottom: 8px;
+      font-weight: 900;
       font-size: 15px;
+      margin-bottom: 8px;
     }
 
     #miniMap {
       width: 100%;
       height: 195px;
       display: block;
+      background: #060606;
+      border: 1px solid rgba(255,255,255,0.14);
       border-radius: 12px;
-      background: #0b0b0b;
-      border: 1px solid rgba(255,255,255,0.12);
     }
 
     #controlPanel {
@@ -80,7 +80,7 @@
 
     .label {
       font-size: 13px;
-      color: #d4d4d4;
+      color: #d5d5d5;
       margin-bottom: 6px;
       font-weight: 700;
     }
@@ -91,10 +91,10 @@
       outline: none;
       border-radius: 12px;
       background: rgba(255,255,255,0.08);
-      color: white;
+      color: #fff;
       padding: 12px;
       font-size: 15px;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.07);
     }
 
     textarea {
@@ -111,7 +111,7 @@
       border: none;
       border-radius: 14px;
       cursor: pointer;
-      color: white;
+      color: #fff;
       font-weight: 900;
       background: linear-gradient(180deg, rgba(255,255,255,0.18), rgba(255,255,255,0.08));
       box-shadow:
@@ -137,43 +137,47 @@
     #hint {
       white-space: pre-line;
       font-size: 12px;
-      color: #dcdcdc;
       line-height: 1.45;
+      color: #dbdbdb;
       opacity: 0.92;
     }
 
     #rightWrap {
-      flex: 1;
       position: relative;
-      border-radius: 22px;
+      flex: 1;
       overflow: hidden;
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,0.10);
       background:
-        radial-gradient(circle at 50% 8%, rgba(255,255,255,0.06), transparent 16%),
-        #050505;
-      border: 1px solid rgba(255,255,255,0.12);
+        radial-gradient(circle at 50% 6%, rgba(255,255,255,0.06), transparent 14%),
+        #040404;
       box-shadow:
-        inset 0 0 0 1px rgba(255,255,255,0.03),
-        0 0 30px rgba(255,255,255,0.04);
+        inset 0 0 0 1px rgba(255,255,255,0.02),
+        0 0 28px rgba(255,255,255,0.03);
     }
 
-    #scene {
+    #scene, #labelOverlay {
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
       display: block;
-      background: transparent;
+    }
+
+    #labelOverlay {
+      pointer-events: none;
+      z-index: 5;
     }
 
     #rankBoard {
       position: absolute;
       top: 16px;
       right: 16px;
-      width: 220px;
+      width: 190px;
       max-height: calc(100% - 32px);
       overflow: auto;
       padding: 14px;
-      z-index: 20;
+      z-index: 10;
     }
 
     #rankBoardTitle {
@@ -183,8 +187,8 @@
     }
 
     #rankText {
-      line-height: 1.6;
       font-size: 17px;
+      line-height: 1.6;
       font-weight: 800;
     }
 
@@ -193,12 +197,12 @@
       left: 50%;
       bottom: 18px;
       transform: translateX(-50%);
-      z-index: 20;
+      z-index: 10;
       padding: 14px 22px;
       border-radius: 999px;
       background: rgba(255,255,255,0.10);
       border: 1px solid rgba(255,255,255,0.24);
-      box-shadow: 0 0 24px rgba(255,255,255,0.10);
+      box-shadow: 0 0 22px rgba(255,255,255,0.10);
       font-size: 34px;
       font-weight: 900;
       opacity: 0;
@@ -214,16 +218,16 @@
       position: absolute;
       left: 16px;
       bottom: 16px;
+      z-index: 10;
       padding: 10px 14px;
-      z-index: 20;
       font-size: 13px;
     }
 
-    @media (max-width: 900px) {
-      #app { padding: 10px; gap: 10px; }
+    @media (max-width: 920px) {
+      #app { gap: 10px; padding: 10px; }
       #leftPanel { width: 280px; }
+      #rankBoard { width: 170px; }
       #winnerBanner { font-size: 24px; }
-      #rankBoard { width: 180px; }
     }
   </style>
 </head>
@@ -238,7 +242,7 @@
       <div id="controlPanel" class="panel">
         <div>
           <div class="label">이름 입력 (쉼표로 구분, 중복 가능)</div>
-          <textarea id="namesInput">지,원,민수,지,은지,승호,수지,원,민수,하람,지우,지훈,은지,도윤,예린</textarea>
+          <textarea id="namesInput">1,2,3,4,5,6,7,8,9,10,11,12</textarea>
         </div>
 
         <div>
@@ -258,6 +262,7 @@
 
     <div id="rightWrap">
       <canvas id="scene"></canvas>
+      <canvas id="labelOverlay"></canvas>
 
       <div id="rankBoard" class="panel">
         <div id="rankBoardTitle">현재 순위</div>
@@ -277,16 +282,17 @@
       }
 
       const {
-        Engine, World, Bodies, Body, Composite, Events
+        Engine, Render, Runner, World, Bodies, Body, Composite, Events
       } = Matter;
 
+      const rightWrap = document.getElementById("rightWrap");
       const scene = document.getElementById("scene");
-      const ctx = scene.getContext("2d");
+      const labelOverlay = document.getElementById("labelOverlay");
+      const labelCtx = labelOverlay.getContext("2d");
 
       const miniMap = document.getElementById("miniMap");
       const miniCtx = miniMap.getContext("2d");
 
-      const rightWrap = document.getElementById("rightWrap");
       const namesInput = document.getElementById("namesInput");
       const targetInput = document.getElementById("targetInput");
       const shuffleBtn = document.getElementById("shuffleBtn");
@@ -295,29 +301,21 @@
       const winnerBanner = document.getElementById("winnerBanner");
       const statusBar = document.getElementById("statusBar");
 
-      let viewW = 0;
-      let viewH = 0;
-
       const engine = Engine.create();
-      engine.gravity.x = 0;
-      engine.gravity.y = 1.0;
+      engine.gravity.y = 1;
       engine.gravity.scale = 0.0018;
       const world = engine.world;
 
-      const WORLD_W = 2200;
-      const WORLD_H = 11000;
+      const WORLD_W = 1800;
+      const WORLD_H = 11800;
 
-      const camera = {
-        x: WORLD_W / 2,
-        y: 800,
-        zoom: 0.12,
-        targetZoom: 0.12
-      };
+      let render;
+      let runner;
 
-      const walls = [];
-      const pegs = [];
-      const spinners = [];
-      const sensors = [];
+      let walls = [];
+      let pegs = [];
+      let spinners = [];
+      let sensors = [];
       let balls = [];
       let rankings = [];
       let shuffledNames = [];
@@ -325,15 +323,7 @@
       let targetRank = 10;
       let winnerInfo = null;
 
-      function resize() {
-        const rect = rightWrap.getBoundingClientRect();
-        viewW = Math.max(100, Math.floor(rect.width));
-        viewH = Math.max(100, Math.floor(rect.height));
-        scene.width = viewW;
-        scene.height = viewH;
-      }
-      window.addEventListener("resize", resize);
-      resize();
+      const ballColors = ["#ffffff","#ededed","#d8d8d8","#f4f4f4","#cccccc","#e6e6e6"];
 
       function escapeHtml(s) {
         return s.replace(/[&<>"']/g, ch => ({
@@ -361,68 +351,118 @@
         return a;
       }
 
+      function resizeCanvases() {
+        const rect = rightWrap.getBoundingClientRect();
+        scene.width = Math.max(100, Math.floor(rect.width));
+        scene.height = Math.max(100, Math.floor(rect.height));
+        labelOverlay.width = scene.width;
+        labelOverlay.height = scene.height;
+
+        if (render) {
+          render.canvas.width = scene.width;
+          render.canvas.height = scene.height;
+          render.options.width = scene.width;
+          render.options.height = scene.height;
+        }
+      }
+
+      function makeRender() {
+        resizeCanvases();
+
+        render = Render.create({
+          engine,
+          canvas: scene,
+          options: {
+            width: scene.width,
+            height: scene.height,
+            wireframes: false,
+            background: "transparent",
+            hasBounds: true,
+            showSleeping: false
+          }
+        });
+
+        runner = Runner.create();
+        Render.run(render);
+        Runner.run(runner, engine);
+      }
+
       function clearWorld() {
         const all = Composite.allBodies(world);
         for (const body of all) {
           World.remove(world, body);
         }
-        walls.length = 0;
-        pegs.length = 0;
-        spinners.length = 0;
-        sensors.length = 0;
+        walls = [];
+        pegs = [];
+        spinners = [];
+        sensors = [];
         balls = [];
         rankings = [];
         started = false;
         winnerInfo = null;
-        rankText.innerHTML = "아직 시작 전";
-        winnerBanner.textContent = "";
         winnerBanner.classList.remove("show");
+        winnerBanner.textContent = "";
+        rankText.innerHTML = "아직 시작 전";
         statusBar.textContent = "대기 중";
       }
 
-      function addWall(x1, y1, x2, y2, thickness = 24, extra = {}) {
+      function addWall(x1, y1, x2, y2, thickness = 22, style = {}) {
         const dx = x2 - x1;
         const dy = y2 - y1;
         const len = Math.hypot(dx, dy);
         const angle = Math.atan2(dy, dx);
 
-        const body = Bodies.rectangle((x1+x2)/2, (y1+y2)/2, len, thickness, {
+        const body = Bodies.rectangle((x1 + x2) / 2, (y1 + y2) / 2, len, thickness, {
           isStatic: true,
           restitution: 0.18,
           friction: 0.15,
-          renderKind: "wall",
-          chamfer: { radius: Math.min(10, thickness / 2) },
-          ...extra
+          chamfer: { radius: Math.min(8, thickness / 2) },
+          render: {
+            fillStyle: style.fillStyle || "#efefef",
+            strokeStyle: style.strokeStyle || "#ffffff",
+            lineWidth: style.lineWidth || 1
+          }
         });
 
         Body.setAngle(body, angle);
         body._p1 = { x: x1, y: y1 };
         body._p2 = { x: x2, y: y2 };
+        body.kind = style.kind || "wall";
         walls.push(body);
         World.add(world, body);
         return body;
       }
 
-      function addPeg(x, y, r = 18) {
+      function addPeg(x, y, r = 15) {
         const body = Bodies.circle(x, y, r, {
           isStatic: true,
-          restitution: 0.86,
+          restitution: 0.87,
           friction: 0.01,
-          renderKind: "peg"
+          render: {
+            fillStyle: "#d9d9d9",
+            strokeStyle: "#ffffff",
+            lineWidth: 1
+          }
         });
+        body.kind = "peg";
         pegs.push(body);
         World.add(world, body);
         return body;
       }
 
-      function addSpinner(x, y, length, thickness, speed) {
+      function addSpinner(x, y, length = 220, thickness = 16, speed = 0.03) {
         const body = Bodies.rectangle(x, y, length, thickness, {
           isStatic: true,
           restitution: 0.75,
           friction: 0.02,
-          renderKind: "spinner"
+          render: {
+            fillStyle: "#f5f5f5",
+            strokeStyle: "#ffffff",
+            lineWidth: 1
+          }
         });
         body.spinSpeed = speed;
+        body.kind = "spinner";
         spinners.push(body);
         World.add(world, body);
         return body;
@@ -432,9 +472,14 @@
         const body = Bodies.rectangle(x, y, w, h, {
           isStatic: true,
           isSensor: true,
-          renderKind: "sensor"
+          render: {
+            fillStyle: "rgba(255,255,255,0.08)",
+            strokeStyle: "#ffffff",
+            lineWidth: 1
+          }
         });
         body.sensorLabel = label;
+        body.kind = "sensor";
         sensors.push(body);
         World.add(world, body);
         return body;
@@ -443,110 +488,119 @@
       function buildMap() {
         clearWorld();
 
-        addWall(220, 120, 220, WORLD_H - 220, 34);
-        addWall(WORLD_W - 220, 120, WORLD_W - 220, WORLD_H - 220, 34);
-        addWall(220, 120, WORLD_W - 220, 120, 34);
+        addWall(210, 100, 210, WORLD_H - 150, 30);
+        addWall(WORLD_W - 210, 100, WORLD_W - 210, WORLD_H - 150, 30);
+        addWall(210, 100, WORLD_W - 210, 100, 30);
 
-        addWall(360, 480, 820, 680, 18);
-        addWall(930, 580, 1280, 580, 18);
-        addWall(1370, 580, 1720, 580, 18);
-        addWall(1820, 680, WORLD_W - 360, 480, 18);
+        // 시작부 - 사이트 느낌 비슷한 세로형 판 구조
+        addWall(300, 520, 760, 700, 18);
+        addWall(910, 620, 1330, 620, 18);
+        addWall(1460, 700, 1500, 700, 18);
 
-        addWall(320, 1050, 960, 1220, 26);
-        addWall(1240, 1220, 1880, 1050, 26);
-        addWall(940, 1450, 620, 1820, 22);
-        addWall(1260, 1450, 1580, 1820, 22);
+        addWall(320, 980, 900, 1160, 22);
+        addWall(1490, 1010, 900, 1240, 22);
 
-        addWall(420, 2200, 900, 2520, 24);
-        addWall(1780, 2200, 1300, 2520, 24);
-        addWall(920, 2520, 1080, 2920, 18);
-        addWall(1280, 2520, 1120, 2920, 18);
+        addWall(340, 1500, 760, 1780, 20);
+        addWall(1450, 1500, 1030, 1780, 20);
+        addWall(760, 1780, 880, 2140, 16);
+        addWall(1030, 1780, 910, 2140, 16);
 
-        addWall(280, 3250, 860, 3380, 24);
-        addWall(1030, 3470, 1610, 3310, 24);
-        addWall(1820, 3370, 1920, 3370, 24);
+        addWall(300, 2470, 760, 2600, 20);
+        addWall(930, 2740, 1500, 2550, 20);
+        addWall(380, 3000, 860, 3330, 18);
+        addWall(1420, 3020, 940, 3370, 18);
 
-        addWall(340, 4100, 1020, 4340, 24);
-        addWall(1850, 4140, 1160, 4480, 24);
-        addWall(520, 4780, 1040, 5100, 22);
-        addWall(1680, 4800, 1160, 5150, 22);
+        addWall(300, 3700, 790, 3920, 20);
+        addWall(1500, 3730, 1010, 4020, 20);
+        addWall(640, 4240, 930, 4540, 16);
+        addWall(1170, 4240, 880, 4540, 16);
 
-        addWall(330, 5650, 800, 5980, 22);
-        addWall(1870, 5650, 1400, 5980, 22);
-        addWall(820, 5980, 1100, 6400, 18);
-        addWall(1380, 5980, 1100, 6400, 18);
+        addWall(320, 4870, 900, 5090, 22);
+        addWall(1480, 4900, 900, 5160, 22);
 
-        addWall(280, 6800, 980, 6950, 24);
-        addWall(1240, 7070, 1920, 6880, 24);
-        addWall(460, 7480, 900, 7860, 20);
-        addWall(1760, 7480, 1320, 7860, 20);
+        addWall(300, 5530, 760, 5820, 18);
+        addWall(1500, 5530, 1040, 5820, 18);
+        addWall(450, 6170, 860, 6420, 18);
+        addWall(1350, 6170, 940, 6420, 18);
 
-        addWall(360, 8280, 980, 8460, 24);
-        addWall(1820, 8360, 1200, 8560, 24);
-        addWall(630, 8840, 1140, 9150, 20);
-        addWall(1570, 8840, 1060, 9150, 20);
+        addWall(300, 6820, 760, 6960, 20);
+        addWall(980, 7130, 1500, 6910, 20);
+        addWall(300, 7450, 820, 7760, 18);
+        addWall(1500, 7450, 980, 7760, 18);
 
-        addWall(300, 9600, 960, 9800, 24);
-        addWall(1240, 9920, 1900, 9700, 24);
-        addWall(870, 10180, 870, 10650, 16);
-        addWall(1330, 10180, 1330, 10650, 16);
+        addWall(300, 8160, 760, 8400, 20);
+        addWall(1500, 8160, 1040, 8400, 20);
+        addWall(780, 8400, 910, 8780, 16);
+        addWall(1020, 8400, 890, 8780, 16);
 
-        addWall(860, 10680, 1090, 10960, 18);
-        addWall(1340, 10680, 1110, 10960, 18);
+        addWall(300, 9140, 920, 9380, 22);
+        addWall(1500, 9140, 880, 9440, 22);
 
-        addSensor(1100, 10880, 220, 70, "finish");
+        addWall(380, 9850, 870, 10120, 18);
+        addWall(1420, 9850, 930, 10120, 18);
 
-        for (let y = 1200; y <= 10000; y += 420) {
-          const cols = (y % 840 === 0) ? 8 : 7;
-          const offset = (cols === 8) ? 0 : 90;
+        addWall(820, 10300, 820, 10740, 14);
+        addWall(980, 10300, 980, 10740, 14);
+
+        addWall(820, 10740, 900, 10920, 14);
+        addWall(980, 10740, 900, 10920, 14);
+
+        addSensor(900, 11020, 160, 80, "finish");
+
+        // 핀
+        for (let y = 1250; y <= 10100; y += 430) {
+          const rowIndex = Math.floor((y - 1250) / 430);
+          const cols = rowIndex % 2 === 0 ? 7 : 6;
+          const startX = cols === 7 ? 420 : 510;
           for (let i = 0; i < cols; i++) {
-            const x = 480 + i * 180 + offset;
-            if (x > 320 && x < WORLD_W - 320) {
-              addPeg(x, y, 16 + ((i + Math.floor(y/420)) % 3) * 2);
-            }
+            addPeg(startX + i * 150, y, 13 + ((i + rowIndex) % 2) * 2);
           }
         }
 
-        addSpinner(1100, 1780, 220, 16, 0.03);
-        addSpinner(620, 3600, 220, 16, -0.028);
-        addSpinner(1590, 3600, 220, 16, 0.028);
-        addSpinner(1100, 5450, 260, 16, -0.03);
-        addSpinner(1100, 7340, 240, 16, 0.03);
-        addSpinner(730, 9380, 220, 16, -0.028);
-        addSpinner(1470, 9380, 220, 16, 0.028);
+        // 회전 장애물
+        addSpinner(900, 2280, 210, 14, 0.03);
+        addSpinner(620, 4520, 200, 14, -0.028);
+        addSpinner(1180, 4520, 200, 14, 0.028);
+        addSpinner(900, 6620, 230, 14, -0.03);
+        addSpinner(900, 8840, 230, 14, 0.03);
 
-        addWall(220, WORLD_H - 220, 980, WORLD_H - 220, 24, { renderKind: "hidden" });
-        addWall(1220, WORLD_H - 220, WORLD_W - 220, WORLD_H - 220, 24, { renderKind: "hidden" });
+        // 바닥 유도
+        addWall(210, WORLD_H - 150, 760, WORLD_H - 150, 20, { kind: "hidden", fillStyle: "#000000" });
+        addWall(1040, WORLD_H - 150, WORLD_W - 210, WORLD_H - 150, 20, { kind: "hidden", fillStyle: "#000000" });
       }
 
       function buildBalls(names) {
-        const r = 38;
-        const gap = 96;
+        const r = 34;
+        const gap = 88;
         const totalWidth = (names.length - 1) * gap;
         const startX = WORLD_W / 2 - totalWidth / 2;
-        const startY = 260;
+        const startY = 250;
 
         balls = names.map((name, i) => {
-          const body = Bodies.circle(startX + i * gap, startY, r, {
+          const b = Bodies.circle(startX + i * gap, startY, r, {
             isStatic: true,
             restitution: 0.58,
             friction: 0.01,
             frictionAir: 0.0008,
             density: 0.0025,
-            renderKind: "ball"
+            render: {
+              fillStyle: ballColors[i % ballColors.length],
+              strokeStyle: "#ffffff",
+              lineWidth: 1.2
+            }
           });
-          body.ballName = name;
-          body.ballColor = ["#ffffff","#efefef","#dedede","#f6f6f6","#d0d0d0"][i % 5];
-          body.finished = false;
-          body.finishOrder = 0;
-          World.add(world, body);
-          return body;
+          b.ballName = name;
+          b.finished = false;
+          b.finishOrder = 0;
+          balls.push(b);
+          World.add(world, b);
+          return b;
         });
       }
 
       function rebuildGame(useCurrentShuffle) {
         targetRank = Math.max(1, parseInt(targetInput.value || "1", 10));
-        const rawNames = parseNames().length ? parseNames() : ["이름없음"];
+        const rawNames = parseNames().length ? parseNames() : ["1", "2", "3", "4", "5"];
 
         if (!useCurrentShuffle || shuffledNames.length !== rawNames.length) {
           shuffledNames = [...rawNames];
@@ -555,46 +609,12 @@
         buildMap();
         buildBalls(shuffledNames);
 
-        camera.x = WORLD_W / 2;
-        camera.y = 900;
-        camera.zoom = 0.11;
-        camera.targetZoom = 0.11;
+        // 시작 전 전체 맵이 확실히 보이게
+        Render.lookAt(render, {
+          min: { x: 0, y: 0 },
+          max: { x: WORLD_W, y: 2500 }
+        }, { x: 40, y: 40 });
       }
-
-      function shuffleNames() {
-        const raw = parseNames().length ? parseNames() : ["이름없음"];
-        shuffledNames = shuffleArray(raw);
-        rebuildGame(true);
-        statusBar.textContent = "셔플 완료";
-      }
-
-      function startGame() {
-        if (started) return;
-        started = true;
-        camera.targetZoom = 0.34;
-        statusBar.textContent = "시작! 가장 앞선 공 추적 중";
-
-        for (const b of balls) {
-          Body.setStatic(b, false);
-          Body.setVelocity(b, {
-            x: (Math.random() - 0.5) * 0.8,
-            y: 0.25 + Math.random() * 0.15
-          });
-          Body.setAngularVelocity(b, (Math.random() - 0.5) * 0.035);
-        }
-      }
-
-      shuffleBtn.addEventListener("click", shuffleNames);
-      startBtn.addEventListener("click", startGame);
-
-      namesInput.addEventListener("change", () => {
-        shuffledNames = parseNames();
-        rebuildGame(true);
-      });
-
-      targetInput.addEventListener("change", () => {
-        targetRank = Math.max(1, parseInt(targetInput.value || "1", 10));
-      });
 
       function updateRankBoard() {
         if (!rankings.length) {
@@ -605,6 +625,161 @@
           .slice(0, 15)
           .map((b, i) => `${i + 1}등: ${escapeHtml(b.ballName)}`)
           .join("<br>");
+      }
+
+      function doShuffle() {
+        const raw = parseNames().length ? parseNames() : ["1","2","3","4","5"];
+        shuffledNames = shuffleArray(raw);
+        rebuildGame(true);
+        statusBar.textContent = "셔플 완료";
+        updateRankBoard();
+      }
+
+      function startGame() {
+        if (started) return;
+        started = true;
+        statusBar.textContent = "시작! 가장 앞선 공 추적 중";
+        for (const b of balls) {
+          Body.setStatic(b, false);
+          Body.setVelocity(b, {
+            x: (Math.random() - 0.5) * 0.7,
+            y: 0.2 + Math.random() * 0.12
+          });
+          Body.setAngularVelocity(b, (Math.random() - 0.5) * 0.03);
+        }
+      }
+
+      function getLeaderBall() {
+        let leader = null;
+        let maxY = -Infinity;
+        for (const b of balls) {
+          if (!b.finished && b.position.y > maxY) {
+            maxY = b.position.y;
+            leader = b;
+          }
+        }
+        return leader || balls.find(b => b.finished) || balls[0] || null;
+      }
+
+      function updateCamera() {
+        if (!started || !render) return;
+        const leader = getLeaderBall();
+        if (!leader) return;
+
+        const viewHeight = 1800;
+        const viewWidth = 1200;
+        const cx = Math.max(450, Math.min(WORLD_W - 450, leader.position.x));
+        const cy = Math.max(650, Math.min(WORLD_H - 650, leader.position.y));
+
+        Render.lookAt(render, {
+          min: { x: cx - viewWidth / 2, y: cy - viewHeight / 2 },
+          max: { x: cx + viewWidth / 2, y: cy + viewHeight / 2 }
+        }, { x: 80, y: 80 });
+      }
+
+      function updateSpinners() {
+        for (const s of spinners) {
+          Body.setAngle(s, s.angle + s.spinSpeed);
+        }
+      }
+
+      function constrainBalls() {
+        for (const b of balls) {
+          if (b.position.x < 240) Body.setPosition(b, { x: 240, y: b.position.y });
+          if (b.position.x > WORLD_W - 240) Body.setPosition(b, { x: WORLD_W - 240, y: b.position.y });
+
+          if (started && !b.finished && b.position.y > 10700) {
+            const dx = 900 - b.position.x;
+            Body.applyForce(b, b.position, { x: dx * 0.0000012, y: 0.0000015 });
+          }
+        }
+      }
+
+      function drawLabels() {
+        labelCtx.clearRect(0, 0, labelOverlay.width, labelOverlay.height);
+        if (!render) return;
+
+        const bounds = render.bounds;
+        const scaleX = labelOverlay.width / (bounds.max.x - bounds.min.x);
+        const scaleY = labelOverlay.height / (bounds.max.y - bounds.min.y);
+
+        for (const b of balls) {
+          const sx = (b.position.x - bounds.min.x) * scaleX;
+          const sy = (b.position.y - bounds.min.y) * scaleY;
+          const rr = b.circleRadius * ((scaleX + scaleY) * 0.5);
+
+          if (sx < -rr || sx > labelOverlay.width + rr || sy < -rr || sy > labelOverlay.height + rr) continue;
+
+          labelCtx.save();
+          labelCtx.translate(sx, sy);
+          labelCtx.rotate(b.angle);
+          labelCtx.textAlign = "center";
+          labelCtx.textBaseline = "middle";
+          labelCtx.fillStyle = "#111";
+          labelCtx.font = `900 ${Math.max(9, rr * 0.55)}px Malgun Gothic, sans-serif`;
+          let txt = b.ballName;
+          if (txt.length > 3) txt = txt.slice(0, 3);
+          labelCtx.fillText(txt, 0, 0);
+          labelCtx.restore();
+
+          if (b.finished) {
+            labelCtx.beginPath();
+            labelCtx.arc(sx, sy, rr + 4, 0, Math.PI * 2);
+            labelCtx.strokeStyle = "rgba(255,255,255,0.95)";
+            labelCtx.lineWidth = 2;
+            labelCtx.stroke();
+          }
+        }
+      }
+
+      function drawMiniMap() {
+        const mw = miniMap.width;
+        const mh = miniMap.height;
+        miniCtx.clearRect(0, 0, mw, mh);
+        miniCtx.fillStyle = "#050505";
+        miniCtx.fillRect(0, 0, mw, mh);
+
+        const pad = 8;
+        const scale = Math.min((mw - pad * 2) / WORLD_W, (mh - pad * 2) / WORLD_H);
+
+        function mx(x) { return pad + x * scale; }
+        function my(y) { return pad + y * scale; }
+
+        miniCtx.strokeStyle = "rgba(255,255,255,0.90)";
+        miniCtx.lineWidth = 1;
+        for (const w of walls) {
+          if (w.kind === "hidden") continue;
+          miniCtx.beginPath();
+          miniCtx.moveTo(mx(w._p1.x), my(w._p1.y));
+          miniCtx.lineTo(mx(w._p2.x), my(w._p2.y));
+          miniCtx.stroke();
+        }
+
+        miniCtx.fillStyle = "rgba(255,255,255,0.6)";
+        for (const p of pegs) {
+          miniCtx.beginPath();
+          miniCtx.arc(mx(p.position.x), my(p.position.y), Math.max(0.8, p.circleRadius * scale), 0, Math.PI * 2);
+          miniCtx.fill();
+        }
+
+        for (const b of balls) {
+          miniCtx.beginPath();
+          miniCtx.fillStyle = b.finished ? "#ffffff" : "#d0d0d0";
+          miniCtx.arc(mx(b.position.x), my(b.position.y), Math.max(1.2, b.circleRadius * scale), 0, Math.PI * 2);
+          miniCtx.fill();
+        }
+
+        if (render) {
+          const bounds = render.bounds;
+          miniCtx.strokeStyle = "rgba(255,255,255,0.95)";
+          miniCtx.lineWidth = 1.2;
+          miniCtx.strokeRect(
+            mx(bounds.min.x),
+            my(bounds.min.y),
+            (bounds.max.x - bounds.min.x) * scale,
+            (bounds.max.y - bounds.min.y) * scale
+          );
+        }
       }
 
       Events.on(engine, "collisionStart", event => {
@@ -635,232 +810,42 @@
         updateRankBoard();
       }
 
-      function getLeaderBall() {
-        let leader = null;
-        let maxY = -Infinity;
-        for (const b of balls) {
-          if (!b.finished && b.position.y > maxY) {
-            maxY = b.position.y;
-            leader = b;
-          }
-        }
-        return leader || balls.find(b => b.finished) || balls[0] || null;
-      }
-
-      function updateCamera() {
-        const leader = getLeaderBall();
-        if (!leader) return;
-
-        camera.zoom += (camera.targetZoom - camera.zoom) * 0.03;
-        camera.x += (leader.position.x - camera.x) * 0.08;
-        camera.y += (leader.position.y - camera.y) * 0.08;
-
-        const halfW = viewW / camera.zoom / 2;
-        const halfH = viewH / camera.zoom / 2;
-
-        camera.x = Math.max(220 + halfW * 0.4, Math.min(WORLD_W - 220 - halfW * 0.4, camera.x));
-        camera.y = Math.max(halfH + 80, Math.min(WORLD_H - halfH - 80, camera.y));
-      }
-
-      function updateSpinners() {
-        for (const s of spinners) {
-          Body.setAngle(s, s.angle + s.spinSpeed);
-        }
-      }
-
-      function constrainBalls() {
-        for (const b of balls) {
-          if (b.position.x < 240) Body.setPosition(b, { x: 240, y: b.position.y });
-          if (b.position.x > WORLD_W - 240) Body.setPosition(b, { x: WORLD_W - 240, y: b.position.y });
-
-          if (started && !b.finished && b.position.y > 10000) {
-            const dx = 1100 - b.position.x;
-            Body.applyForce(b, b.position, { x: dx * 0.000001, y: 0.000002 });
-          }
-        }
-      }
-
-      function worldToScreen(x, y) {
-        return {
-          x: (x - camera.x) * camera.zoom + viewW / 2,
-          y: (y - camera.y) * camera.zoom + viewH / 2
-        };
-      }
-
-      function drawBackground() {
-        ctx.clearRect(0, 0, viewW, viewH);
-
-        const glow = ctx.createRadialGradient(viewW/2, 80, 10, viewW/2, 80, viewH*0.75);
-        glow.addColorStop(0, "rgba(255,255,255,0.07)");
-        glow.addColorStop(1, "rgba(255,255,255,0)");
-        ctx.fillStyle = glow;
-        ctx.fillRect(0, 0, viewW, viewH);
-      }
-
-      function drawPolygon(body, fillA, fillB) {
-        const verts = body.vertices.map(v => worldToScreen(v.x, v.y));
-        ctx.beginPath();
-        ctx.moveTo(verts[0].x, verts[0].y);
-        for (let i = 1; i < verts.length; i++) ctx.lineTo(verts[i].x, verts[i].y);
-        ctx.closePath();
-
-        const grad = ctx.createLinearGradient(verts[0].x, verts[0].y, verts[2].x, verts[2].y);
-        grad.addColorStop(0, fillA);
-        grad.addColorStop(1, fillB);
-
-        ctx.fillStyle = grad;
-        ctx.shadowColor = "rgba(255,255,255,0.16)";
-        ctx.shadowBlur = 12;
-        ctx.fill();
-        ctx.shadowBlur = 0;
-      }
-
-      function drawWall(body) {
-        if (body.renderKind === "hidden") return;
-        drawPolygon(body, "rgba(255,255,255,0.98)", "rgba(214,214,214,0.84)");
-      }
-
-      function drawPeg(body) {
-        const p = worldToScreen(body.position.x, body.position.y);
-        const r = body.circleRadius * camera.zoom;
-        if (r < 1) return;
-
-        const g = ctx.createRadialGradient(p.x - r*0.35, p.y - r*0.4, r*0.1, p.x, p.y, r);
-        g.addColorStop(0, "#ffffff");
-        g.addColorStop(0.5, "#dadada");
-        g.addColorStop(1, "#8b8b8b");
-
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
-        ctx.fillStyle = g;
-        ctx.fill();
-      }
-
-      function drawBall(body) {
-        const p = worldToScreen(body.position.x, body.position.y);
-        const r = body.circleRadius * camera.zoom;
-        if (p.x < -r*3 || p.x > viewW + r*3 || p.y < -r*3 || p.y > viewH + r*3) return;
-
-        const g = ctx.createRadialGradient(p.x - r*0.35, p.y - r*0.45, r*0.12, p.x, p.y, r);
-        g.addColorStop(0, "#ffffff");
-        g.addColorStop(0.45, body.ballColor);
-        g.addColorStop(1, "#777");
-
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
-        ctx.fillStyle = g;
-        ctx.shadowColor = "rgba(255,255,255,0.18)";
-        ctx.shadowBlur = 16;
-        ctx.fill();
-        ctx.shadowBlur = 0;
-        ctx.strokeStyle = "rgba(0,0,0,0.45)";
-        ctx.lineWidth = Math.max(1, r * 0.08);
-        ctx.stroke();
-
-        ctx.translate(p.x, p.y);
-        ctx.rotate(body.angle);
-        ctx.fillStyle = "#111";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.font = `900 ${Math.max(9, r * 0.42)}px Malgun Gothic, sans-serif`;
-        let txt = body.ballName;
-        if (txt.length > 3) txt = txt.slice(0, 3);
-        ctx.fillText(txt, 0, 0);
-        ctx.restore();
-
-        if (body.finished) {
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, r + 4, 0, Math.PI * 2);
-          ctx.strokeStyle = "rgba(255,255,255,0.9)";
-          ctx.lineWidth = Math.max(2, r * 0.08);
-          ctx.stroke();
-        }
-      }
-
-      function drawWorld() {
-        drawBackground();
-
-        const topLeft = worldToScreen(220, 120);
-        const bottomRight = worldToScreen(WORLD_W - 220, WORLD_H - 220);
-        ctx.fillStyle = "#121212";
-        ctx.fillRect(
-          topLeft.x,
-          topLeft.y,
-          bottomRight.x - topLeft.x,
-          bottomRight.y - topLeft.y
-        );
-
-        for (const w of walls) drawWall(w);
-        for (const p of pegs) drawPeg(p);
-        for (const s of spinners) drawWall(s);
-        for (const b of balls) drawBall(b);
-      }
-
-      function drawMiniMap() {
-        const mw = miniMap.width;
-        const mh = miniMap.height;
-        miniCtx.clearRect(0, 0, mw, mh);
-        miniCtx.fillStyle = "#090909";
-        miniCtx.fillRect(0, 0, mw, mh);
-
-        const pad = 8;
-        const scale = Math.min((mw - pad*2) / WORLD_W, (mh - pad*2) / WORLD_H);
-
-        function mx(x){ return pad + x * scale; }
-        function my(y){ return pad + y * scale; }
-
-        miniCtx.fillStyle = "#111";
-        miniCtx.fillRect(mx(220), my(120), (WORLD_W - 440)*scale, (WORLD_H - 340)*scale);
-
-        miniCtx.strokeStyle = "rgba(255,255,255,0.88)";
-        miniCtx.lineWidth = 1;
-        for (const w of walls) {
-          if (w.renderKind === "hidden") continue;
-          miniCtx.beginPath();
-          miniCtx.moveTo(mx(w._p1.x), my(w._p1.y));
-          miniCtx.lineTo(mx(w._p2.x), my(w._p2.y));
-          miniCtx.stroke();
-        }
-
-        miniCtx.fillStyle = "rgba(255,255,255,0.55)";
-        for (const p of pegs) {
-          miniCtx.beginPath();
-          miniCtx.arc(mx(p.position.x), my(p.position.y), Math.max(0.8, p.circleRadius * scale), 0, Math.PI*2);
-          miniCtx.fill();
-        }
-
-        for (const b of balls) {
-          miniCtx.beginPath();
-          miniCtx.fillStyle = b.finished ? "#fff" : "#cfcfcf";
-          miniCtx.arc(mx(b.position.x), my(b.position.y), Math.max(1.2, b.circleRadius * scale * 1.1), 0, Math.PI*2);
-          miniCtx.fill();
-        }
-
-        const cameraWorldW = viewW / camera.zoom;
-        const cameraWorldH = viewH / camera.zoom;
-        const vx = camera.x - cameraWorldW / 2;
-        const vy = camera.y - cameraWorldH / 2;
-
-        miniCtx.strokeStyle = "rgba(255,255,255,0.95)";
-        miniCtx.lineWidth = 1.2;
-        miniCtx.strokeRect(mx(vx), my(vy), cameraWorldW * scale, cameraWorldH * scale);
-      }
-
-      function loop() {
+      function animate() {
         updateSpinners();
-        Engine.update(engine, 1000 / 60);
         constrainBalls();
         updateCamera();
-        drawWorld();
+        drawLabels();
         drawMiniMap();
-        requestAnimationFrame(loop);
+        requestAnimationFrame(animate);
       }
 
+      shuffleBtn.addEventListener("click", doShuffle);
+      startBtn.addEventListener("click", startGame);
+
+      namesInput.addEventListener("change", () => {
+        shuffledNames = parseNames();
+        rebuildGame(true);
+      });
+
+      targetInput.addEventListener("change", () => {
+        targetRank = Math.max(1, parseInt(targetInput.value || "1", 10));
+      });
+
+      window.addEventListener("resize", () => {
+        resizeCanvases();
+        if (!started) {
+          Render.lookAt(render, {
+            min: { x: 0, y: 0 },
+            max: { x: WORLD_W, y: 2500 }
+          }, { x: 40, y: 40 });
+        }
+      });
+
+      makeRender();
       shuffledNames = parseNames();
       rebuildGame(true);
       updateRankBoard();
-      loop();
+      animate();
     })();
   </script>
 </body>
