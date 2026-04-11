@@ -243,10 +243,10 @@
         <button id="shuffleBtn">셔플</button>
         <button id="startBtn">시작</button>
 
-        <div id="hint">시작 전엔 상단 고정 보기
+        <div id="hint">시작 전엔 절대 움직이지 않음
 시작 후 1.2초 뒤부터 선두 공 추적
-중력/관성/충돌/작용반작용 적용
-파란 네온 발사 패드: 1초 후 팡! 아래 방향 랜덤 발사</div>
+막히면 약하게 아래쪽 보정
+파란 네온 패드: 1초 후 팡! 아래 방향 랜덤 발사</div>
       </div>
     </div>
 
@@ -280,14 +280,14 @@
       const statusBar = document.getElementById("statusBar");
 
       const WORLD_W = 1700;
-      const WORLD_H = 13000;
+      const WORLD_H = 13200;
       const LEFT = 260;
       const RIGHT = WORLD_W - 260;
       const TOP = 120;
       const BOTTOM = WORLD_H - 180;
 
-      const GRAVITY = 1650;
-      const AIR = 0.0009;
+      const GRAVITY = 1750;
+      const AIR = 0.0010;
       const RESTITUTION = 0.72;
       const TANGENT_FRICTION = 0.985;
       const MAX_DT = 1 / 30;
@@ -379,20 +379,12 @@
         pegs.push({ x, y, r });
       }
 
-      function addSpinner(x, y, length = 180, thickness = 14, speed = 1.15) {
-        spinners.push({
-          x, y, length, thickness,
-          angle: 0,
-          speed
-        });
+      function addSpinner(x, y, length = 180, thickness = 14, speed = 1.0) {
+        spinners.push({ x, y, length, thickness, angle: 0, speed });
       }
 
       function addLaunchPad(x, y, r = 54) {
-        launchPads.push({
-          x, y, r,
-          pulse: Math.random() * Math.PI * 2
-        });
-
+        launchPads.push({ x, y, r, pulse: Math.random() * Math.PI * 2 });
         addSegment(x - 86, y - 55, x - 18, y + 10, 16, "wall");
         addSegment(x + 86, y - 55, x + 18, y + 10, 16, "wall");
         addSegment(x - 20, y + 18, x - 58, y + 125, 14, "wall");
@@ -410,62 +402,62 @@
         addSegment(RIGHT, TOP, RIGHT, BOTTOM, 30);
         addSegment(LEFT, TOP, RIGHT, TOP, 30);
 
-        addSegment(350, 560, 770, 750, 18);
-        addSegment(910, 700, 1290, 700, 18);
+        addSegment(355, 560, 805, 735, 18);
+        addSegment(930, 700, 1290, 700, 18);
 
-        addSegment(370, 1040, 930, 1260, 20);
-        addSegment(1330, 1080, 810, 1360, 20);
+        addSegment(360, 1030, 945, 1240, 20);
+        addSegment(1340, 1090, 820, 1365, 20);
 
-        addSegment(380, 1680, 790, 1980, 18);
-        addSegment(1320, 1680, 910, 1980, 18);
-        addSegment(790, 1980, 900, 2350, 14);
-        addSegment(910, 1980, 800, 2350, 14);
+        addSegment(390, 1680, 800, 1985, 18);
+        addSegment(1310, 1680, 900, 1985, 18);
+        addSegment(800, 1985, 900, 2335, 14);
+        addSegment(900, 1985, 800, 2335, 14);
 
-        addSegment(360, 2740, 790, 2890, 18);
-        addSegment(1010, 3050, 1330, 2790, 18);
+        addSegment(365, 2730, 790, 2895, 18);
+        addSegment(1000, 3040, 1340, 2790, 18);
 
-        addSegment(380, 3470, 860, 3810, 18);
-        addSegment(1320, 3510, 840, 3880, 18);
+        addSegment(390, 3470, 880, 3810, 18);
+        addSegment(1310, 3525, 820, 3885, 18);
 
-        addSegment(360, 4300, 900, 4550, 18);
-        addSegment(1320, 4340, 780, 4630, 18);
+        addSegment(365, 4300, 930, 4545, 18);
+        addSegment(1335, 4360, 770, 4630, 18);
 
-        addSegment(500, 5000, 850, 5360, 16);
-        addSegment(1200, 5000, 850, 5360, 16);
+        addSegment(470, 5050, 835, 5410, 16);
+        addSegment(1230, 5050, 865, 5410, 16);
 
-        addLaunchPad(850, 5750);
+        addLaunchPad(850, 5800);
 
-        addSegment(360, 6280, 790, 6580, 18);
-        addSegment(1320, 6280, 910, 6580, 18);
-        addSegment(790, 6580, 900, 6940, 14);
-        addSegment(910, 6580, 800, 6940, 14);
+        addSegment(370, 6350, 820, 6660, 18);
+        addSegment(1330, 6350, 880, 6660, 18);
+        addSegment(820, 6660, 910, 7010, 14);
+        addSegment(880, 6660, 790, 7010, 14);
 
-        addSegment(360, 7380, 930, 7630, 18);
-        addSegment(1320, 7420, 760, 7700, 18);
+        addSegment(350, 7450, 960, 7690, 18);
+        addSegment(1350, 7500, 740, 7770, 18);
 
-        addSegment(400, 8200, 810, 8520, 18);
-        addSegment(1280, 8200, 890, 8520, 18);
+        addSegment(420, 8290, 835, 8610, 18);
+        addSegment(1280, 8290, 865, 8610, 18);
 
-        addSegment(360, 9050, 860, 9300, 18);
-        addSegment(1320, 9090, 820, 9380, 18);
+        addSegment(360, 9150, 910, 9400, 18);
+        addSegment(1340, 9200, 790, 9475, 18);
 
-        addSpinner(850, 9850, 220, 14, 1.0);
+        addSpinner(850, 9960, 230, 14, 0.95);
 
-        addSegment(400, 10350, 800, 10650, 18);
-        addSegment(1280, 10350, 900, 10650, 18);
+        addSegment(420, 10480, 820, 10780, 18);
+        addSegment(1280, 10480, 880, 10780, 18);
 
-        addLaunchPad(850, 11150);
+        addLaunchPad(850, 11260);
 
-        addSegment(390, 11800, 800, 12120, 18);
-        addSegment(1310, 11800, 900, 12120, 18);
+        addSegment(410, 11920, 830, 12240, 18);
+        addSegment(1290, 11920, 870, 12240, 18);
 
-        addSegment(810, 12250, 810, 12630, 14);
-        addSegment(890, 12250, 890, 12630, 14);
+        addSegment(810, 12380, 810, 12800, 14);
+        addSegment(890, 12380, 890, 12800, 14);
 
-        setFinishSensor(850, 12740, 150, 90);
+        setFinishSensor(850, 12920, 150, 90);
 
-        for (let y = 1360; y <= 11800; y += 440) {
-          const row = Math.floor((y - 1360) / 440);
+        for (let y = 1380; y <= 11880; y += 440) {
+          const row = Math.floor((y - 1380) / 440);
           const cols = row % 2 === 0 ? 6 : 5;
           const sx = cols === 6 ? 470 : 545;
           for (let i = 0; i < cols; i++) {
@@ -473,10 +465,10 @@
           }
         }
 
-        addSpinner(850, 2480, 190, 14, 0.92);
-        addSpinner(590, 5340, 180, 14, -0.9);
-        addSpinner(1110, 5340, 180, 14, 0.9);
-        addSpinner(850, 7150, 210, 14, -0.95);
+        addSpinner(850, 2480, 200, 14, 0.9);
+        addSpinner(600, 5530, 180, 14, -0.85);
+        addSpinner(1100, 5530, 180, 14, 0.85);
+        addSpinner(850, 7240, 220, 14, -0.92);
       }
 
       function buildBalls(names) {
@@ -498,14 +490,14 @@
           r,
           angle: 0,
           av: 0,
-          mass: 1,
           name,
           color: ballColors[i % ballColors.length],
           finished: false,
           finishOrder: 0,
           launchQueued: false,
           launchAt: 0,
-          flashUntil: 0
+          flashUntil: 0,
+          slowTimer: 0
         }));
       }
 
@@ -543,7 +535,6 @@
           rankText.innerHTML = started ? "아직 통과한 공 없음" : "아직 시작 전";
           return;
         }
-
         rankText.innerHTML = rankings
           .slice(0, 15)
           .map((b, i) => `${i + 1}등: ${escapeHtml(b.name)}`)
@@ -551,7 +542,7 @@
       }
 
       function doShuffle() {
-        const raw = parseNames().length ? parseNames() : ["1", "2", "3", "4", "5"];
+        const raw = parseNames().length ? parseNames() : ["1","2","3","4","5"];
         shuffledNames = shuffleArray(raw);
         rebuildGame(true);
         statusBar.textContent = "셔플 완료";
@@ -560,7 +551,6 @@
 
       function startGame() {
         if (started) return;
-
         started = true;
         followEnabled = false;
         startTime = performance.now();
@@ -570,9 +560,9 @@
         camera.targetZoom = followZoom;
 
         for (const b of balls) {
-          b.vx = (Math.random() - 0.5) * 16;
-          b.vy = 6 + Math.random() * 6;
-          b.av = (Math.random() - 0.5) * 1.8;
+          b.vx = (Math.random() - 0.5) * 8;
+          b.vy = 0;
+          b.av = 0;
         }
       }
 
@@ -598,7 +588,7 @@
 
         if (!followEnabled && now - startTime >= 1200) {
           followEnabled = true;
-          statusBar.textContent = "추적 시작";
+          statusBar.textContent = "선두 공 추적 시작";
         }
 
         if (!followEnabled) {
@@ -612,8 +602,8 @@
           }
         }
 
-        camera.x += (camera.targetX - camera.x) * 0.1;
-        camera.y += (camera.targetY - camera.y) * 0.1;
+        camera.x += (camera.targetX - camera.x) * 0.12;
+        camera.y += (camera.targetY - camera.y) * 0.12;
         camera.zoom += (camera.targetZoom - camera.zoom) * 0.05;
       }
 
@@ -744,6 +734,8 @@
       }
 
       function stepPhysics(dt, now) {
+        if (!started) return;
+
         for (const s of spinners) {
           s.angle += s.speed * dt;
         }
@@ -774,7 +766,7 @@
 
             if (b.x < LEFT + b.r) { b.x = LEFT + b.r; b.vx = Math.abs(b.vx) * 0.45; }
             if (b.x > RIGHT - b.r) { b.x = RIGHT - b.r; b.vx = -Math.abs(b.vx) * 0.45; }
-            if (b.y < TOP + b.r) { b.y = TOP + b.r; b.vy = Math.abs(b.vy) * 0.25; }
+            if (b.y < TOP + b.r) { b.y = TOP + b.r; b.vy = Math.abs(b.vy) * 0.2; }
 
             for (const seg of segments) {
               resolveBallSegment(b, seg.x1, seg.y1, seg.x2, seg.y2, seg.thickness);
@@ -796,8 +788,8 @@
               const cp = closestPointOnSegment(b.x, b.y, x1, y1, x2, y2);
               const rx = cp.x - spinner.x;
               const ry = cp.y - spinner.y;
-              const surfaceVx = -spinner.speed * ry * 120;
-              const surfaceVy = spinner.speed * rx * 120;
+              const surfaceVx = -spinner.speed * ry * 90;
+              const surfaceVy = spinner.speed * rx * 90;
 
               resolveBallSegment(b, x1, y1, x2, y2, spinner.thickness, surfaceVx, surfaceVy);
             }
@@ -814,6 +806,19 @@
         for (const b of balls) {
           if (b.finished) continue;
 
+          const speed = Math.hypot(b.vx, b.vy);
+          if (speed < 18 && b.y > 600) {
+            b.slowTimer += dt;
+          } else {
+            b.slowTimer = 0;
+          }
+
+          if (b.slowTimer > 0.9) {
+            b.vy += 45 + Math.random() * 30;
+            b.vx += (Math.random() - 0.5) * 18;
+            b.slowTimer = 0.2;
+          }
+
           for (const pad of launchPads) {
             const dx = b.x - pad.x;
             const dy = b.y - pad.y;
@@ -827,10 +832,9 @@
           if (b.launchQueued && now >= b.launchAt) {
             b.launchQueued = false;
             b.flashUntil = now + 450;
-
             const side = Math.random() < 0.5 ? -1 : 1;
-            b.vx = side * (180 + Math.random() * 220);
-            b.vy = 520 + Math.random() * 260;
+            b.vx = side * (180 + Math.random() * 200);
+            b.vy = 540 + Math.random() * 240;
             b.av = (Math.random() - 0.5) * 6;
           }
 
@@ -927,17 +931,17 @@
         ctx.save();
         ctx.beginPath();
         ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(0,180,255,${0.12 + pulse * 0.10})`;
+        ctx.fillStyle = `rgba(0,180,255,${0.12 + pulse * 0.12})`;
         ctx.fill();
 
         ctx.strokeStyle = `rgba(80,220,255,${0.85 + pulse * 0.15})`;
         ctx.lineWidth = Math.max(2, r * 0.09);
-        ctx.shadowColor = "rgba(0,180,255,0.85)";
-        ctx.shadowBlur = 24;
+        ctx.shadowColor = "rgba(0,180,255,0.9)";
+        ctx.shadowBlur = 28;
         ctx.stroke();
 
         ctx.beginPath();
-        ctx.arc(p.x, p.y, r * 0.5, 0, Math.PI * 2);
+        ctx.arc(p.x, p.y, r * 0.52, 0, Math.PI * 2);
         ctx.fillStyle = "rgba(100,230,255,0.18)";
         ctx.fill();
         ctx.restore();
@@ -1087,47 +1091,6 @@
         miniCtx.strokeRect(mx(vx), my(vy), viewWorldW * scale, viewWorldH * scale);
       }
 
-      function updateCamera(now) {
-        if (!started) {
-          camera.x += (camera.targetX - camera.x) * 0.08;
-          camera.y += (camera.targetY - camera.y) * 0.08;
-          camera.zoom += (camera.targetZoom - camera.zoom) * 0.08;
-          return;
-        }
-
-        if (!followEnabled && now - startTime >= 1200) {
-          followEnabled = true;
-          statusBar.textContent = "추적 시작";
-        }
-
-        if (!followEnabled) {
-          camera.targetX = WORLD_W / 2;
-          camera.targetY = 1650;
-        } else {
-          const leader = getLeaderBall();
-          if (leader) {
-            camera.targetX = Math.max(LEFT + 280, Math.min(RIGHT - 280, leader.x));
-            camera.targetY = Math.max(1300, Math.min(WORLD_H - 1200, leader.y));
-          }
-        }
-
-        camera.x += (camera.targetX - camera.x) * 0.1;
-        camera.y += (camera.targetY - camera.y) * 0.1;
-        camera.zoom += (camera.targetZoom - camera.zoom) * 0.05;
-      }
-
-      function getLeaderBall() {
-        let leader = null;
-        let maxY = -Infinity;
-        for (const b of balls) {
-          if (!b.finished && b.y > maxY) {
-            maxY = b.y;
-            leader = b;
-          }
-        }
-        return leader || balls.find(b => b.finished) || balls[0] || null;
-      }
-
       function gameLoop(now) {
         if (!lastTime) lastTime = now;
         let dt = (now - lastTime) / 1000;
@@ -1143,7 +1106,6 @@
         updateCamera(now);
         drawMainScene(now);
         drawMiniMap();
-
         requestAnimationFrame(gameLoop);
       }
 
