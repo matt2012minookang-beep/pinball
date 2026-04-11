@@ -103,9 +103,7 @@
       line-height: 1.45;
     }
 
-    input {
-      height: 44px;
-    }
+    input { height: 44px; }
 
     button {
       border: none;
@@ -168,7 +166,7 @@
       position: absolute;
       top: 16px;
       right: 16px;
-      width: 190px;
+      width: 210px;
       max-height: calc(100% - 32px);
       overflow: auto;
       padding: 14px;
@@ -205,9 +203,7 @@
       pointer-events: none;
     }
 
-    #winnerBanner.show {
-      opacity: 1;
-    }
+    #winnerBanner.show { opacity: 1; }
 
     #statusBar {
       position: absolute;
@@ -221,7 +217,7 @@
     @media (max-width: 920px) {
       #app { gap: 10px; padding: 10px; }
       #leftPanel { width: 280px; }
-      #rankBoard { width: 170px; }
+      #rankBoard { width: 175px; }
       #winnerBanner { font-size: 24px; }
     }
   </style>
@@ -248,8 +244,8 @@
         <button id="shuffleBtn">셔플</button>
         <button id="startBtn">시작</button>
 
-        <div id="hint">시작 전엔 상단 맵 고정 보기
-시작 후 1.4초 뒤부터 가장 앞선 공 추적
+        <div id="hint">시작 전엔 상단 고정 보기
+시작 후 1.2초 뒤부터 선두 공 추적
 중력/관성/충돌/작용반작용 적용
 왼쪽 위 전체 맵에 현재 시야 표시</div>
       </div>
@@ -293,26 +289,26 @@
 
       const engine = Engine.create();
       engine.gravity.y = 1;
-      engine.gravity.scale = 0.0018;
+      engine.gravity.scale = 0.00155;
+      engine.positionIterations = 8;
+      engine.velocityIterations = 6;
       const world = engine.world;
 
       const WORLD_W = 1600;
-      const WORLD_H = 12000;
-      const CHAMBER_LEFT = 250;
-      const CHAMBER_RIGHT = WORLD_W - 250;
-      const CHAMBER_TOP = 120;
-      const CHAMBER_BOTTOM = WORLD_H - 180;
+      const WORLD_H = 12800;
+      const LEFT = 250;
+      const RIGHT = WORLD_W - 250;
+      const TOP = 120;
+      const BOTTOM = WORLD_H - 180;
 
       const camera = {
         x: WORLD_W / 2,
-        y: 1200,
+        y: 1400,
         zoom: 1,
         targetX: WORLD_W / 2,
-        targetY: 1200,
+        targetY: 1400,
         targetZoom: 1
       };
-
-      const ballColors = ["#ffffff","#efefef","#d8d8d8","#f4f4f4","#cccccc","#e6e6e6"];
 
       let walls = [];
       let pegs = [];
@@ -325,13 +321,15 @@
       let targetRank = 10;
       let winnerInfo = null;
       let followEnabled = false;
-      let startTimestamp = 0;
+      let startTime = 0;
+
+      const ballColors = ["#ffffff","#efefef","#d8d8d8","#f4f4f4","#cccccc","#e6e6e6"];
 
       function resize() {
         const rect = rightWrap.getBoundingClientRect();
         scene.width = Math.max(100, Math.floor(rect.width));
         scene.height = Math.max(100, Math.floor(rect.height));
-        setInitialCamera(false);
+        if (!started) setInitialCamera(true);
       }
 
       function escapeHtml(s) {
@@ -363,7 +361,6 @@
       function clearWorld() {
         const all = Composite.allBodies(world);
         for (const body of all) World.remove(world, body);
-
         walls = [];
         pegs = [];
         spinners = [];
@@ -372,7 +369,7 @@
         rankings = [];
         started = false;
         followEnabled = false;
-        startTimestamp = 0;
+        startTime = 0;
         winnerInfo = null;
         winnerBanner.classList.remove("show");
         winnerBanner.textContent = "";
@@ -388,8 +385,8 @@
 
         const body = Bodies.rectangle((x1 + x2) / 2, (y1 + y2) / 2, len, thickness, {
           isStatic: true,
-          restitution: 0.18,
-          friction: 0.15
+          restitution: 0.15,
+          friction: 0.12
         });
 
         Body.setAngle(body, angle);
@@ -397,16 +394,15 @@
         body.thickness = thickness;
         body._p1 = { x: x1, y: y1 };
         body._p2 = { x: x2, y: y2 };
-
         walls.push(body);
         World.add(world, body);
         return body;
       }
 
-      function addPeg(x, y, r = 14) {
+      function addPeg(x, y, r = 13) {
         const body = Bodies.circle(x, y, r, {
           isStatic: true,
-          restitution: 0.88,
+          restitution: 0.9,
           friction: 0.01
         });
         body.kind = "peg";
@@ -415,10 +411,10 @@
         return body;
       }
 
-      function addSpinner(x, y, length = 180, thickness = 14, speed = 0.03) {
+      function addSpinner(x, y, length = 180, thickness = 14, speed = 0.02) {
         const body = Bodies.rectangle(x, y, length, thickness, {
           isStatic: true,
-          restitution: 0.75,
+          restitution: 0.72,
           friction: 0.02
         });
         body.kind = "spinner";
@@ -444,67 +440,66 @@
       function buildMap() {
         clearWorld();
 
-        addWall(CHAMBER_LEFT, CHAMBER_TOP, CHAMBER_LEFT, CHAMBER_BOTTOM, 30);
-        addWall(CHAMBER_RIGHT, CHAMBER_TOP, CHAMBER_RIGHT, CHAMBER_BOTTOM, 30);
-        addWall(CHAMBER_LEFT, CHAMBER_TOP, CHAMBER_RIGHT, CHAMBER_TOP, 30);
+        addWall(LEFT, TOP, LEFT, BOTTOM, 30);
+        addWall(RIGHT, TOP, RIGHT, BOTTOM, 30);
+        addWall(LEFT, TOP, RIGHT, TOP, 30);
 
-        // 세로 긴 판형 레이아웃, 구조는 새로
-        addWall(340, 540, 730, 710, 18);
-        addWall(860, 650, 1230, 650, 18);
+        addWall(340, 560, 740, 740, 18);
+        addWall(860, 680, 1230, 680, 18);
 
-        addWall(360, 980, 900, 1180, 20);
-        addWall(1240, 1020, 760, 1270, 20);
+        addWall(360, 1020, 900, 1220, 20);
+        addWall(1240, 1060, 760, 1310, 20);
 
-        addWall(360, 1540, 760, 1820, 18);
-        addWall(1240, 1540, 840, 1820, 18);
-        addWall(760, 1820, 860, 2160, 14);
-        addWall(840, 1820, 740, 2160, 14);
+        addWall(360, 1620, 760, 1900, 18);
+        addWall(1240, 1620, 840, 1900, 18);
+        addWall(760, 1900, 860, 2260, 14);
+        addWall(840, 1900, 740, 2260, 14);
 
-        addWall(350, 2520, 760, 2660, 18);
-        addWall(980, 2820, 1240, 2580, 18);
+        addWall(350, 2660, 760, 2800, 18);
+        addWall(980, 2960, 1240, 2720, 18);
 
-        addWall(360, 3190, 820, 3500, 18);
-        addWall(1240, 3220, 780, 3560, 18);
+        addWall(360, 3360, 820, 3680, 18);
+        addWall(1240, 3400, 780, 3750, 18);
 
-        addWall(350, 3950, 860, 4170, 18);
-        addWall(1240, 3980, 730, 4240, 18);
+        addWall(350, 4160, 860, 4390, 18);
+        addWall(1240, 4200, 730, 4470, 18);
 
-        addWall(500, 4540, 820, 4860, 16);
-        addWall(1100, 4540, 780, 4860, 16);
+        addWall(480, 4820, 820, 5160, 16);
+        addWall(1120, 4820, 780, 5160, 16);
 
-        addWall(350, 5280, 760, 5530, 18);
-        addWall(1240, 5300, 830, 5560, 18);
+        addWall(350, 5650, 760, 5920, 18);
+        addWall(1240, 5690, 830, 5970, 18);
 
-        addWall(340, 6020, 880, 6260, 20);
-        addWall(1260, 6040, 720, 6320, 20);
+        addWall(340, 6480, 880, 6740, 20);
+        addWall(1260, 6510, 720, 6800, 20);
 
-        addWall(360, 6760, 770, 7050, 18);
-        addWall(1240, 6760, 830, 7050, 18);
-        addWall(770, 7050, 860, 7380, 14);
-        addWall(830, 7050, 740, 7380, 14);
+        addWall(360, 7300, 770, 7600, 18);
+        addWall(1240, 7300, 830, 7600, 18);
+        addWall(770, 7600, 860, 7950, 14);
+        addWall(830, 7600, 740, 7950, 14);
 
-        addWall(350, 7800, 850, 8030, 18);
-        addWall(1240, 7820, 740, 8080, 18);
+        addWall(350, 8400, 850, 8640, 18);
+        addWall(1240, 8440, 740, 8710, 18);
 
-        addWall(400, 8500, 790, 8780, 18);
-        addWall(1190, 8500, 800, 8780, 18);
+        addWall(400, 9190, 790, 9500, 18);
+        addWall(1190, 9190, 800, 9500, 18);
 
-        addWall(350, 9260, 840, 9470, 18);
-        addWall(1240, 9280, 750, 9520, 18);
+        addWall(350, 10020, 840, 10250, 18);
+        addWall(1240, 10040, 750, 10300, 18);
 
-        addWall(390, 10010, 780, 10280, 18);
-        addWall(1200, 10010, 810, 10280, 18);
+        addWall(390, 10880, 780, 11160, 18);
+        addWall(1200, 10880, 810, 11160, 18);
 
-        addWall(760, 10420, 760, 10840, 14);
-        addWall(840, 10420, 840, 10840, 14);
+        addWall(760, 11350, 760, 11800, 14);
+        addWall(840, 11350, 840, 11800, 14);
 
-        addWall(760, 10840, 800, 11020, 14);
-        addWall(840, 10840, 800, 11020, 14);
+        addWall(760, 11800, 800, 12000, 14);
+        addWall(840, 11800, 800, 12000, 14);
 
-        addSensor(800, 11120, 130, 70, "finish");
+        addSensor(800, 12110, 130, 80, "finish");
 
-        for (let y = 1260; y <= 10100; y += 410) {
-          const row = Math.floor((y - 1260) / 410);
+        for (let y = 1320; y <= 10980; y += 430) {
+          const row = Math.floor((y - 1320) / 430);
           const cols = row % 2 === 0 ? 6 : 5;
           const sx = cols === 6 ? 430 : 505;
           for (let i = 0; i < cols; i++) {
@@ -512,30 +507,34 @@
           }
         }
 
-        addSpinner(800, 2320, 180, 14, 0.03);
-        addSpinner(560, 5050, 180, 14, -0.027);
-        addSpinner(1040, 5050, 180, 14, 0.027);
-        addSpinner(800, 7480, 200, 14, -0.03);
-        addSpinner(800, 9720, 200, 14, 0.03);
+        addSpinner(800, 2420, 180, 14, 0.02);
+        addSpinner(560, 5340, 180, 14, -0.019);
+        addSpinner(1040, 5340, 180, 14, 0.019);
+        addSpinner(800, 8080, 200, 14, -0.021);
+        addSpinner(800, 10540, 200, 14, 0.021);
 
-        addWall(CHAMBER_LEFT, CHAMBER_BOTTOM, 690, CHAMBER_BOTTOM, 18, "hidden");
-        addWall(910, CHAMBER_BOTTOM, CHAMBER_RIGHT, CHAMBER_BOTTOM, 18, "hidden");
+        addWall(LEFT, BOTTOM, 690, BOTTOM, 18, "hidden");
+        addWall(910, BOTTOM, RIGHT, BOTTOM, 18, "hidden");
       }
 
       function buildBalls(names) {
-        const r = 32;
-        const gap = 84;
-        const totalWidth = (names.length - 1) * gap;
-        const startX = WORLD_W / 2 - totalWidth / 2;
-        const startY = 250;
+        const r = 30;
+        const count = names.length;
+        const usableLeft = LEFT + 90;
+        const usableRight = RIGHT - 90;
+        const usableWidth = usableRight - usableLeft;
+        const gap = count > 1 ? Math.min(90, usableWidth / (count - 1)) : 0;
+        const totalWidth = gap * (count - 1);
+        const startX = (usableLeft + usableRight) / 2 - totalWidth / 2;
+        const startY = 280;
 
         balls = names.map((name, i) => {
           const b = Bodies.circle(startX + i * gap, startY, r, {
             isStatic: true,
             restitution: 0.58,
             friction: 0.01,
-            frictionAir: 0.0008,
-            density: 0.0025
+            frictionAir: 0.0007,
+            density: 0.0022
           });
           b.ballName = name;
           b.ballColor = ballColors[i % ballColors.length];
@@ -549,13 +548,10 @@
       function setInitialCamera(instant = true) {
         const vw = scene.width;
         const vh = scene.height;
-
-        const targetWorldW = WORLD_W + 160;
-        const targetWorldH = 2500;
-        const z = Math.min(vw / targetWorldW, vh / targetWorldH);
+        const z = Math.min(vw / (WORLD_W + 150), vh / 2800);
 
         camera.targetX = WORLD_W / 2;
-        camera.targetY = 1280;
+        camera.targetY = 1450;
         camera.targetZoom = z;
 
         if (instant) {
@@ -583,6 +579,7 @@
           rankText.innerHTML = started ? "아직 통과한 공 없음" : "아직 시작 전";
           return;
         }
+
         rankText.innerHTML = rankings
           .slice(0, 15)
           .map((b, i) => `${i + 1}등: ${escapeHtml(b.ballName)}`)
@@ -602,31 +599,33 @@
 
         started = true;
         followEnabled = false;
-        startTimestamp = performance.now();
+        startTime = performance.now();
         statusBar.textContent = "시작! 상단 고정 후 추적 전환";
 
-        const followZoom = Math.min(scene.width / 900, scene.height / 1700);
+        const followZoom = Math.min(scene.width / 920, scene.height / 1800);
         camera.targetZoom = followZoom;
 
         for (const b of balls) {
           Body.setStatic(b, false);
           Body.setVelocity(b, {
-            x: (Math.random() - 0.5) * 0.75,
-            y: 0.2 + Math.random() * 0.12
+            x: (Math.random() - 0.5) * 0.55,
+            y: 0.15 + Math.random() * 0.08
           });
-          Body.setAngularVelocity(b, (Math.random() - 0.5) * 0.03);
+          Body.setAngularVelocity(b, (Math.random() - 0.5) * 0.025);
         }
       }
 
       function getLeaderBall() {
         let leader = null;
         let maxY = -Infinity;
+
         for (const b of balls) {
           if (!b.finished && b.position.y > maxY) {
             maxY = b.position.y;
             leader = b;
           }
         }
+
         return leader || balls.find(b => b.finished) || balls[0] || null;
       }
 
@@ -638,35 +637,40 @@
           return;
         }
 
-        if (!followEnabled && now - startTimestamp >= 1400) {
+        if (!followEnabled && now - startTime >= 1200) {
           followEnabled = true;
           statusBar.textContent = "추적 시작";
         }
 
         if (!followEnabled) {
           camera.targetX = WORLD_W / 2;
-          camera.targetY = 1500;
+          camera.targetY = 1550;
         } else {
           const leader = getLeaderBall();
           if (leader) {
-            camera.targetX = Math.max(CHAMBER_LEFT + 260, Math.min(CHAMBER_RIGHT - 260, leader.position.x));
-            camera.targetY = Math.max(1000, Math.min(WORLD_H - 900, leader.position.y));
+            camera.targetX = Math.max(LEFT + 260, Math.min(RIGHT - 260, leader.position.x));
+            camera.targetY = Math.max(1200, Math.min(WORLD_H - 1100, leader.position.y));
           }
         }
 
-        camera.x += (camera.targetX - camera.x) * 0.08;
-        camera.y += (camera.targetY - camera.y) * 0.08;
-        camera.zoom += (camera.targetZoom - camera.zoom) * 0.04;
+        camera.x += (camera.targetX - camera.x) * 0.11;
+        camera.y += (camera.targetY - camera.y) * 0.11;
+        camera.zoom += (camera.targetZoom - camera.zoom) * 0.05;
       }
 
       function constrainBalls() {
         for (const b of balls) {
-          if (b.position.x < CHAMBER_LEFT + 25) Body.setPosition(b, { x: CHAMBER_LEFT + 25, y: b.position.y });
-          if (b.position.x > CHAMBER_RIGHT - 25) Body.setPosition(b, { x: CHAMBER_RIGHT - 25, y: b.position.y });
+          if (b.position.x < LEFT + 22) Body.setPosition(b, { x: LEFT + 22, y: b.position.y });
+          if (b.position.x > RIGHT - 22) Body.setPosition(b, { x: RIGHT - 22, y: b.position.y });
 
-          if (started && !b.finished && b.position.y > 10800) {
+          if (!Number.isFinite(b.position.x) || !Number.isFinite(b.position.y)) {
+            Body.setPosition(b, { x: WORLD_W / 2, y: 300 });
+            Body.setVelocity(b, { x: 0, y: 0 });
+          }
+
+          if (started && !b.finished && b.position.y > 11800) {
             const dx = 800 - b.position.x;
-            Body.applyForce(b, b.position, { x: dx * 0.0000012, y: 0.0000015 });
+            Body.applyForce(b, b.position, { x: dx * 0.0000009, y: 0.0000012 });
           }
         }
       }
@@ -686,7 +690,6 @@
 
       function drawBackground() {
         ctx.clearRect(0, 0, scene.width, scene.height);
-
         const glow = ctx.createRadialGradient(scene.width / 2, 70, 10, scene.width / 2, 70, scene.height * 0.7);
         glow.addColorStop(0, "rgba(255,255,255,0.06)");
         glow.addColorStop(1, "rgba(255,255,255,0)");
@@ -695,8 +698,8 @@
       }
 
       function drawChamberFill() {
-        const tl = worldToScreen(CHAMBER_LEFT, CHAMBER_TOP);
-        const br = worldToScreen(CHAMBER_RIGHT, CHAMBER_BOTTOM);
+        const tl = worldToScreen(LEFT, TOP);
+        const br = worldToScreen(RIGHT, BOTTOM);
         ctx.fillStyle = "#101010";
         ctx.fillRect(tl.x, tl.y, br.x - tl.x, br.y - tl.y);
       }
@@ -740,7 +743,8 @@
       function drawBall(body) {
         const p = worldToScreen(body.position.x, body.position.y);
         const r = body.circleRadius * camera.zoom;
-        if (p.x < -r * 3 || p.x > scene.width + r * 3 || p.y < -r * 3 || p.y > scene.height + r * 3) return;
+
+        if (p.x < -r * 4 || p.x > scene.width + r * 4 || p.y < -r * 4 || p.y > scene.height + r * 4) return;
 
         const g = ctx.createRadialGradient(p.x - r * 0.35, p.y - r * 0.45, r * 0.12, p.x, p.y, r);
         g.addColorStop(0, "#ffffff");
@@ -764,7 +768,7 @@
         ctx.fillStyle = "#111";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.font = `900 ${Math.max(9, r * 0.55)}px Malgun Gothic, sans-serif`;
+        ctx.font = `900 ${Math.max(9, r * 0.52)}px Malgun Gothic, sans-serif`;
         let txt = body.ballName;
         if (txt.length > 3) txt = txt.slice(0, 3);
         ctx.fillText(txt, 0, 0);
@@ -779,29 +783,6 @@
         }
       }
 
-      function drawDebugFrame() {
-        const tl = worldToScreen(CHAMBER_LEFT, CHAMBER_TOP);
-        const br = worldToScreen(CHAMBER_RIGHT, CHAMBER_BOTTOM);
-
-        ctx.save();
-        ctx.strokeStyle = "rgba(255,255,255,0.22)";
-        ctx.lineWidth = 2;
-        ctx.strokeRect(tl.x, tl.y, br.x - tl.x, br.y - tl.y);
-
-        const centerTop = worldToScreen(WORLD_W / 2, 120);
-        const centerBottom = worldToScreen(WORLD_W / 2, 2500);
-        ctx.beginPath();
-        ctx.moveTo(centerTop.x, centerTop.y);
-        ctx.lineTo(centerBottom.x, centerBottom.y);
-        ctx.stroke();
-
-        const startMark = worldToScreen(WORLD_W / 2, 250);
-        ctx.beginPath();
-        ctx.arc(startMark.x, startMark.y, 10, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.restore();
-      }
-
       function drawMainScene() {
         drawBackground();
         drawChamberFill();
@@ -810,17 +791,6 @@
         for (const p of pegs) drawPeg(p);
         for (const s of spinners) drawWall(s);
         for (const b of balls) drawBall(b);
-
-        drawDebugFrame();
-
-        const gateTop = worldToScreen(760, 10420);
-        const gateBottom = worldToScreen(840, 11120);
-        ctx.save();
-        ctx.strokeStyle = "rgba(255,255,255,0.75)";
-        ctx.lineWidth = 2;
-        ctx.setLineDash([8, 8]);
-        ctx.strokeRect(gateTop.x, gateTop.y, gateBottom.x - gateTop.x, gateBottom.y - gateTop.y);
-        ctx.restore();
       }
 
       function drawMiniMap() {
@@ -836,7 +806,7 @@
         const my = y => pad + y * scale;
 
         miniCtx.fillStyle = "#101010";
-        miniCtx.fillRect(mx(CHAMBER_LEFT), my(CHAMBER_TOP), (CHAMBER_RIGHT - CHAMBER_LEFT) * scale, (CHAMBER_BOTTOM - CHAMBER_TOP) * scale);
+        miniCtx.fillRect(mx(LEFT), my(TOP), (RIGHT - LEFT) * scale, (BOTTOM - TOP) * scale);
 
         miniCtx.strokeStyle = "rgba(255,255,255,0.88)";
         miniCtx.lineWidth = 1;
