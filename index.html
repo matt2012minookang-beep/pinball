@@ -212,13 +212,6 @@
       padding: 10px 14px;
       font-size: 13px;
     }
-
-    @media (max-width: 920px) {
-      #app { gap: 10px; padding: 10px; }
-      #leftPanel { width: 280px; }
-      #rankBoard { width: 185px; }
-      #winnerBanner { font-size: 24px; }
-    }
   </style>
 </head>
 <body>
@@ -281,9 +274,9 @@
 
       const WORLD_W = 1800;
       let WORLD_TOP = -5000;
-      let WORLD_BOTTOM = 16000;
+      let WORLD_BOTTOM = 17000;
 
-      const GRAVITY = 1820;
+      const GRAVITY = 1850;
       const AIR = 0.0010;
       const RESTITUTION = 0.74;
       const TANGENT_FRICTION = 0.986;
@@ -408,37 +401,37 @@
 
         const baseY = 1500;
 
-        // 멋지게 꺾인 외벽
+        // 2번째 사진 느낌의 꺾인 외벽
         const leftPts = [
           [340, WORLD_TOP],
-          [340, baseY + 220],
-          [520, baseY + 1180],
-          [520, baseY + 2000],
-          [760, baseY + 2860],
-          [760, baseY + 4300],
-          [560, baseY + 5440],
-          [560, baseY + 6740],
-          [820, baseY + 8060],
-          [820, baseY + 9840],
-          [620, baseY + 11140],
-          [620, baseY + 12940],
-          [790, baseY + 14260]
+          [340, baseY + 100],
+          [520, baseY + 1100],
+          [520, baseY + 1850],
+          [760, baseY + 2750],
+          [760, baseY + 4550],
+          [560, baseY + 5750],
+          [560, baseY + 7050],
+          [820, baseY + 8350],
+          [820, baseY + 10450],
+          [620, baseY + 11850],
+          [620, baseY + 13950],
+          [790, baseY + 15400]
         ];
 
         const rightPts = [
           [1460, WORLD_TOP],
-          [1460, baseY + 220],
-          [1280, baseY + 1180],
-          [1280, baseY + 2000],
-          [1040, baseY + 2860],
-          [1040, baseY + 4300],
-          [1240, baseY + 5440],
-          [1240, baseY + 6740],
-          [980, baseY + 8060],
-          [980, baseY + 9840],
-          [1180, baseY + 11140],
-          [1180, baseY + 12940],
-          [1010, baseY + 14260]
+          [1460, baseY + 100],
+          [1280, baseY + 1100],
+          [1280, baseY + 1850],
+          [1040, baseY + 2750],
+          [1040, baseY + 4550],
+          [1240, baseY + 5750],
+          [1240, baseY + 7050],
+          [980, baseY + 8350],
+          [980, baseY + 10450],
+          [1180, baseY + 11850],
+          [1180, baseY + 13950],
+          [1010, baseY + 15400]
         ];
 
         for (let i = 0; i < leftPts.length - 1; i++) {
@@ -449,54 +442,57 @@
         }
         addSegment(leftPts[0][0], leftPts[0][1], rightPts[0][0], rightPts[0][1], 28);
 
-        // 첫 구조: 모이고 바로 빠지게
-        addSegment(590, baseY + 700, 840, baseY + 1280, 18);
-        addSegment(1210, baseY + 700, 960, baseY + 1280, 18);
-        addSegment(770, baseY + 1440, 900, baseY + 1760, 14);
-        addSegment(1030, baseY + 1440, 900, baseY + 1760, 14);
+        // 첫 진입은 V 모양 후 바로 빠짐
+        addSegment(620, baseY + 700, 840, baseY + 1280, 18);
+        addSegment(1180, baseY + 700, 960, baseY + 1280, 18);
+        addSegment(840, baseY + 1280, 900, baseY + 1460, 14);
+        addSegment(960, baseY + 1280, 900, baseY + 1460, 14);
 
-        // 내부 채널들 - 막히는 긴 램프 없음
-        addSegment(620, baseY + 2250, 1090, baseY + 2460, 18);
-        addSegment(1120, baseY + 2820, 860, baseY + 3080, 18);
+        // 막히는 긴 받침대형 구조 삭제, 대신 짧은 방향 전환들
+        addSegment(680, baseY + 2200, 1060, baseY + 2380, 18);
+        addSegment(1080, baseY + 2760, 860, baseY + 2980, 18);
 
-        addSegment(680, baseY + 3540, 1080, baseY + 3760, 18);
-        addSegment(1110, baseY + 4120, 850, baseY + 4380, 18);
+        addSegment(700, baseY + 3480, 1040, baseY + 3650, 18);
+        addSegment(1060, baseY + 4020, 860, baseY + 4240, 18);
 
-        addLaunchPad(900, baseY + 4980);
+        // 첫 발사 장치
+        addLaunchPad(900, baseY + 5000);
 
-        addSegment(700, baseY + 5750, 1080, baseY + 5960, 18);
-        addSegment(1100, baseY + 6320, 860, baseY + 6560, 18);
+        // 발사 후 아래로 흐르는 채널
+        addSegment(720, baseY + 5860, 1030, baseY + 6030, 18);
+        addSegment(1050, baseY + 6420, 860, baseY + 6610, 18);
 
-        // 회전 막대 방
-        addSpinner(900, baseY + 7300, 230, 14, 0.95);
-        addSegment(700, baseY + 7900, 1090, baseY + 8110, 18);
-        addSegment(1120, baseY + 8480, 860, baseY + 8730, 18);
+        // 회전막대 존
+        addSpinner(900, baseY + 7450, 230, 14, 0.95);
 
-        addLaunchPad(900, baseY + 9550);
+        addSegment(730, baseY + 8150, 1030, baseY + 8320, 18);
+        addSegment(1050, baseY + 8720, 860, baseY + 8910, 18);
 
-        addSegment(690, baseY + 10340, 1080, baseY + 10560, 18);
-        addSegment(1110, baseY + 10920, 860, baseY + 11190, 18);
+        // 두 번째 발사 장치
+        addLaunchPad(900, baseY + 9700);
 
-        // 청록 체브론 구역 느낌
-        addSegment(700, baseY + 11640, 760, baseY + 11770, 10, "accent");
-        addSegment(810, baseY + 11640, 870, baseY + 11770, 10, "accent");
-        addSegment(920, baseY + 11640, 980, baseY + 11770, 10, "accent");
-        addSegment(1030, baseY + 11640, 1090, baseY + 11770, 10, "accent");
+        addSegment(720, baseY + 10580, 1030, baseY + 10760, 18);
+        addSegment(1050, baseY + 11170, 860, baseY + 11370, 18);
 
-        addSegment(720, baseY + 12160, 1080, baseY + 12380, 18);
-        addSegment(1100, baseY + 12780, 870, baseY + 13020, 18);
+        // 청록 장식 느낌
+        addSegment(700, baseY + 11880, 760, baseY + 12010, 10, "accent");
+        addSegment(810, baseY + 11880, 870, baseY + 12010, 10, "accent");
+        addSegment(920, baseY + 11880, 980, baseY + 12010, 10, "accent");
+        addSegment(1030, baseY + 11880, 1090, baseY + 12010, 10, "accent");
 
-        // 마지막 좁혀짐
-        addSegment(720, baseY + 13450, 860, baseY + 14060, 18);
-        addSegment(1080, baseY + 13450, 940, baseY + 14060, 18);
-        addSegment(880, baseY + 14060, 880, baseY + 14530, 14);
-        addSegment(920, baseY + 14060, 920, baseY + 14530, 14);
+        // 마지막 한 줄 진입
+        addSegment(730, baseY + 12780, 870, baseY + 13520, 18);
+        addSegment(1070, baseY + 12780, 930, baseY + 13520, 18);
 
-        setFinishSensor(900, baseY + 14660, 110, 90);
-        WORLD_BOTTOM = baseY + 15100;
+        addSegment(885, baseY + 13520, 885, baseY + 15000, 14);
+        addSegment(915, baseY + 13520, 915, baseY + 15000, 14);
 
-        for (let y = baseY + 1820; y <= baseY + 13300; y += 760) {
-          const row = Math.floor((y - (baseY + 1820)) / 760);
+        setFinishSensor(900, baseY + 15120, 100, 90);
+        WORLD_BOTTOM = baseY + 15600;
+
+        // 청록 핀
+        for (let y = baseY + 1780; y <= baseY + 12400; y += 760) {
+          const row = Math.floor((y - (baseY + 1780)) / 760);
           const cols = row % 2 === 0 ? 4 : 3;
           const sx = cols === 4 ? 640 : 710;
           for (let i = 0; i < cols; i++) {
@@ -504,8 +500,9 @@
           }
         }
 
-        addSpinner(760, baseY + 5480, 150, 12, -0.8);
-        addSpinner(1040, baseY + 5480, 150, 12, 0.8);
+        // 보조 회전막대
+        addSpinner(760, baseY + 5650, 150, 12, -0.8);
+        addSpinner(1040, baseY + 5650, 150, 12, 0.8);
       }
 
       function buildBalls(names) {
@@ -863,10 +860,10 @@
           if (speed < 18 && b.y > WORLD_TOP + 800) b.slowTimer += dt;
           else b.slowTimer = 0;
 
-          if (b.slowTimer > 0.6) {
-            b.vy += 110 + Math.random() * 35;
-            b.vx += (Math.random() - 0.5) * 10;
-            b.slowTimer = 0.12;
+          if (b.slowTimer > 0.45) {
+            b.vy += 150 + Math.random() * 50;
+            b.vx += (Math.random() - 0.5) * 12;
+            b.slowTimer = 0.08;
           }
 
           for (let p = 0; p < launchPads.length; p++) {
@@ -1024,17 +1021,18 @@
         if (p.x < -r * 4 || p.x > scene.width + r * 4 || p.y < -r * 4 || p.y > scene.height + r * 4) return;
 
         const flash = ball.flashUntil && now < ball.flashUntil;
+        const captured = ball.captured;
         const g = ctx.createRadialGradient(p.x - r * 0.35, p.y - r * 0.45, r * 0.12, p.x, p.y, r);
         g.addColorStop(0, "#ffffff");
-        g.addColorStop(0.45, flash ? "#9fe8ff" : ball.color);
-        g.addColorStop(1, flash ? "#00a8ff" : "#777777");
+        g.addColorStop(0.45, captured ? "#9fe8ff" : (flash ? "#9fe8ff" : ball.color));
+        g.addColorStop(1, captured ? "#00ccff" : (flash ? "#00a8ff" : "#777777"));
 
         ctx.save();
         ctx.beginPath();
         ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
         ctx.fillStyle = g;
-        ctx.shadowColor = flash ? "rgba(0,180,255,0.45)" : "rgba(255,255,255,0.16)";
-        ctx.shadowBlur = flash ? 24 : 16;
+        ctx.shadowColor = (flash || captured) ? "rgba(0,180,255,0.55)" : "rgba(255,255,255,0.16)";
+        ctx.shadowBlur = (flash || captured) ? 26 : 16;
         ctx.fill();
         ctx.shadowBlur = 0;
 
