@@ -225,7 +225,7 @@
       <div id="controlPanel" class="panel">
         <div>
           <div class="label">이름 입력 (쉼표 구분, 이름*개수 지원)</div>
-          <textarea id="namesInput">1*20,2,3,민수*5,지,원*3</textarea>
+          <textarea id="namesInput">1,2,3,4,5*5</textarea>
         </div>
 
         <div>
@@ -237,6 +237,7 @@
         <button id="startBtn">시작</button>
 
         <div id="hint">예) 1*20 = 이름이 1인 공 20개
+중력가속도 제거, 일정한 아래 힘만 적용
 첫 통과 전: 가장 앞선 공 추적
 첫 통과 후: 가장 느린 공 추적
 발사 장치는 안으로 들어가 1초 뒤 아래로 팡!</div>
@@ -274,14 +275,15 @@
 
       const WORLD_W = 2500;
       let WORLD_TOP = -6500;
-      let WORLD_BOTTOM = 22000;
+      let WORLD_BOTTOM = 22500;
 
-      const GRAVITY = 1950;
-      const AIR = 0.001;
-      const RESTITUTION = 0.77;
-      const TANGENT_FRICTION = 0.988;
+      const DOWN_FORCE = 760;       // 일정한 아래 힘
+      const AIR = 0.002;
+      const RESTITUTION = 0.75;
+      const TANGENT_FRICTION = 0.987;
       const MAX_DT = 1 / 30;
-      const FIXED_DT = 1 / 120;
+      const FIXED_DT = 1 / 180;
+      const SUBSTEPS = 2;
 
       const LEFT_LIMIT = 260;
       const RIGHT_LIMIT = WORLD_W - 260;
@@ -427,7 +429,7 @@
           { x: 1180, y: baseY + 9800 },
           { x: 1360, y: baseY + 12600 },
           { x: 1360, y: baseY + 15600 },
-          { x: 1240, y: baseY + 18000 }
+          { x: 1240, y: baseY + 18800 }
         ];
 
         buildParallelWalls(centerline, width, 30);
@@ -439,50 +441,47 @@
         addSegment(1210, baseY + 1310, 1250, baseY + 1490, 14);
         addSegment(1290, baseY + 1310, 1250, baseY + 1490, 14);
 
-        // 재미용 짧은 유도벽들
-        addSegment(1040, baseY + 2700, 1360, baseY + 2870, 18);
-        addSegment(1410, baseY + 3550, 1150, baseY + 3800, 18);
+        // 벽에 붙은 막대 + 한쪽 뚫린 기울기
+        addSegment(760,  baseY + 2550, 1090, baseY + 2870, 18);   // 왼벽쪽 부착
+        addSegment(1460, baseY + 3500, 1210, baseY + 3770, 18);   // 오른벽쪽 부착
+        addSegment(780,  baseY + 4550, 1110, baseY + 4850, 18);
+        addSegment(1450, baseY + 5480, 1200, baseY + 5750, 18);
 
-        addSegment(1080, baseY + 4700, 1370, baseY + 4860, 18);
-        addSegment(1420, baseY + 5600, 1170, baseY + 5840, 18);
-
-        // 발사 장치 1
+        // 첫 발사 장치
         addLaunchPad(1250, baseY + 7000);
 
-        // 발사 후 긴 지그 채널
-        addSegment(1100, baseY + 8200, 1380, baseY + 8360, 18);
-        addSegment(1420, baseY + 9080, 1190, baseY + 9310, 18);
-        addSegment(1080, baseY + 9950, 1360, baseY + 10110, 18);
+        // 더 긴 재미 구간
+        addSegment(820,  baseY + 8220, 1140, baseY + 8520, 18);
+        addSegment(1470, baseY + 9160, 1210, baseY + 9430, 18);
+        addSegment(830,  baseY + 10120, 1150, baseY + 10410, 18);
 
-        // 회전 존
+        // 회전 막대 구간
         addSpinner(1250, baseY + 11200, 320, 14, 0.92);
         addSpinner(1010, baseY + 11840, 190, 12, -0.86);
         addSpinner(1490, baseY + 11840, 190, 12, 0.86);
 
-        addSegment(1110, baseY + 12850, 1390, baseY + 13010, 18);
-        addSegment(1420, baseY + 13750, 1200, baseY + 13980, 18);
+        // 또 다른 유도벽
+        addSegment(850,  baseY + 12840, 1160, baseY + 13130, 18);
+        addSegment(1460, baseY + 13760, 1220, baseY + 14020, 18);
 
-        // 발사 장치 2
+        // 두 번째 발사 장치
         addLaunchPad(1250, baseY + 15150);
 
-        // 청록 장식과 짧은 유도벽
+        // 장식과 유도
         addSegment(1050, baseY + 16320, 1110, baseY + 16460, 10, "accent");
         addSegment(1170, baseY + 16320, 1230, baseY + 16460, 10, "accent");
         addSegment(1290, baseY + 16320, 1350, baseY + 16460, 10, "accent");
         addSegment(1410, baseY + 16320, 1470, baseY + 16460, 10, "accent");
 
-        addSegment(1100, baseY + 17080, 1370, baseY + 17240, 18);
-        addSegment(1400, baseY + 17880, 1210, baseY + 18080, 18);
+        addSegment(860,  baseY + 17120, 1170, baseY + 17410, 18);
+        addSegment(1460, baseY + 17980, 1230, baseY + 18220, 18);
 
-        // 마지막만 깔때기 + 통로
-        addSegment(1170, baseY + 18600, 1230, baseY + 19600, 18);
-        addSegment(1330, baseY + 18600, 1270, baseY + 19600, 18);
+        // 마지막: 벽이랑 이어지는 깔때기만
+        addSegment(660,  baseY + 18880, 1210, baseY + 20320, 22);
+        addSegment(1840, baseY + 18880, 1290, baseY + 20320, 22);
 
-        addSegment(1234, baseY + 19600, 1234, baseY + 20550, 14);
-        addSegment(1266, baseY + 19600, 1266, baseY + 20550, 14);
-
-        setFinishSensor(1250, baseY + 20680, 110, 90);
-        WORLD_BOTTOM = baseY + 21200;
+        setFinishSensor(1250, baseY + 20430, 125, 95);
+        WORLD_BOTTOM = baseY + 20950;
 
         for (let y = baseY + 2050; y <= baseY + 18200; y += 980) {
           const row = Math.floor((y - (baseY + 2050)) / 980);
@@ -801,21 +800,21 @@
             b.vy = 0;
           }
 
-          b.vy += GRAVITY * dt;
+          b.vy += DOWN_FORCE * dt;
           b.vx *= (1 - AIR);
-          b.vy *= (1 - AIR * 0.5);
+          b.vy *= (1 - AIR * 0.3);
           b.angle += b.av * dt;
 
           b.x += b.vx * dt;
           b.y += b.vy * dt;
         }
 
-        for (let iter = 0; iter < 2; iter++) {
+        for (let iter = 0; iter < 4; iter++) {
           for (const b of balls) {
             if (b.finished || b.captured) continue;
 
-            if (b.x < LEFT_LIMIT + b.r) { b.x = LEFT_LIMIT + b.r; b.vx = Math.abs(b.vx) * 0.45; }
-            if (b.x > RIGHT_LIMIT - b.r) { b.x = RIGHT_LIMIT - b.r; b.vx = -Math.abs(b.vx) * 0.45; }
+            if (b.x < LEFT_LIMIT + b.r) { b.x = LEFT_LIMIT + b.r; b.vx = Math.abs(b.vx) * 0.35; }
+            if (b.x > RIGHT_LIMIT - b.r) { b.x = RIGHT_LIMIT - b.r; b.vx = -Math.abs(b.vx) * 0.35; }
             if (b.y < WORLD_TOP + b.r) { b.y = WORLD_TOP + b.r; b.vy = Math.abs(b.vy) * 0.2; }
 
             for (const seg of segments) {
@@ -856,13 +855,13 @@
           if (b.finished || b.captured) continue;
 
           const speed = Math.hypot(b.vx, b.vy);
-          if (speed < 18 && b.y > WORLD_TOP + 800) b.slowTimer += dt;
+          if (speed < 12 && b.y > WORLD_TOP + 800) b.slowTimer += dt;
           else b.slowTimer = 0;
 
-          if (b.slowTimer > 0.24) {
-            b.vy += 220 + Math.random() * 45;
-            b.vx += (Math.random() - 0.5) * 10;
-            b.slowTimer = 0.03;
+          if (b.slowTimer > 0.26) {
+            b.vy += 80 + Math.random() * 20;
+            b.vx += (Math.random() - 0.5) * 8;
+            b.slowTimer = 0.04;
           }
 
           for (let p = 0; p < launchPads.length; p++) {
@@ -888,7 +887,7 @@
             b.finishOrder = rankings.length + 1;
             rankings.push(b);
             b.vx = 0;
-            b.vy = Math.min(b.vy, 80);
+            b.vy = 0;
 
             if (!winnerInfo && b.finishOrder === targetRank) {
               winnerInfo = { rank: b.finishOrder, name: b.name };
@@ -1179,7 +1178,9 @@
         accumulator += dt;
 
         while (accumulator >= FIXED_DT) {
-          stepPhysics(FIXED_DT, now);
+          for (let s = 0; s < SUBSTEPS; s++) {
+            stepPhysics(FIXED_DT / SUBSTEPS, now);
+          }
           accumulator -= FIXED_DT;
         }
 
