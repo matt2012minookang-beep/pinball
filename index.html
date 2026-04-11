@@ -103,7 +103,9 @@
       line-height: 1.45;
     }
 
-    input { height: 44px; }
+    input {
+      height: 44px;
+    }
 
     button {
       border: none;
@@ -166,7 +168,7 @@
       position: absolute;
       top: 16px;
       right: 16px;
-      width: 210px;
+      width: 220px;
       max-height: calc(100% - 32px);
       overflow: auto;
       padding: 14px;
@@ -217,7 +219,7 @@
     @media (max-width: 920px) {
       #app { gap: 10px; padding: 10px; }
       #leftPanel { width: 280px; }
-      #rankBoard { width: 175px; }
+      #rankBoard { width: 180px; }
       #winnerBanner { font-size: 24px; }
     }
   </style>
@@ -238,7 +240,7 @@
 
         <div>
           <div class="label">몇 번째가 당첨인지</div>
-          <input id="targetInput" type="number" min="1" value="10">
+          <input id="targetInput" type="number" min="1" value="10" />
         </div>
 
         <button id="shuffleBtn">셔플</button>
@@ -247,7 +249,7 @@
         <div id="hint">시작 전엔 상단 고정 보기
 시작 후 1.2초 뒤부터 선두 공 추적
 중력/관성/충돌/작용반작용 적용
-왼쪽 위 전체 맵에 현재 시야 표시</div>
+특수 발사 장치: 들어가면 1초 뒤 팡! 아래로 발사</div>
       </div>
     </div>
 
@@ -289,30 +291,32 @@
 
       const engine = Engine.create();
       engine.gravity.y = 1;
-      engine.gravity.scale = 0.00155;
+      engine.gravity.scale = 0.00145;
       engine.positionIterations = 8;
       engine.velocityIterations = 6;
+      engine.constraintIterations = 2;
       const world = engine.world;
 
-      const WORLD_W = 1600;
-      const WORLD_H = 12800;
-      const LEFT = 250;
-      const RIGHT = WORLD_W - 250;
+      const WORLD_W = 1700;
+      const WORLD_H = 13000;
+      const LEFT = 260;
+      const RIGHT = WORLD_W - 260;
       const TOP = 120;
       const BOTTOM = WORLD_H - 180;
 
       const camera = {
         x: WORLD_W / 2,
-        y: 1400,
+        y: 1500,
         zoom: 1,
         targetX: WORLD_W / 2,
-        targetY: 1400,
+        targetY: 1500,
         targetZoom: 1
       };
 
       let walls = [];
       let pegs = [];
       let spinners = [];
+      let launchPads = [];
       let sensors = [];
       let balls = [];
       let rankings = [];
@@ -361,9 +365,11 @@
       function clearWorld() {
         const all = Composite.allBodies(world);
         for (const body of all) World.remove(world, body);
+
         walls = [];
         pegs = [];
         spinners = [];
+        launchPads = [];
         sensors = [];
         balls = [];
         rankings = [];
@@ -402,7 +408,7 @@
       function addPeg(x, y, r = 13) {
         const body = Bodies.circle(x, y, r, {
           isStatic: true,
-          restitution: 0.9,
+          restitution: 0.88,
           friction: 0.01
         });
         body.kind = "peg";
@@ -411,7 +417,7 @@
         return body;
       }
 
-      function addSpinner(x, y, length = 180, thickness = 14, speed = 0.02) {
+      function addSpinner(x, y, length = 180, thickness = 14, speed = 0.018) {
         const body = Bodies.rectangle(x, y, length, thickness, {
           isStatic: true,
           restitution: 0.72,
@@ -437,6 +443,26 @@
         return body;
       }
 
+      function addLaunchPad(x, y) {
+        const sensor = Bodies.circle(x, y, 52, {
+          isStatic: true,
+          isSensor: true
+        });
+        sensor.kind = "launchPad";
+        sensor.padX = x;
+        sensor.padY = y;
+        launchPads.push(sensor);
+        World.add(world, sensor);
+
+        // 장치 모양
+        addWall(x - 80, y - 55, x - 20, y + 5, 16);
+        addWall(x + 80, y - 55, x + 20, y + 5, 16);
+        addWall(x - 25, y + 20, x - 60, y + 120, 14);
+        addWall(x + 25, y + 20, x + 60, y + 120, 14);
+
+        return sensor;
+      }
+
       function buildMap() {
         clearWorld();
 
@@ -444,89 +470,88 @@
         addWall(RIGHT, TOP, RIGHT, BOTTOM, 30);
         addWall(LEFT, TOP, RIGHT, TOP, 30);
 
-        addWall(340, 560, 740, 740, 18);
-        addWall(860, 680, 1230, 680, 18);
+        addWall(350, 560, 770, 750, 18);
+        addWall(910, 700, 1290, 700, 18);
 
-        addWall(360, 1020, 900, 1220, 20);
-        addWall(1240, 1060, 760, 1310, 20);
+        addWall(370, 1040, 930, 1260, 20);
+        addWall(1330, 1080, 810, 1360, 20);
 
-        addWall(360, 1620, 760, 1900, 18);
-        addWall(1240, 1620, 840, 1900, 18);
-        addWall(760, 1900, 860, 2260, 14);
-        addWall(840, 1900, 740, 2260, 14);
+        addWall(380, 1680, 790, 1980, 18);
+        addWall(1320, 1680, 910, 1980, 18);
+        addWall(790, 1980, 900, 2350, 14);
+        addWall(910, 1980, 800, 2350, 14);
 
-        addWall(350, 2660, 760, 2800, 18);
-        addWall(980, 2960, 1240, 2720, 18);
+        addWall(360, 2740, 790, 2890, 18);
+        addWall(1010, 3050, 1330, 2790, 18);
 
-        addWall(360, 3360, 820, 3680, 18);
-        addWall(1240, 3400, 780, 3750, 18);
+        addWall(380, 3470, 860, 3810, 18);
+        addWall(1320, 3510, 840, 3880, 18);
 
-        addWall(350, 4160, 860, 4390, 18);
-        addWall(1240, 4200, 730, 4470, 18);
+        addWall(360, 4300, 900, 4550, 18);
+        addWall(1320, 4340, 780, 4630, 18);
 
-        addWall(480, 4820, 820, 5160, 16);
-        addWall(1120, 4820, 780, 5160, 16);
+        addWall(500, 5000, 850, 5360, 16);
+        addWall(1200, 5000, 850, 5360, 16);
 
-        addWall(350, 5650, 760, 5920, 18);
-        addWall(1240, 5690, 830, 5970, 18);
+        addLaunchPad(850, 5750);
 
-        addWall(340, 6480, 880, 6740, 20);
-        addWall(1260, 6510, 720, 6800, 20);
+        addWall(360, 6280, 790, 6580, 18);
+        addWall(1320, 6280, 910, 6580, 18);
+        addWall(790, 6580, 900, 6940, 14);
+        addWall(910, 6580, 800, 6940, 14);
 
-        addWall(360, 7300, 770, 7600, 18);
-        addWall(1240, 7300, 830, 7600, 18);
-        addWall(770, 7600, 860, 7950, 14);
-        addWall(830, 7600, 740, 7950, 14);
+        addWall(360, 7380, 930, 7630, 18);
+        addWall(1320, 7420, 760, 7700, 18);
 
-        addWall(350, 8400, 850, 8640, 18);
-        addWall(1240, 8440, 740, 8710, 18);
+        addWall(400, 8200, 810, 8520, 18);
+        addWall(1280, 8200, 890, 8520, 18);
 
-        addWall(400, 9190, 790, 9500, 18);
-        addWall(1190, 9190, 800, 9500, 18);
+        addWall(360, 9050, 860, 9300, 18);
+        addWall(1320, 9090, 820, 9380, 18);
 
-        addWall(350, 10020, 840, 10250, 18);
-        addWall(1240, 10040, 750, 10300, 18);
+        addSpinner(850, 9850, 220, 14, 0.019);
 
-        addWall(390, 10880, 780, 11160, 18);
-        addWall(1200, 10880, 810, 11160, 18);
+        addWall(400, 10350, 800, 10650, 18);
+        addWall(1280, 10350, 900, 10650, 18);
 
-        addWall(760, 11350, 760, 11800, 14);
-        addWall(840, 11350, 840, 11800, 14);
+        addLaunchPad(850, 11150);
 
-        addWall(760, 11800, 800, 12000, 14);
-        addWall(840, 11800, 800, 12000, 14);
+        addWall(390, 11800, 800, 12120, 18);
+        addWall(1310, 11800, 900, 12120, 18);
 
-        addSensor(800, 12110, 130, 80, "finish");
+        addWall(810, 12250, 810, 12630, 14);
+        addWall(890, 12250, 890, 12630, 14);
 
-        for (let y = 1320; y <= 10980; y += 430) {
-          const row = Math.floor((y - 1320) / 430);
+        addSensor(850, 12740, 150, 90, "finish");
+
+        for (let y = 1360; y <= 11800; y += 440) {
+          const row = Math.floor((y - 1360) / 440);
           const cols = row % 2 === 0 ? 6 : 5;
-          const sx = cols === 6 ? 430 : 505;
+          const sx = cols === 6 ? 470 : 545;
           for (let i = 0; i < cols; i++) {
-            addPeg(sx + i * 150, y, 12 + ((i + row) % 2));
+            addPeg(sx + i * 145, y, 12 + ((i + row) % 2));
           }
         }
 
-        addSpinner(800, 2420, 180, 14, 0.02);
-        addSpinner(560, 5340, 180, 14, -0.019);
-        addSpinner(1040, 5340, 180, 14, 0.019);
-        addSpinner(800, 8080, 200, 14, -0.021);
-        addSpinner(800, 10540, 200, 14, 0.021);
+        addSpinner(850, 2480, 190, 14, 0.018);
+        addSpinner(590, 5500, 180, 14, -0.017);
+        addSpinner(1110, 5500, 180, 14, 0.017);
+        addSpinner(850, 7150, 210, 14, -0.018);
 
-        addWall(LEFT, BOTTOM, 690, BOTTOM, 18, "hidden");
-        addWall(910, BOTTOM, RIGHT, BOTTOM, 18, "hidden");
+        addWall(LEFT, BOTTOM, 720, BOTTOM, 18, "hidden");
+        addWall(980, BOTTOM, RIGHT, BOTTOM, 18, "hidden");
       }
 
       function buildBalls(names) {
         const r = 30;
         const count = names.length;
-        const usableLeft = LEFT + 90;
-        const usableRight = RIGHT - 90;
+        const usableLeft = LEFT + 110;
+        const usableRight = RIGHT - 110;
         const usableWidth = usableRight - usableLeft;
-        const gap = count > 1 ? Math.min(90, usableWidth / (count - 1)) : 0;
+        const gap = count > 1 ? Math.min(95, usableWidth / (count - 1)) : 0;
         const totalWidth = gap * (count - 1);
         const startX = (usableLeft + usableRight) / 2 - totalWidth / 2;
-        const startY = 280;
+        const startY = 290;
 
         balls = names.map((name, i) => {
           const b = Bodies.circle(startX + i * gap, startY, r, {
@@ -534,12 +559,14 @@
             restitution: 0.58,
             friction: 0.01,
             frictionAir: 0.0007,
-            density: 0.0022
+            density: 0.0021
           });
           b.ballName = name;
           b.ballColor = ballColors[i % ballColors.length];
           b.finished = false;
           b.finishOrder = 0;
+          b.launchQueued = false;
+          b.flashUntil = 0;
           World.add(world, b);
           return b;
         });
@@ -548,10 +575,10 @@
       function setInitialCamera(instant = true) {
         const vw = scene.width;
         const vh = scene.height;
-        const z = Math.min(vw / (WORLD_W + 150), vh / 2800);
+        const z = Math.min(vw / (WORLD_W + 180), vh / 3000);
 
         camera.targetX = WORLD_W / 2;
-        camera.targetY = 1450;
+        camera.targetY = 1550;
         camera.targetZoom = z;
 
         if (instant) {
@@ -602,16 +629,16 @@
         startTime = performance.now();
         statusBar.textContent = "시작! 상단 고정 후 추적 전환";
 
-        const followZoom = Math.min(scene.width / 920, scene.height / 1800);
+        const followZoom = Math.min(scene.width / 980, scene.height / 1900);
         camera.targetZoom = followZoom;
 
         for (const b of balls) {
           Body.setStatic(b, false);
           Body.setVelocity(b, {
-            x: (Math.random() - 0.5) * 0.55,
-            y: 0.15 + Math.random() * 0.08
+            x: (Math.random() - 0.5) * 0.45,
+            y: 0.12 + Math.random() * 0.08
           });
-          Body.setAngularVelocity(b, (Math.random() - 0.5) * 0.025);
+          Body.setAngularVelocity(b, (Math.random() - 0.5) * 0.022);
         }
       }
 
@@ -644,40 +671,36 @@
 
         if (!followEnabled) {
           camera.targetX = WORLD_W / 2;
-          camera.targetY = 1550;
+          camera.targetY = 1650;
         } else {
           const leader = getLeaderBall();
           if (leader) {
-            camera.targetX = Math.max(LEFT + 260, Math.min(RIGHT - 260, leader.position.x));
-            camera.targetY = Math.max(1200, Math.min(WORLD_H - 1100, leader.position.y));
+            camera.targetX = Math.max(LEFT + 280, Math.min(RIGHT - 280, leader.position.x));
+            camera.targetY = Math.max(1300, Math.min(WORLD_H - 1200, leader.position.y));
           }
         }
 
-        camera.x += (camera.targetX - camera.x) * 0.11;
-        camera.y += (camera.targetY - camera.y) * 0.11;
+        camera.x += (camera.targetX - camera.x) * 0.1;
+        camera.y += (camera.targetY - camera.y) * 0.1;
         camera.zoom += (camera.targetZoom - camera.zoom) * 0.05;
       }
 
       function constrainBalls() {
         for (const b of balls) {
-          if (b.position.x < LEFT + 22) Body.setPosition(b, { x: LEFT + 22, y: b.position.y });
-          if (b.position.x > RIGHT - 22) Body.setPosition(b, { x: RIGHT - 22, y: b.position.y });
+          if (b.position.x < LEFT + 25) Body.setPosition(b, { x: LEFT + 25, y: b.position.y });
+          if (b.position.x > RIGHT - 25) Body.setPosition(b, { x: RIGHT - 25, y: b.position.y });
 
           if (!Number.isFinite(b.position.x) || !Number.isFinite(b.position.y)) {
-            Body.setPosition(b, { x: WORLD_W / 2, y: 300 });
+            Body.setPosition(b, { x: WORLD_W / 2, y: 320 });
             Body.setVelocity(b, { x: 0, y: 0 });
-          }
-
-          if (started && !b.finished && b.position.y > 11800) {
-            const dx = 800 - b.position.x;
-            Body.applyForce(b, b.position, { x: dx * 0.0000009, y: 0.0000012 });
+            Body.setAngularVelocity(b, 0);
           }
         }
       }
 
       function updateSpinners() {
         for (const s of spinners) {
-          Body.setAngle(s, s.angle + s.spinSpeed);
+          Body.rotate(s, s.spinSpeed);
         }
       }
 
@@ -740,25 +763,52 @@
         ctx.fill();
       }
 
-      function drawBall(body) {
+      function drawLaunchPad(pad, now) {
+        const p = worldToScreen(pad.position.x, pad.position.y);
+        const r = 52 * camera.zoom;
+        if (r < 2) return;
+
+        const pulsing = 0.6 + 0.4 * Math.sin(now * 0.01);
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,255,255,${0.08 + pulsing * 0.10})`;
+        ctx.fill();
+        ctx.strokeStyle = "rgba(255,255,255,0.85)";
+        ctx.lineWidth = Math.max(2, r * 0.08);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, r * 0.45, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(255,255,255,0.18)";
+        ctx.fill();
+        ctx.restore();
+      }
+
+      function drawBall(body, now) {
         const p = worldToScreen(body.position.x, body.position.y);
         const r = body.circleRadius * camera.zoom;
 
         if (p.x < -r * 4 || p.x > scene.width + r * 4 || p.y < -r * 4 || p.y > scene.height + r * 4) return;
 
+        const flash = body.flashUntil && now < body.flashUntil;
+        const baseEnd = flash ? "#ffffff" : "#777777";
+
         const g = ctx.createRadialGradient(p.x - r * 0.35, p.y - r * 0.45, r * 0.12, p.x, p.y, r);
         g.addColorStop(0, "#ffffff");
         g.addColorStop(0.45, body.ballColor);
-        g.addColorStop(1, "#777777");
+        g.addColorStop(1, baseEnd);
 
         ctx.save();
         ctx.beginPath();
         ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
         ctx.fillStyle = g;
-        ctx.shadowColor = "rgba(255,255,255,0.16)";
-        ctx.shadowBlur = 16;
+        ctx.shadowColor = flash ? "rgba(255,255,255,0.35)" : "rgba(255,255,255,0.16)";
+        ctx.shadowBlur = flash ? 26 : 16;
         ctx.fill();
         ctx.shadowBlur = 0;
+
         ctx.strokeStyle = "rgba(0,0,0,0.45)";
         ctx.lineWidth = Math.max(1, r * 0.08);
         ctx.stroke();
@@ -783,14 +833,34 @@
         }
       }
 
-      function drawMainScene() {
+      function drawBlastText(now) {
+        ctx.save();
+        ctx.fillStyle = "rgba(255,255,255,0.95)";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.font = "900 24px Malgun Gothic, sans-serif";
+
+        for (const b of balls) {
+          if (b.flashUntil && now < b.flashUntil) {
+            const p = worldToScreen(b.position.x, b.position.y - 90);
+            if (p.x >= -100 && p.x <= scene.width + 100 && p.y >= -100 && p.y <= scene.height + 100) {
+              ctx.fillText("팡!", p.x, p.y);
+            }
+          }
+        }
+        ctx.restore();
+      }
+
+      function drawMainScene(now) {
         drawBackground();
         drawChamberFill();
 
         for (const w of walls) drawWall(w);
         for (const p of pegs) drawPeg(p);
         for (const s of spinners) drawWall(s);
-        for (const b of balls) drawBall(b);
+        for (const pad of launchPads) drawLaunchPad(pad, now);
+        for (const b of balls) drawBall(b, now);
+        drawBlastText(now);
       }
 
       function drawMiniMap() {
@@ -818,6 +888,13 @@
           miniCtx.stroke();
         }
 
+        miniCtx.strokeStyle = "rgba(255,255,255,0.7)";
+        for (const padBody of launchPads) {
+          miniCtx.beginPath();
+          miniCtx.arc(mx(padBody.position.x), my(padBody.position.y), Math.max(2, 52 * scale), 0, Math.PI * 2);
+          miniCtx.stroke();
+        }
+
         miniCtx.fillStyle = "rgba(255,255,255,0.55)";
         for (const p of pegs) {
           miniCtx.beginPath();
@@ -842,10 +919,39 @@
         miniCtx.strokeRect(mx(vx), my(vy), viewWorldW * scale, viewWorldH * scale);
       }
 
+      function triggerLaunch(ball, pad) {
+        if (ball.launchQueued || ball.finished) return;
+        ball.launchQueued = true;
+
+        setTimeout(() => {
+          if (!balls.includes(ball) || ball.finished) return;
+
+          Body.setVelocity(ball, { x: 0, y: 0 });
+          Body.setAngularVelocity(ball, 0);
+
+          const side = Math.random() < 0.5 ? -1 : 1;
+          const spread = 2.2 + Math.random() * 1.8;
+
+          Body.applyForce(ball, ball.position, {
+            x: side * 0.012 * spread,
+            y: 0.030 + Math.random() * 0.012
+          });
+
+          ball.flashUntil = performance.now() + 450;
+          ball.launchQueued = false;
+        }, 1000);
+      }
+
       Events.on(engine, "collisionStart", event => {
         for (const pair of event.pairs) {
-          checkFinish(pair.bodyA, pair.bodyB);
-          checkFinish(pair.bodyB, pair.bodyA);
+          const a = pair.bodyA;
+          const b = pair.bodyB;
+
+          checkFinish(a, b);
+          checkFinish(b, a);
+
+          checkLaunchPad(a, b);
+          checkLaunchPad(b, a);
         }
       });
 
@@ -870,12 +976,18 @@
         updateRankBoard();
       }
 
+      function checkLaunchPad(a, b) {
+        if (!a.isSensor || a.kind !== "launchPad") return;
+        if (!b.ballName || b.finished) return;
+        triggerLaunch(b, a);
+      }
+
       function loop(now) {
         updateSpinners();
         Engine.update(engine, 1000 / 60);
         constrainBalls();
         updateCamera(now);
-        drawMainScene();
+        drawMainScene(now);
         drawMiniMap();
         requestAnimationFrame(loop);
       }
