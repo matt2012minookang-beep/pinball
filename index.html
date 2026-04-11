@@ -246,7 +246,7 @@
         <div id="hint">예) 1*20 = 이름이 1인 공 20개
 시작 전엔 절대 안 움직임
 시작 후 1.2초 뒤부터 선두 공 추적
-원형 네온 패드에 닿으면 1초 뒤 아래로 팡!</div>
+원형 네온 패드에 닿으면 안으로 들어가 1초 뒤 아래로 팡!</div>
       </div>
     </div>
 
@@ -281,12 +281,12 @@
 
       const WORLD_W = 1800;
       let WORLD_TOP = -5000;
-      let WORLD_BOTTOM = 15500;
+      let WORLD_BOTTOM = 16000;
 
       const GRAVITY = 1820;
       const AIR = 0.0010;
-      const RESTITUTION = 0.72;
-      const TANGENT_FRICTION = 0.985;
+      const RESTITUTION = 0.74;
+      const TANGENT_FRICTION = 0.986;
       const MAX_DT = 1 / 30;
       const FIXED_DT = 1 / 120;
 
@@ -390,10 +390,10 @@
 
       function addLaunchPad(x, y, r = 54) {
         launchPads.push({ x, y, r, pulse: Math.random() * Math.PI * 2 });
-        addSegment(x - 86, y - 55, x - 18, y + 10, 16);
-        addSegment(x + 86, y - 55, x + 18, y + 10, 16);
-        addSegment(x - 20, y + 18, x - 58, y + 125, 14);
-        addSegment(x + 20, y + 18, x + 58, y + 125, 14);
+        addSegment(x - 82, y - 56, x - 16, y + 10, 16);
+        addSegment(x + 82, y - 56, x + 16, y + 10, 16);
+        addSegment(x - 18, y + 16, x - 54, y + 118, 14);
+        addSegment(x + 18, y + 16, x + 54, y + 118, 14);
       }
 
       function setFinishSensor(x, y, w, h) {
@@ -406,121 +406,112 @@
         const topBuffer = Math.max(5200, spawnRows * 82 + 2600);
         WORLD_TOP = -topBuffer;
 
-        const baseY = 1400;
+        const baseY = 1500;
 
-        // 2번째 이미지 느낌의 꺾인 외벽
-        const leftPoints = [
+        // 멋지게 꺾인 외벽
+        const leftPts = [
           [340, WORLD_TOP],
-          [340, baseY + 200],
-          [520, baseY + 1450],
-          [520, baseY + 2300],
-          [740, baseY + 3200],
-          [740, baseY + 4700],
-          [560, baseY + 5750],
-          [560, baseY + 7150],
-          [760, baseY + 8350],
-          [760, baseY + 10150],
-          [620, baseY + 11300],
-          [620, baseY + 12950],
-          [760, baseY + 13850]
+          [340, baseY + 220],
+          [520, baseY + 1180],
+          [520, baseY + 2000],
+          [760, baseY + 2860],
+          [760, baseY + 4300],
+          [560, baseY + 5440],
+          [560, baseY + 6740],
+          [820, baseY + 8060],
+          [820, baseY + 9840],
+          [620, baseY + 11140],
+          [620, baseY + 12940],
+          [790, baseY + 14260]
         ];
 
-        const rightPoints = [
+        const rightPts = [
           [1460, WORLD_TOP],
-          [1460, baseY + 200],
-          [1280, baseY + 1450],
-          [1280, baseY + 2300],
-          [1060, baseY + 3200],
-          [1060, baseY + 4700],
-          [1240, baseY + 5750],
-          [1240, baseY + 7150],
-          [1040, baseY + 8350],
-          [1040, baseY + 10150],
-          [1180, baseY + 11300],
-          [1180, baseY + 12950],
-          [1040, baseY + 13850]
+          [1460, baseY + 220],
+          [1280, baseY + 1180],
+          [1280, baseY + 2000],
+          [1040, baseY + 2860],
+          [1040, baseY + 4300],
+          [1240, baseY + 5440],
+          [1240, baseY + 6740],
+          [980, baseY + 8060],
+          [980, baseY + 9840],
+          [1180, baseY + 11140],
+          [1180, baseY + 12940],
+          [1010, baseY + 14260]
         ];
 
-        for (let i = 0; i < leftPoints.length - 1; i++) {
-          addSegment(leftPoints[i][0], leftPoints[i][1], leftPoints[i + 1][0], leftPoints[i + 1][1], 28);
+        for (let i = 0; i < leftPts.length - 1; i++) {
+          addSegment(leftPts[i][0], leftPts[i][1], leftPts[i + 1][0], leftPts[i + 1][1], 28);
         }
-        for (let i = 0; i < rightPoints.length - 1; i++) {
-          addSegment(rightPoints[i][0], rightPoints[i][1], rightPoints[i + 1][0], rightPoints[i + 1][1], 28);
+        for (let i = 0; i < rightPts.length - 1; i++) {
+          addSegment(rightPts[i][0], rightPts[i][1], rightPts[i + 1][0], rightPts[i + 1][1], 28);
         }
-        addSegment(leftPoints[0][0], leftPoints[0][1], rightPoints[0][0], rightPoints[0][1], 28);
+        addSegment(leftPts[0][0], leftPts[0][1], rightPts[0][0], rightPts[0][1], 28);
 
-        // 첫 모이는 구조
-        addSegment(560, baseY + 620, 830, baseY + 1230, 18);
-        addSegment(1240, baseY + 620, 970, baseY + 1230, 18);
+        // 첫 구조: 모이고 바로 빠지게
+        addSegment(590, baseY + 700, 840, baseY + 1280, 18);
+        addSegment(1210, baseY + 700, 960, baseY + 1280, 18);
+        addSegment(770, baseY + 1440, 900, baseY + 1760, 14);
+        addSegment(1030, baseY + 1440, 900, baseY + 1760, 14);
 
-        // 첫 채널
-        addSegment(590, baseY + 1760, 1130, baseY + 1990, 18);
+        // 내부 채널들 - 막히는 긴 램프 없음
+        addSegment(620, baseY + 2250, 1090, baseY + 2460, 18);
+        addSegment(1120, baseY + 2820, 860, baseY + 3080, 18);
 
-        // 중간 꺾이는 벽 내부 가이드들
-        addSegment(610, baseY + 2700, 1110, baseY + 2980, 18);
-        addSegment(1170, baseY + 3370, 860, baseY + 3670, 18);
+        addSegment(680, baseY + 3540, 1080, baseY + 3760, 18);
+        addSegment(1110, baseY + 4120, 850, baseY + 4380, 18);
 
-        // 첫 발사장치 위 방
-        addSegment(650, baseY + 4220, 1080, baseY + 4440, 18);
+        addLaunchPad(900, baseY + 4980);
 
-        addLaunchPad(900, baseY + 5150);
-
-        // 발사 후 아래로 이어지는 채널
-        addSegment(660, baseY + 5940, 1110, baseY + 6200, 18);
-        addSegment(1150, baseY + 6700, 850, baseY + 6970, 18);
+        addSegment(700, baseY + 5750, 1080, baseY + 5960, 18);
+        addSegment(1100, baseY + 6320, 860, baseY + 6560, 18);
 
         // 회전 막대 방
-        addSpinner(900, baseY + 7820, 220, 14, 0.95);
-        addSegment(640, baseY + 8400, 1110, baseY + 8640, 18);
+        addSpinner(900, baseY + 7300, 230, 14, 0.95);
+        addSegment(700, baseY + 7900, 1090, baseY + 8110, 18);
+        addSegment(1120, baseY + 8480, 860, baseY + 8730, 18);
 
-        // 지그 흐름
-        addSegment(1120, baseY + 9120, 820, baseY + 9400, 18);
-        addSegment(660, baseY + 9860, 1100, baseY + 10120, 18);
+        addLaunchPad(900, baseY + 9550);
 
-        addLaunchPad(900, baseY + 10920);
+        addSegment(690, baseY + 10340, 1080, baseY + 10560, 18);
+        addSegment(1110, baseY + 10920, 860, baseY + 11190, 18);
 
-        addSegment(680, baseY + 11650, 1120, baseY + 11910, 18);
-        addSegment(1130, baseY + 12380, 840, baseY + 12660, 18);
+        // 청록 체브론 구역 느낌
+        addSegment(700, baseY + 11640, 760, baseY + 11770, 10, "accent");
+        addSegment(810, baseY + 11640, 870, baseY + 11770, 10, "accent");
+        addSegment(920, baseY + 11640, 980, baseY + 11770, 10, "accent");
+        addSegment(1030, baseY + 11640, 1090, baseY + 11770, 10, "accent");
 
-        // 마지막 좁혀지는 구조
-        addSegment(690, baseY + 13120, 860, baseY + 13680, 18);
-        addSegment(1110, baseY + 13120, 940, baseY + 13680, 18);
+        addSegment(720, baseY + 12160, 1080, baseY + 12380, 18);
+        addSegment(1100, baseY + 12780, 870, baseY + 13020, 18);
 
-        addSegment(880, baseY + 13680, 880, baseY + 14180, 14);
-        addSegment(920, baseY + 13680, 920, baseY + 14180, 14);
+        // 마지막 좁혀짐
+        addSegment(720, baseY + 13450, 860, baseY + 14060, 18);
+        addSegment(1080, baseY + 13450, 940, baseY + 14060, 18);
+        addSegment(880, baseY + 14060, 880, baseY + 14530, 14);
+        addSegment(920, baseY + 14060, 920, baseY + 14530, 14);
 
-        setFinishSensor(900, baseY + 14300, 110, 90);
-        WORLD_BOTTOM = baseY + 14750;
+        setFinishSensor(900, baseY + 14660, 110, 90);
+        WORLD_BOTTOM = baseY + 15100;
 
-        // 내부 청록 핀 느낌
-        for (let y = baseY + 1550; y <= baseY + 12800; y += 760) {
-          const row = Math.floor((y - (baseY + 1550)) / 760);
-          const cols = row % 2 === 0 ? 3 : 4;
-          const sx = cols === 3 ? 720 : 640;
+        for (let y = baseY + 1820; y <= baseY + 13300; y += 760) {
+          const row = Math.floor((y - (baseY + 1820)) / 760);
+          const cols = row % 2 === 0 ? 4 : 3;
+          const sx = cols === 4 ? 640 : 710;
           for (let i = 0; i < cols; i++) {
-            addPeg(sx + i * 140, y, 10 + ((i + row) % 2));
+            addPeg(sx + i * 120, y, 10);
           }
         }
 
-        // 청록 체브론 느낌의 보조 가이드
-        addSegment(690, baseY + 7200, 760, baseY + 7350, 10, "accent");
-        addSegment(820, baseY + 7200, 890, baseY + 7350, 10, "accent");
-        addSegment(950, baseY + 7200, 1020, baseY + 7350, 10, "accent");
-        addSegment(1080, baseY + 7200, 1150, baseY + 7350, 10, "accent");
-
-        addSegment(720, baseY + 12220, 790, baseY + 12380, 10, "accent");
-        addSegment(870, baseY + 12220, 940, baseY + 12380, 10, "accent");
-        addSegment(1020, baseY + 12220, 1090, baseY + 12380, 10, "accent");
-
-        // 보조 회전
-        addSpinner(760, baseY + 5610, 150, 12, -0.8);
-        addSpinner(1040, baseY + 5610, 150, 12, 0.8);
+        addSpinner(760, baseY + 5480, 150, 12, -0.8);
+        addSpinner(1040, baseY + 5480, 150, 12, 0.8);
       }
 
       function buildBalls(names) {
         const r = 24;
-        const spawnLeft = 450;
-        const spawnRight = 1350;
+        const spawnLeft = 470;
+        const spawnRight = 1330;
         const gapX = 52;
         const gapY = 60;
         const cols = Math.max(1, Math.floor((spawnRight - spawnLeft) / gapX));
@@ -546,6 +537,8 @@
             color: ballColors[i % ballColors.length],
             finished: false,
             finishOrder: 0,
+            captured: false,
+            capturePadIndex: -1,
             launchQueued: false,
             launchAt: 0,
             flashUntil: 0,
@@ -579,7 +572,7 @@
           shuffledNames = [...rawNames];
         }
 
-        const estimatedCols = Math.max(1, Math.floor((1350 - 450) / 52));
+        const estimatedCols = Math.max(1, Math.floor((1330 - 470) / 52));
         const spawnRows = Math.ceil(shuffledNames.length / estimatedCols);
         buildMap(spawnRows);
         buildBalls(shuffledNames);
@@ -782,6 +775,29 @@
         for (const b of balls) {
           if (b.finished) continue;
 
+          if (b.captured) {
+            const pad = launchPads[b.capturePadIndex];
+            if (pad) {
+              b.x = pad.x;
+              b.y = pad.y;
+              b.vx = 0;
+              b.vy = 0;
+              b.av = 0;
+              b.angle += 2.6 * dt;
+            }
+
+            if (b.launchQueued && now >= b.launchAt) {
+              b.captured = false;
+              b.launchQueued = false;
+              b.flashUntil = now + 450;
+              const side = Math.random() < 0.5 ? -1 : 1;
+              b.vx = side * (170 + Math.random() * 180);
+              b.vy = 560 + Math.random() * 220;
+              b.av = (Math.random() - 0.5) * 6;
+            }
+            continue;
+          }
+
           if (!Number.isFinite(b.x) || !Number.isFinite(b.y) || !Number.isFinite(b.vx) || !Number.isFinite(b.vy)) {
             b.x = WORLD_W / 2;
             b.y = WORLD_TOP + 500;
@@ -800,7 +816,7 @@
 
         for (let iter = 0; iter < 2; iter++) {
           for (const b of balls) {
-            if (b.finished) continue;
+            if (b.finished || b.captured) continue;
 
             if (b.x < LEFT_LIMIT + b.r) { b.x = LEFT_LIMIT + b.r; b.vx = Math.abs(b.vx) * 0.45; }
             if (b.x > RIGHT_LIMIT - b.r) { b.x = RIGHT_LIMIT - b.r; b.vx = -Math.abs(b.vx) * 0.45; }
@@ -834,42 +850,41 @@
 
           for (let i = 0; i < balls.length; i++) {
             for (let j = i + 1; j < balls.length; j++) {
-              if (balls[i].finished || balls[j].finished) continue;
+              if (balls[i].finished || balls[j].finished || balls[i].captured || balls[j].captured) continue;
               resolveBallBall(balls[i], balls[j]);
             }
           }
         }
 
         for (const b of balls) {
-          if (b.finished) continue;
+          if (b.finished || b.captured) continue;
 
           const speed = Math.hypot(b.vx, b.vy);
           if (speed < 18 && b.y > WORLD_TOP + 800) b.slowTimer += dt;
           else b.slowTimer = 0;
 
           if (b.slowTimer > 0.6) {
-            b.vy += 100 + Math.random() * 40;
+            b.vy += 110 + Math.random() * 35;
             b.vx += (Math.random() - 0.5) * 10;
             b.slowTimer = 0.12;
           }
 
-          for (const pad of launchPads) {
+          for (let p = 0; p < launchPads.length; p++) {
+            const pad = launchPads[p];
             const dx = b.x - pad.x;
             const dy = b.y - pad.y;
             const dist = Math.hypot(dx, dy);
-            if (dist < b.r + pad.r && !b.launchQueued) {
+            if (dist < pad.r - b.r * 0.15) {
+              b.captured = true;
+              b.capturePadIndex = p;
               b.launchQueued = true;
               b.launchAt = now + 1000;
+              b.x = pad.x;
+              b.y = pad.y;
+              b.vx = 0;
+              b.vy = 0;
+              break;
             }
-          }
-
-          if (b.launchQueued && now >= b.launchAt) {
-            b.launchQueued = false;
-            b.flashUntil = now + 450;
-            const side = Math.random() < 0.5 ? -1 : 1;
-            b.vx = side * (170 + Math.random() * 180);
-            b.vy = 560 + Math.random() * 220;
-            b.av = (Math.random() - 0.5) * 6;
           }
 
           if (finishSensor && pointInRect(b.x, b.y, finishSensor.x, finishSensor.y, finishSensor.w, finishSensor.h)) {
@@ -992,6 +1007,17 @@
         ctx.restore();
       }
 
+      function drawSpinner(sp) {
+        const half = sp.length * 0.5;
+        const cos = Math.cos(sp.angle);
+        const sin = Math.sin(sp.angle);
+        const x1 = sp.x - cos * half;
+        const y1 = sp.y - sin * half;
+        const x2 = sp.x + cos * half;
+        const y2 = sp.y + sin * half;
+        drawSegment({ x1, y1, x2, y2, thickness: sp.thickness, kind: "accent" });
+      }
+
       function drawBall(ball, now) {
         const p = worldToScreen(ball.x, ball.y);
         const r = ball.r * camera.zoom;
@@ -1075,6 +1101,7 @@
         drawChamberFill();
         for (const seg of segments) drawSegment(seg);
         for (const peg of pegs) drawPeg(peg);
+        for (const sp of spinners) drawSpinner(sp);
         for (const pad of launchPads) drawLaunchPad(pad, now);
         for (const ball of balls) drawBall(ball, now);
         drawFinishSensor();
@@ -1102,6 +1129,17 @@
           miniCtx.beginPath();
           miniCtx.moveTo(mx(seg.x1), my(seg.y1));
           miniCtx.lineTo(mx(seg.x2), my(seg.y2));
+          miniCtx.stroke();
+        }
+
+        miniCtx.strokeStyle = "rgba(80,220,255,0.95)";
+        for (const sp of spinners) {
+          const half = sp.length * 0.5;
+          const cos = Math.cos(sp.angle);
+          const sin = Math.sin(sp.angle);
+          miniCtx.beginPath();
+          miniCtx.moveTo(mx(sp.x - cos * half), my(sp.y - sin * half));
+          miniCtx.lineTo(mx(sp.x + cos * half), my(sp.y + sin * half));
           miniCtx.stroke();
         }
 
