@@ -11,66 +11,70 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
-      font-family: "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
-      color: #fff;
       background:
-        radial-gradient(circle at 50% 8%, rgba(255,255,255,0.08), transparent 16%),
-        radial-gradient(circle at 15% 50%, rgba(255,255,255,0.03), transparent 20%),
-        radial-gradient(circle at 85% 50%, rgba(255,255,255,0.03), transparent 20%),
-        #000;
+        radial-gradient(circle at 50% 8%, rgba(255,255,255,0.06), transparent 16%),
+        radial-gradient(circle at 20% 50%, rgba(255,255,255,0.03), transparent 22%),
+        radial-gradient(circle at 80% 50%, rgba(255,255,255,0.03), transparent 22%),
+        #020202;
+      color: #fff;
+      font-family: "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
     }
 
     #app {
       width: 100vw;
       height: 100vh;
       display: flex;
-      gap: 16px;
-      padding: 16px;
+      gap: 12px;
+      padding: 12px;
     }
 
     .panel {
-      background: rgba(140, 140, 140, 0.15);
-      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(120,120,120,0.14);
+      border: 1px solid rgba(255,255,255,0.12);
       border-radius: 20px;
       box-shadow:
-        inset 0 0 0 1px rgba(255,255,255,0.03),
-        0 0 24px rgba(255,255,255,0.04);
+        inset 0 0 0 1px rgba(255,255,255,0.02),
+        0 0 22px rgba(255,255,255,0.04);
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
     }
 
     #leftPanel {
-      width: 320px;
+      width: 290px;
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 12px;
       flex-shrink: 0;
-      z-index: 10;
+      z-index: 20;
+      transition: transform .2s ease, opacity .2s ease;
     }
 
     #miniPanel {
-      padding: 12px;
-      height: 250px;
+      padding: 10px;
+      height: 220px;
     }
 
     #miniTitle {
+      font-size: 14px;
       font-weight: 900;
-      font-size: 15px;
       margin-bottom: 8px;
     }
 
     #miniMap {
       width: 100%;
-      height: 195px;
+      height: 184px;
       display: block;
-      background: #060606;
-      border: 1px solid rgba(255,255,255,0.14);
+      background: #050505;
+      border: 1px solid rgba(255,255,255,0.10);
       border-radius: 12px;
     }
 
     #controlPanel {
       flex: 1;
-      padding: 14px;
+      padding: 12px;
       display: flex;
       flex-direction: column;
       gap: 10px;
@@ -78,10 +82,10 @@
     }
 
     .label {
-      font-size: 13px;
-      color: #d5d5d5;
-      margin-bottom: 6px;
-      font-weight: 700;
+      font-size: 12px;
+      color: #dddddd;
+      margin-bottom: 5px;
+      font-weight: 800;
     }
 
     textarea, input {
@@ -91,18 +95,18 @@
       border-radius: 12px;
       background: rgba(255,255,255,0.08);
       color: #fff;
-      padding: 12px;
-      font-size: 15px;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.07);
+      padding: 11px 12px;
+      font-size: 14px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
     }
 
     textarea {
       resize: none;
-      height: 165px;
+      height: 118px;
       line-height: 1.45;
     }
 
-    input { height: 44px; }
+    input { height: 42px; }
 
     button {
       border: none;
@@ -113,22 +117,22 @@
       background: linear-gradient(180deg, rgba(255,255,255,0.18), rgba(255,255,255,0.08));
       box-shadow:
         inset 0 1px 0 rgba(255,255,255,0.14),
-        0 8px 18px rgba(0,0,0,0.28),
-        0 0 18px rgba(255,255,255,0.05);
+        0 8px 18px rgba(0,0,0,0.24),
+        0 0 16px rgba(255,255,255,0.04);
       transition: transform .08s ease, filter .12s ease;
     }
 
     button:hover { filter: brightness(1.08); }
     button:active { transform: translateY(1px); }
 
-    #shuffleBtn { height: 58px; font-size: 28px; }
-    #startBtn { height: 72px; font-size: 34px; }
+    #shuffleBtn { height: 54px; font-size: 24px; }
+    #startBtn { height: 66px; font-size: 32px; }
 
     #hint {
       white-space: pre-line;
-      font-size: 12px;
+      font-size: 11px;
       line-height: 1.45;
-      color: #dbdbdb;
+      color: #d9d9d9;
       opacity: 0.92;
     }
 
@@ -139,11 +143,12 @@
       border-radius: 24px;
       border: 1px solid rgba(255,255,255,0.10);
       background:
-        radial-gradient(circle at 50% 6%, rgba(255,255,255,0.06), transparent 14%),
-        #040404;
+        radial-gradient(circle at 50% 6%, rgba(255,255,255,0.05), transparent 14%),
+        #030303;
       box-shadow:
         inset 0 0 0 1px rgba(255,255,255,0.02),
         0 0 28px rgba(255,255,255,0.03);
+      min-width: 0;
     }
 
     #scene {
@@ -156,13 +161,13 @@
 
     #rankBoard {
       position: absolute;
-      top: 16px;
-      right: 16px;
-      width: 240px;
-      max-height: calc(100% - 32px);
+      top: 14px;
+      right: 14px;
+      width: 230px;
+      max-height: calc(100% - 28px);
       overflow: auto;
       padding: 14px;
-      z-index: 10;
+      z-index: 12;
     }
 
     #rankBoardTitle {
@@ -172,47 +177,120 @@
     }
 
     #rankText {
-      font-size: 17px;
-      line-height: 1.6;
+      font-size: 16px;
+      line-height: 1.55;
       font-weight: 800;
     }
 
     #winnerBanner {
       position: absolute;
       left: 50%;
-      bottom: 18px;
+      bottom: 16px;
       transform: translateX(-50%);
-      z-index: 10;
-      padding: 14px 22px;
+      z-index: 12;
+      padding: 12px 20px;
       border-radius: 999px;
       background: rgba(255,255,255,0.10);
       border: 1px solid rgba(255,255,255,0.24);
       box-shadow: 0 0 22px rgba(255,255,255,0.10);
-      font-size: 34px;
+      font-size: 28px;
       font-weight: 900;
       opacity: 0;
       transition: opacity .2s ease;
       pointer-events: none;
+      text-align: center;
     }
 
     #winnerBanner.show { opacity: 1; }
 
     #statusBar {
       position: absolute;
-      left: 16px;
-      bottom: 16px;
-      z-index: 10;
+      left: 14px;
+      bottom: 14px;
+      z-index: 12;
       padding: 10px 14px;
-      font-size: 13px;
+      font-size: 12px;
+      white-space: pre-line;
+    }
+
+    #mobileToggle {
+      display: none;
+      position: absolute;
+      left: 12px;
+      top: 12px;
+      z-index: 30;
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      font-size: 20px;
+    }
+
+    @media (max-width: 960px) {
+      #app {
+        gap: 8px;
+        padding: 8px;
+      }
+
+      #mobileToggle {
+        display: block;
+      }
+
+      #leftPanel {
+        position: absolute;
+        left: 8px;
+        top: 72px;
+        bottom: 8px;
+        width: min(280px, calc(100vw - 16px));
+        max-width: 78vw;
+      }
+
+      #leftPanel.collapsed {
+        transform: translateX(calc(-100% - 14px));
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      #miniPanel {
+        height: 180px;
+      }
+
+      #miniMap {
+        height: 144px;
+      }
+
+      #rankBoard {
+        width: 170px;
+        padding: 12px;
+      }
+
+      #rankBoardTitle {
+        font-size: 17px;
+      }
+
+      #rankText {
+        font-size: 13px;
+      }
+
+      #winnerBanner {
+        font-size: 20px;
+        max-width: calc(100% - 90px);
+      }
+
+      #statusBar {
+        font-size: 11px;
+        max-width: 70vw;
+      }
     }
   </style>
 </head>
 <body>
   <div id="app">
+    <button id="mobileToggle">☰</button>
+
     <div id="leftPanel">
       <div id="miniPanel" class="panel">
         <div id="miniTitle">전체 맵</div>
-        <canvas id="miniMap" width="296" height="195"></canvas>
+        <canvas id="miniMap" width="296" height="184"></canvas>
       </div>
 
       <div id="controlPanel" class="panel">
@@ -229,11 +307,10 @@
         <button id="shuffleBtn">셔플</button>
         <button id="startBtn">시작</button>
 
-        <div id="hint">초반 막대 없음
-막대는 전부 벽에 붙음
-중력가속도 없음, 일정한 아래 힘만
-첫 통과 전: 가장 앞선 공 추적
-첫 통과 후: 가장 느린 공 추적</div>
+        <div id="hint">회전막대는 일반 벽처럼만 충돌
+2갈래 분기 후 다시 합쳐짐
+누르고 있으면 1.5배속
+공이 많으면 자동 경량 모드</div>
       </div>
     </div>
 
@@ -253,6 +330,9 @@
   <script>
     (() => {
       const rightWrap = document.getElementById("rightWrap");
+      const leftPanel = document.getElementById("leftPanel");
+      const mobileToggle = document.getElementById("mobileToggle");
+
       const scene = document.getElementById("scene");
       const ctx = scene.getContext("2d");
       const miniMap = document.getElementById("miniMap");
@@ -268,18 +348,20 @@
 
       const WORLD_W = 2500;
       let WORLD_TOP = -6500;
-      let WORLD_BOTTOM = 22500;
+      let WORLD_BOTTOM = 24000;
 
       const DOWN_FORCE = 760;
       const AIR = 0.002;
-      const RESTITUTION = 0.75;
-      const TANGENT_FRICTION = 0.987;
+      const RESTITUTION = 0.72;
+      const TANGENT_FRICTION = 0.988;
       const MAX_DT = 1 / 30;
       const FIXED_DT = 1 / 180;
-      const SUBSTEPS = 2;
 
       const LEFT_LIMIT = 260;
       const RIGHT_LIMIT = WORLD_W - 260;
+
+      let timeScale = 1.0;
+      let isFastForward = false;
 
       const camera = {
         x: WORLD_W / 2,
@@ -292,7 +374,7 @@
 
       let segments = [];
       let pegs = [];
-      let spinners = [];
+      let rotors = [];
       let launchPads = [];
       let finishSensor = null;
       let balls = [];
@@ -306,6 +388,8 @@
       let lastTime = 0;
       let accumulator = 0;
 
+      let perfMode = "full";
+
       const ballColors = ["#ffffff","#efefef","#d8d8d8","#f4f4f4","#cccccc","#e6e6e6"];
 
       function resize() {
@@ -314,6 +398,18 @@
         scene.height = Math.max(100, Math.floor(rect.height));
         if (!started) setInitialCamera(true);
       }
+
+      function updateMobileState() {
+        if (window.innerWidth <= 960) {
+          leftPanel.classList.add("collapsed");
+        } else {
+          leftPanel.classList.remove("collapsed");
+        }
+      }
+
+      mobileToggle.addEventListener("click", () => {
+        leftPanel.classList.toggle("collapsed");
+      });
 
       function escapeHtml(s) {
         return s.replace(/[&<>"']/g, ch => ({
@@ -328,7 +424,7 @@
           const m = token.match(/^(.*?)\*(\d+)$/);
           if (m) {
             const label = m[1].trim() || "공";
-            const count = Math.max(1, Math.min(5000, parseInt(m[2], 10) || 1));
+            const count = Math.max(1, Math.min(7000, parseInt(m[2], 10) || 1));
             for (let i = 0; i < count; i++) out.push(label);
           } else {
             out.push(token);
@@ -346,10 +442,17 @@
         return a;
       }
 
+      function updatePerfMode() {
+        const n = balls.length;
+        if (n > 1600) perfMode = "ultra";
+        else if (n > 700) perfMode = "lite";
+        else perfMode = "full";
+      }
+
       function resetWorld() {
         segments = [];
         pegs = [];
-        spinners = [];
+        rotors = [];
         launchPads = [];
         finishSensor = null;
         balls = [];
@@ -372,8 +475,8 @@
         pegs.push({ x, y, r });
       }
 
-      function addSpinner(x, y, length = 180, thickness = 14, speed = 1.0) {
-        spinners.push({ x, y, length, thickness, angle: 0, speed });
+      function addRotor(x, y, blades = 2, bladeLength = 180, thickness = 14, speed = 1.0, initialAngle = 0) {
+        rotors.push({ x, y, blades, bladeLength, thickness, speed, angle: initialAngle });
       }
 
       function addLaunchPad(x, y, r = 60) {
@@ -406,7 +509,6 @@
 
         const baseY = 1800;
 
-        // 바깥 큰 벽: 전부 이어짐
         const leftWall = [
           { x: 820, y: WORLD_TOP },
           { x: 820, y: baseY + 200 },
@@ -416,7 +518,7 @@
           { x: 760, y: baseY + 9800 },
           { x: 940, y: baseY + 12600 },
           { x: 940, y: baseY + 15600 },
-          { x: 870, y: baseY + 18800 }
+          { x: 870, y: baseY + 20500 }
         ];
 
         const rightWall = [
@@ -428,7 +530,7 @@
           { x: 1620, y: baseY + 9800 },
           { x: 1800, y: baseY + 12600 },
           { x: 1800, y: baseY + 15600 },
-          { x: 1730, y: baseY + 18800 }
+          { x: 1730, y: baseY + 20500 }
         ];
 
         for (let i = 0; i < leftWall.length - 1; i++) {
@@ -437,78 +539,100 @@
         }
         addSegment(leftWall[0].x, leftWall[0].y, rightWall[0].x, rightWall[0].y, 30);
 
-        // 처음 모이는 막대 없음
+        // 초반 회전장애물 많이
+        addRotor(1020, baseY + 1200, 2, 150, 12, 0.9, 0.1);
+        addRotor(1250, baseY + 1500, 4, 110, 12, -0.8, 0.2);
+        addRotor(1470, baseY + 1850, 2, 150, 12, 0.95, 0.8);
+        addRotor(1090, baseY + 2400, 4, 95, 12, -0.9, 0.4);
+        addRotor(1400, baseY + 2750, 2, 170, 12, 0.85, 1.2);
 
-        // 벽에 붙은 막대들만 넣기
-        // 왼벽 부착
+        // 벽부착 막대들
         {
           const p = polylinePoint(leftWall, 1, 0.45);
           addSegment(p.x, p.y, p.x + 340, p.y + 300, 18);
         }
-        // 오른벽 부착
         {
           const p = polylinePoint(rightWall, 2, 0.55);
           addSegment(p.x, p.y, p.x - 300, p.y + 280, 18);
         }
-        // 왼벽 부착
         {
           const p = polylinePoint(leftWall, 3, 0.50);
           addSegment(p.x, p.y, p.x + 330, p.y + 290, 18);
         }
-        // 오른벽 부착
         {
           const p = polylinePoint(rightWall, 4, 0.48);
           addSegment(p.x, p.y, p.x - 300, p.y + 270, 18);
         }
 
-        // 발사 장치 1
-        addLaunchPad(1250, baseY + 7000);
+        // 2갈래 분기: 가운데 비움
+        addSegment(1160, baseY + 7200, 990, baseY + 9100, 20);
+        addSegment(1340, baseY + 7200, 1510, baseY + 9100, 20);
 
-        // 더 긴 구간
+        // 분기 좌측 장애물
+        addSegment(860, baseY + 7920, 1080, baseY + 8160, 18);
+        addRotor(980, baseY + 8780, 4, 95, 12, 0.88, 0.3);
+
+        // 분기 우측 장애물
+        addSegment(1640, baseY + 8140, 1420, baseY + 8380, 18);
+        addRotor(1520, baseY + 8920, 4, 95, 12, -0.88, 0.5);
+
+        // 다시 모으기
+        addSegment(990, baseY + 9100, 1180, baseY + 10900, 20);
+        addSegment(1510, baseY + 9100, 1320, baseY + 10900, 20);
+
+        // 발사 패드1
+        addLaunchPad(1250, baseY + 11350);
+
+        // 중반 장애물
         {
-          const p = polylinePoint(leftWall, 4, 0.78);
-          addSegment(p.x, p.y, p.x + 320, p.y + 280, 18);
+          const p = polylinePoint(leftWall, 5, 0.18);
+          addSegment(p.x, p.y, p.x + 300, p.y + 250, 18);
         }
         {
-          const p = polylinePoint(rightWall, 5, 0.38);
+          const p = polylinePoint(rightWall, 5, 0.55);
           addSegment(p.x, p.y, p.x - 280, p.y + 240, 18);
         }
-
-        // 회전 막대 구간
-        addSpinner(1250, baseY + 11200, 320, 14, 0.92);
-        addSpinner(1010, baseY + 11840, 190, 12, -0.86);
-        addSpinner(1490, baseY + 11840, 190, 12, 0.86);
-
-        // 다시 벽부착 막대
         {
-          const p = polylinePoint(leftWall, 5, 0.55);
-          addSegment(p.x, p.y, p.x + 300, p.y + 260, 18);
+          const p = polylinePoint(leftWall, 6, 0.22);
+          addSegment(p.x, p.y, p.x + 320, p.y + 260, 18);
+        }
+
+        // 회전 존
+        addRotor(1250, baseY + 14100, 2, 190, 14, 0.82, 0.2);
+        addRotor(1010, baseY + 14780, 4, 95, 12, -0.95, 0.8);
+        addRotor(1490, baseY + 14780, 4, 95, 12, 0.95, 0.1);
+        addRotor(1250, baseY + 15420, 2, 170, 12, -0.9, 0.4);
+
+        // 발사 패드2
+        addLaunchPad(1250, baseY + 16850);
+
+        // 중후반 벽부착
+        {
+          const p = polylinePoint(leftWall, 7, 0.20);
+          addSegment(p.x, p.y, p.x + 290, p.y + 250, 18);
         }
         {
-          const p = polylinePoint(rightWall, 6, 0.42);
+          const p = polylinePoint(rightWall, 7, 0.42);
           addSegment(p.x, p.y, p.x - 280, p.y + 250, 18);
         }
 
-        // 발사 장치 2
-        addLaunchPad(1250, baseY + 15150);
-
         // 장식
-        addSegment(1050, baseY + 16320, 1110, baseY + 16460, 10, "accent");
-        addSegment(1170, baseY + 16320, 1230, baseY + 16460, 10, "accent");
-        addSegment(1290, baseY + 16320, 1350, baseY + 16460, 10, "accent");
-        addSegment(1410, baseY + 16320, 1470, baseY + 16460, 10, "accent");
+        addSegment(1050, baseY + 18440, 1110, baseY + 18580, 10, "accent");
+        addSegment(1170, baseY + 18440, 1230, baseY + 18580, 10, "accent");
+        addSegment(1290, baseY + 18440, 1350, baseY + 18580, 10, "accent");
+        addSegment(1410, baseY + 18440, 1470, baseY + 18580, 10, "accent");
 
-        // 마지막: 벽과 이어지는 깔때기만
+        // 마지막 깔때기
         const leftEnd = leftWall[leftWall.length - 1];
         const rightEnd = rightWall[rightWall.length - 1];
-        addSegment(leftEnd.x, leftEnd.y, 1210, baseY + 20320, 22);
-        addSegment(rightEnd.x, rightEnd.y, 1290, baseY + 20320, 22);
+        addSegment(leftEnd.x, leftEnd.y, 1210, baseY + 21920, 22);
+        addSegment(rightEnd.x, rightEnd.y, 1290, baseY + 21920, 22);
 
-        setFinishSensor(1250, baseY + 20430, 125, 95);
-        WORLD_BOTTOM = baseY + 20950;
+        setFinishSensor(1250, baseY + 22040, 135, 100);
+        WORLD_BOTTOM = baseY + 22550;
 
-        for (let y = baseY + 2400; y <= baseY + 18200; y += 1050) {
-          const row = Math.floor((y - (baseY + 2400)) / 1050);
+        for (let y = baseY + 3600; y <= baseY + 19800; y += 1200) {
+          const row = Math.floor((y - (baseY + 3600)) / 1200);
           const cols = row % 2 === 0 ? 4 : 3;
           const sx = cols === 4 ? 1080 : 1140;
           for (let i = 0; i < cols; i++) {
@@ -555,6 +679,7 @@
           };
         });
 
+        updatePerfMode();
         return rows;
       }
 
@@ -600,7 +725,7 @@
         const raw = parseNames();
         shuffledNames = shuffleArray(raw);
         rebuildGame(true);
-        statusBar.textContent = "셔플 완료";
+        statusBar.textContent = `셔플 완료\n${perfMode === "full" ? "일반 모드" : perfMode === "lite" ? "경량 모드" : "초경량 모드"}`;
         updateRankBoard();
       }
 
@@ -609,7 +734,7 @@
         started = true;
         followEnabled = false;
         startTime = performance.now();
-        statusBar.textContent = "시작! 상단 고정 후 추적 전환";
+        statusBar.textContent = `시작!\n${perfMode === "full" ? "일반 모드" : perfMode === "lite" ? "경량 모드" : "초경량 모드"}`;
 
         const followZoom = Math.min(scene.width / 1320, scene.height / 2000);
         camera.targetZoom = followZoom;
@@ -655,7 +780,6 @@
 
         if (!followEnabled && now - startTime >= 1200) {
           followEnabled = true;
-          statusBar.textContent = "추적 시작";
         }
 
         if (!followEnabled) {
@@ -684,7 +808,7 @@
         return { x: x1 + dx * t, y: y1 + dy * t, t };
       }
 
-      function resolveBallSegment(ball, x1, y1, x2, y2, thickness, surfaceVx = 0, surfaceVy = 0) {
+      function resolveBallSegment(ball, x1, y1, x2, y2, thickness) {
         const cp = closestPointOnSegment(ball.x, ball.y, x1, y1, x2, y2);
         let dx = ball.x - cp.x;
         let dy = ball.y - cp.y;
@@ -703,10 +827,7 @@
           ball.x += nx * overlap;
           ball.y += ny * overlap;
 
-          const rvx = ball.vx - surfaceVx;
-          const rvy = ball.vy - surfaceVy;
-          const vn = rvx * nx + rvy * ny;
-
+          const vn = ball.vx * nx + ball.vy * ny;
           if (vn < 0) {
             const bounce = -(1 + RESTITUTION) * vn;
             ball.vx += nx * bounce;
@@ -782,6 +903,25 @@
         }
       }
 
+      function rotorBlades(rotor) {
+        const blades = [];
+        const count = rotor.blades;
+        const half = rotor.bladeLength * 0.5;
+        for (let i = 0; i < count; i++) {
+          const ang = rotor.angle + (Math.PI * 2 * i / count);
+          const cos = Math.cos(ang);
+          const sin = Math.sin(ang);
+          blades.push({
+            x1: rotor.x - cos * half,
+            y1: rotor.y - sin * half,
+            x2: rotor.x + cos * half,
+            y2: rotor.y + sin * half,
+            thickness: rotor.thickness
+          });
+        }
+        return blades;
+      }
+
       function pointInRect(px, py, x, y, w, h) {
         return px >= x - w / 2 && px <= x + w / 2 && py >= y - h / 2 && py <= y + h / 2;
       }
@@ -789,7 +929,7 @@
       function stepPhysics(dt, now) {
         if (!started) return;
 
-        for (const s of spinners) s.angle += s.speed * dt;
+        for (const rotor of rotors) rotor.angle += rotor.speed * dt;
 
         for (const b of balls) {
           if (b.finished) continue;
@@ -802,7 +942,7 @@
               b.vx = 0;
               b.vy = 0;
               b.av = 0;
-              b.angle += 2.6 * dt;
+              b.angle += 2.2 * dt;
             }
 
             if (b.launchQueued && now >= b.launchAt) {
@@ -810,18 +950,11 @@
               b.launchQueued = false;
               b.flashUntil = now + 450;
               const side = Math.random() < 0.5 ? -1 : 1;
-              b.vx = side * (190 + Math.random() * 160);
-              b.vy = 640 + Math.random() * 160;
+              b.vx = side * (180 + Math.random() * 140);
+              b.vy = 760 + Math.random() * 160;
               b.av = (Math.random() - 0.5) * 6;
             }
             continue;
-          }
-
-          if (!Number.isFinite(b.x) || !Number.isFinite(b.y) || !Number.isFinite(b.vx) || !Number.isFinite(b.vy)) {
-            b.x = WORLD_W / 2;
-            b.y = WORLD_TOP + 500;
-            b.vx = 0;
-            b.vy = 0;
           }
 
           b.vy += DOWN_FORCE * dt;
@@ -833,7 +966,11 @@
           b.y += b.vy * dt;
         }
 
-        for (let iter = 0; iter < 5; iter++) {
+        const iterations = perfMode === "full" ? 5 : perfMode === "lite" ? 3 : 2;
+        const doBallBall = perfMode === "full";
+        const visibleRotorOnly = perfMode !== "full";
+
+        for (let iter = 0; iter < iterations; iter++) {
           for (const b of balls) {
             if (b.finished || b.captured) continue;
 
@@ -845,32 +982,31 @@
               resolveBallSegment(b, seg.x1, seg.y1, seg.x2, seg.y2, seg.thickness);
             }
 
-            for (const peg of pegs) {
-              resolveBallPeg(b, peg);
+            if (perfMode !== "ultra") {
+              for (const peg of pegs) {
+                if (Math.abs(peg.y - b.y) < 700) resolveBallPeg(b, peg);
+              }
             }
 
-            for (const spinner of spinners) {
-              const half = spinner.length * 0.5;
-              const cos = Math.cos(spinner.angle);
-              const sin = Math.sin(spinner.angle);
-              const x1 = spinner.x - cos * half;
-              const y1 = spinner.y - sin * half;
-              const x2 = spinner.x + cos * half;
-              const y2 = spinner.y + sin * half;
-
-              const cp = closestPointOnSegment(b.x, b.y, x1, y1, x2, y2);
-              const rx = cp.x - spinner.x;
-              const ry = cp.y - spinner.y;
-              const surfaceVx = -spinner.speed * ry * 100;
-              const surfaceVy = spinner.speed * rx * 100;
-              resolveBallSegment(b, x1, y1, x2, y2, spinner.thickness, surfaceVx, surfaceVy);
+            for (const rotor of rotors) {
+              if (visibleRotorOnly && Math.abs(rotor.y - b.y) > 900) continue;
+              const blades = rotorBlades(rotor);
+              for (const blade of blades) {
+                resolveBallSegment(b, blade.x1, blade.y1, blade.x2, blade.y2, blade.thickness);
+              }
             }
           }
 
-          for (let i = 0; i < balls.length; i++) {
-            for (let j = i + 1; j < balls.length; j++) {
-              if (balls[i].finished || balls[j].finished || balls[i].captured || balls[j].captured) continue;
-              resolveBallBall(balls[i], balls[j]);
+          if (doBallBall) {
+            for (let i = 0; i < balls.length; i++) {
+              const a = balls[i];
+              if (a.finished || a.captured) continue;
+              for (let j = i + 1; j < balls.length; j++) {
+                const b = balls[j];
+                if (b.finished || b.captured) continue;
+                if (Math.abs(a.y - b.y) > 120 || Math.abs(a.x - b.x) > 120) continue;
+                resolveBallBall(a, b);
+              }
             }
           }
         }
@@ -893,7 +1029,7 @@
             const dx = b.x - pad.x;
             const dy = b.y - pad.y;
             const dist = Math.hypot(dx, dy);
-            if (dist < pad.r - b.r * 0.15) {
+            if (dist < pad.r - b.r * 0.12) {
               b.captured = true;
               b.capturePadIndex = p;
               b.launchQueued = true;
@@ -949,7 +1085,7 @@
         ctx.fillRect(tl.x, tl.y, br.x - tl.x, br.y - tl.y);
       }
 
-      function drawSegment(seg) {
+      function drawSegmentObj(seg) {
         const p1 = worldToScreen(seg.x1, seg.y1);
         const p2 = worldToScreen(seg.x2, seg.y2);
         const angle = Math.atan2(p2.y - p1.y, p2.x - p1.x);
@@ -1026,15 +1162,11 @@
         ctx.restore();
       }
 
-      function drawSpinner(sp) {
-        const half = sp.length * 0.5;
-        const cos = Math.cos(sp.angle);
-        const sin = Math.sin(sp.angle);
-        const x1 = sp.x - cos * half;
-        const y1 = sp.y - sin * half;
-        const x2 = sp.x + cos * half;
-        const y2 = sp.y + sin * half;
-        drawSegment({ x1, y1, x2, y2, thickness: sp.thickness, kind: "accent" });
+      function drawRotor(rotor) {
+        const blades = rotorBlades(rotor);
+        for (const blade of blades) {
+          drawSegmentObj({ ...blade, kind: "accent" });
+        }
       }
 
       function drawBall(ball, now) {
@@ -1062,7 +1194,7 @@
         ctx.lineWidth = Math.max(1, r * 0.08);
         ctx.stroke();
 
-        if (camera.zoom > 0.24 && balls.length <= 250) {
+        if (camera.zoom > 0.3 && balls.length <= 250) {
           ctx.translate(p.x, p.y);
           ctx.rotate(ball.angle);
           ctx.fillStyle = "#111";
@@ -1074,14 +1206,6 @@
           ctx.fillText(txt, 0, 0);
         }
         ctx.restore();
-
-        if (ball.finished) {
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, r + 4, 0, Math.PI * 2);
-          ctx.strokeStyle = "rgba(255,255,255,0.95)";
-          ctx.lineWidth = 2;
-          ctx.stroke();
-        }
       }
 
       function drawBlastText(now) {
@@ -1119,9 +1243,9 @@
       function drawMainScene(now) {
         drawBackground();
         drawChamberFill();
-        for (const seg of segments) drawSegment(seg);
+        for (const seg of segments) drawSegmentObj(seg);
         for (const peg of pegs) drawPeg(peg);
-        for (const sp of spinners) drawSpinner(sp);
+        for (const rotor of rotors) drawRotor(rotor);
         for (const pad of launchPads) drawLaunchPad(pad, now);
         for (const ball of balls) drawBall(ball, now);
         drawFinishSensor();
@@ -1153,14 +1277,14 @@
         }
 
         miniCtx.strokeStyle = "rgba(80,220,255,0.95)";
-        for (const sp of spinners) {
-          const half = sp.length * 0.5;
-          const cos = Math.cos(sp.angle);
-          const sin = Math.sin(sp.angle);
-          miniCtx.beginPath();
-          miniCtx.moveTo(mx(sp.x - cos * half), my(sp.y - sin * half));
-          miniCtx.lineTo(mx(sp.x + cos * half), my(sp.y + sin * half));
-          miniCtx.stroke();
+        for (const rotor of rotors) {
+          const blades = rotorBlades(rotor);
+          for (const blade of blades) {
+            miniCtx.beginPath();
+            miniCtx.moveTo(mx(blade.x1), my(blade.y1));
+            miniCtx.lineTo(mx(blade.x2), my(blade.y2));
+            miniCtx.stroke();
+          }
         }
 
         miniCtx.strokeStyle = "rgba(80,220,255,0.9)";
@@ -1198,12 +1322,14 @@
         if (!lastTime) lastTime = now;
         let dt = (now - lastTime) / 1000;
         lastTime = now;
-        dt = Math.min(dt, MAX_DT);
+
+        dt *= timeScale;
+        dt = Math.min(dt, MAX_DT * 1.5);
         accumulator += dt;
 
         while (accumulator >= FIXED_DT) {
-          for (let s = 0; s < SUBSTEPS; s++) {
-            stepPhysics(FIXED_DT / SUBSTEPS, now);
+          for (let s = 0; s < 2; s++) {
+            stepPhysics(FIXED_DT / 2, now);
           }
           accumulator -= FIXED_DT;
         }
@@ -1212,6 +1338,14 @@
         drawMainScene(now);
         drawMiniMap();
         requestAnimationFrame(gameLoop);
+      }
+
+      function setFastForward(on) {
+        isFastForward = on;
+        timeScale = on ? 1.5 : 1.0;
+        const modeText = perfMode === "full" ? "일반 모드" : perfMode === "lite" ? "경량 모드" : "초경량 모드";
+        const speedText = on ? "1.5배속" : "일반속도";
+        statusBar.textContent = `${modeText}\n${speedText}`;
       }
 
       shuffleBtn.addEventListener("click", doShuffle);
@@ -1226,9 +1360,24 @@
         targetRank = Math.max(1, parseInt(targetInput.value || "1", 10));
       });
 
-      window.addEventListener("resize", resize);
+      const fastStart = (e) => {
+        if (e.target.closest("#leftPanel")) return;
+        setFastForward(true);
+      };
+      const fastEnd = () => setFastForward(false);
+
+      rightWrap.addEventListener("pointerdown", fastStart);
+      window.addEventListener("pointerup", fastEnd);
+      window.addEventListener("pointercancel", fastEnd);
+      window.addEventListener("blur", fastEnd);
+
+      window.addEventListener("resize", () => {
+        resize();
+        updateMobileState();
+      });
 
       resize();
+      updateMobileState();
       shuffledNames = parseNames();
       rebuildGame(true);
       updateRankBoard();
