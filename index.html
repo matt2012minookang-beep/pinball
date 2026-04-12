@@ -121,15 +121,8 @@
     button:hover { filter: brightness(1.08); }
     button:active { transform: translateY(1px); }
 
-    #shuffleBtn {
-      height: 58px;
-      font-size: 28px;
-    }
-
-    #startBtn {
-      height: 72px;
-      font-size: 34px;
-    }
+    #shuffleBtn { height: 58px; font-size: 28px; }
+    #startBtn { height: 72px; font-size: 34px; }
 
     #hint {
       white-space: pre-line;
@@ -236,11 +229,11 @@
         <button id="shuffleBtn">셔플</button>
         <button id="startBtn">시작</button>
 
-        <div id="hint">예) 1*20 = 이름이 1인 공 20개
-중력가속도 제거, 일정한 아래 힘만 적용
+        <div id="hint">초반 막대 없음
+막대는 전부 벽에 붙음
+중력가속도 없음, 일정한 아래 힘만
 첫 통과 전: 가장 앞선 공 추적
-첫 통과 후: 가장 느린 공 추적
-발사 장치는 안으로 들어가 1초 뒤 아래로 팡!</div>
+첫 통과 후: 가장 느린 공 추적</div>
       </div>
     </div>
 
@@ -277,7 +270,7 @@
       let WORLD_TOP = -6500;
       let WORLD_BOTTOM = 22500;
 
-      const DOWN_FORCE = 760;       // 일정한 아래 힘
+      const DOWN_FORCE = 760;
       const AIR = 0.002;
       const RESTITUTION = 0.75;
       const TANGENT_FRICTION = 0.987;
@@ -395,20 +388,14 @@
         finishSensor = { x, y, w, h };
       }
 
-      function buildParallelWalls(centerline, width, thickness = 30) {
-        for (let i = 0; i < centerline.length - 1; i++) {
-          const a = centerline[i];
-          const b = centerline[i + 1];
-          const dx = b.x - a.x;
-          const dy = b.y - a.y;
-          const len = Math.hypot(dx, dy) || 1;
-          const nx = -dy / len;
-          const ny = dx / len;
-          const half = width / 2;
+      function lerp(a, b, t) {
+        return a + (b - a) * t;
+      }
 
-          addSegment(a.x + nx * half, a.y + ny * half, b.x + nx * half, b.y + ny * half, thickness);
-          addSegment(a.x - nx * half, a.y - ny * half, b.x - nx * half, b.y - ny * half, thickness);
-        }
+      function polylinePoint(points, segIndex, t) {
+        const a = points[segIndex];
+        const b = points[segIndex + 1];
+        return { x: lerp(a.x, b.x, t), y: lerp(a.y, b.y, t) };
       }
 
       function buildMap(spawnRows) {
@@ -418,73 +405,110 @@
         WORLD_TOP = -topBuffer;
 
         const baseY = 1800;
-        const width = 1180;
 
-        const centerline = [
-          { x: 1250, y: WORLD_TOP },
-          { x: 1250, y: baseY + 200 },
-          { x: 1380, y: baseY + 1800 },
-          { x: 1380, y: baseY + 4300 },
-          { x: 1180, y: baseY + 6900 },
-          { x: 1180, y: baseY + 9800 },
-          { x: 1360, y: baseY + 12600 },
-          { x: 1360, y: baseY + 15600 },
-          { x: 1240, y: baseY + 18800 }
+        // 바깥 큰 벽: 전부 이어짐
+        const leftWall = [
+          { x: 820, y: WORLD_TOP },
+          { x: 820, y: baseY + 200 },
+          { x: 960, y: baseY + 1800 },
+          { x: 960, y: baseY + 4300 },
+          { x: 760, y: baseY + 6900 },
+          { x: 760, y: baseY + 9800 },
+          { x: 940, y: baseY + 12600 },
+          { x: 940, y: baseY + 15600 },
+          { x: 870, y: baseY + 18800 }
         ];
 
-        buildParallelWalls(centerline, width, 30);
-        addSegment(centerline[0].x - width / 2, centerline[0].y, centerline[0].x + width / 2, centerline[0].y, 30);
+        const rightWall = [
+          { x: 1680, y: WORLD_TOP },
+          { x: 1680, y: baseY + 200 },
+          { x: 1820, y: baseY + 1800 },
+          { x: 1820, y: baseY + 4300 },
+          { x: 1620, y: baseY + 6900 },
+          { x: 1620, y: baseY + 9800 },
+          { x: 1800, y: baseY + 12600 },
+          { x: 1800, y: baseY + 15600 },
+          { x: 1730, y: baseY + 18800 }
+        ];
 
-        // 초반 V 진입
-        addSegment(1120, baseY + 820, 1210, baseY + 1310, 18);
-        addSegment(1380, baseY + 820, 1290, baseY + 1310, 18);
-        addSegment(1210, baseY + 1310, 1250, baseY + 1490, 14);
-        addSegment(1290, baseY + 1310, 1250, baseY + 1490, 14);
+        for (let i = 0; i < leftWall.length - 1; i++) {
+          addSegment(leftWall[i].x, leftWall[i].y, leftWall[i + 1].x, leftWall[i + 1].y, 30);
+          addSegment(rightWall[i].x, rightWall[i].y, rightWall[i + 1].x, rightWall[i + 1].y, 30);
+        }
+        addSegment(leftWall[0].x, leftWall[0].y, rightWall[0].x, rightWall[0].y, 30);
 
-        // 벽에 붙은 막대 + 한쪽 뚫린 기울기
-        addSegment(760,  baseY + 2550, 1090, baseY + 2870, 18);   // 왼벽쪽 부착
-        addSegment(1460, baseY + 3500, 1210, baseY + 3770, 18);   // 오른벽쪽 부착
-        addSegment(780,  baseY + 4550, 1110, baseY + 4850, 18);
-        addSegment(1450, baseY + 5480, 1200, baseY + 5750, 18);
+        // 처음 모이는 막대 없음
 
-        // 첫 발사 장치
+        // 벽에 붙은 막대들만 넣기
+        // 왼벽 부착
+        {
+          const p = polylinePoint(leftWall, 1, 0.45);
+          addSegment(p.x, p.y, p.x + 340, p.y + 300, 18);
+        }
+        // 오른벽 부착
+        {
+          const p = polylinePoint(rightWall, 2, 0.55);
+          addSegment(p.x, p.y, p.x - 300, p.y + 280, 18);
+        }
+        // 왼벽 부착
+        {
+          const p = polylinePoint(leftWall, 3, 0.50);
+          addSegment(p.x, p.y, p.x + 330, p.y + 290, 18);
+        }
+        // 오른벽 부착
+        {
+          const p = polylinePoint(rightWall, 4, 0.48);
+          addSegment(p.x, p.y, p.x - 300, p.y + 270, 18);
+        }
+
+        // 발사 장치 1
         addLaunchPad(1250, baseY + 7000);
 
-        // 더 긴 재미 구간
-        addSegment(820,  baseY + 8220, 1140, baseY + 8520, 18);
-        addSegment(1470, baseY + 9160, 1210, baseY + 9430, 18);
-        addSegment(830,  baseY + 10120, 1150, baseY + 10410, 18);
+        // 더 긴 구간
+        {
+          const p = polylinePoint(leftWall, 4, 0.78);
+          addSegment(p.x, p.y, p.x + 320, p.y + 280, 18);
+        }
+        {
+          const p = polylinePoint(rightWall, 5, 0.38);
+          addSegment(p.x, p.y, p.x - 280, p.y + 240, 18);
+        }
 
         // 회전 막대 구간
         addSpinner(1250, baseY + 11200, 320, 14, 0.92);
         addSpinner(1010, baseY + 11840, 190, 12, -0.86);
         addSpinner(1490, baseY + 11840, 190, 12, 0.86);
 
-        // 또 다른 유도벽
-        addSegment(850,  baseY + 12840, 1160, baseY + 13130, 18);
-        addSegment(1460, baseY + 13760, 1220, baseY + 14020, 18);
+        // 다시 벽부착 막대
+        {
+          const p = polylinePoint(leftWall, 5, 0.55);
+          addSegment(p.x, p.y, p.x + 300, p.y + 260, 18);
+        }
+        {
+          const p = polylinePoint(rightWall, 6, 0.42);
+          addSegment(p.x, p.y, p.x - 280, p.y + 250, 18);
+        }
 
-        // 두 번째 발사 장치
+        // 발사 장치 2
         addLaunchPad(1250, baseY + 15150);
 
-        // 장식과 유도
+        // 장식
         addSegment(1050, baseY + 16320, 1110, baseY + 16460, 10, "accent");
         addSegment(1170, baseY + 16320, 1230, baseY + 16460, 10, "accent");
         addSegment(1290, baseY + 16320, 1350, baseY + 16460, 10, "accent");
         addSegment(1410, baseY + 16320, 1470, baseY + 16460, 10, "accent");
 
-        addSegment(860,  baseY + 17120, 1170, baseY + 17410, 18);
-        addSegment(1460, baseY + 17980, 1230, baseY + 18220, 18);
-
-        // 마지막: 벽이랑 이어지는 깔때기만
-        addSegment(660,  baseY + 18880, 1210, baseY + 20320, 22);
-        addSegment(1840, baseY + 18880, 1290, baseY + 20320, 22);
+        // 마지막: 벽과 이어지는 깔때기만
+        const leftEnd = leftWall[leftWall.length - 1];
+        const rightEnd = rightWall[rightWall.length - 1];
+        addSegment(leftEnd.x, leftEnd.y, 1210, baseY + 20320, 22);
+        addSegment(rightEnd.x, rightEnd.y, 1290, baseY + 20320, 22);
 
         setFinishSensor(1250, baseY + 20430, 125, 95);
         WORLD_BOTTOM = baseY + 20950;
 
-        for (let y = baseY + 2050; y <= baseY + 18200; y += 980) {
-          const row = Math.floor((y - (baseY + 2050)) / 980);
+        for (let y = baseY + 2400; y <= baseY + 18200; y += 1050) {
+          const row = Math.floor((y - (baseY + 2400)) / 1050);
           const cols = row % 2 === 0 ? 4 : 3;
           const sx = cols === 4 ? 1080 : 1140;
           for (let i = 0; i < cols; i++) {
@@ -495,8 +519,8 @@
 
       function buildBalls(names) {
         const r = 24;
-        const spawnLeft = 820;
-        const spawnRight = 1680;
+        const spawnLeft = 930;
+        const spawnRight = 1570;
         const gapX = 52;
         const gapY = 60;
         const cols = Math.max(1, Math.floor((spawnRight - spawnLeft) / gapX));
@@ -557,7 +581,7 @@
           shuffledNames = [...rawNames];
         }
 
-        const estimatedCols = Math.max(1, Math.floor((1680 - 820) / 52));
+        const estimatedCols = Math.max(1, Math.floor((1570 - 930) / 52));
         const spawnRows = Math.ceil(shuffledNames.length / estimatedCols);
         buildMap(spawnRows);
         buildBalls(shuffledNames);
@@ -809,7 +833,7 @@
           b.y += b.vy * dt;
         }
 
-        for (let iter = 0; iter < 4; iter++) {
+        for (let iter = 0; iter < 5; iter++) {
           for (const b of balls) {
             if (b.finished || b.captured) continue;
 
