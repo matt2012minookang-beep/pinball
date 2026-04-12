@@ -307,10 +307,11 @@
         <button id="shuffleBtn">셔플</button>
         <button id="startBtn">시작</button>
 
-        <div id="hint">회전막대는 일반 벽처럼만 충돌
-2갈래 분기 후 다시 합쳐짐
+        <div id="hint">2갈래길 중앙 비움
+막힌 분기 제거
+발사패드 아래 발사 수정
 누르고 있으면 1.5배속
-공이 많으면 자동 경량 모드</div>
+공 많으면 자동 경량 모드</div>
       </div>
     </div>
 
@@ -361,7 +362,6 @@
       const RIGHT_LIMIT = WORLD_W - 260;
 
       let timeScale = 1.0;
-      let isFastForward = false;
 
       const camera = {
         x: WORLD_W / 2,
@@ -410,12 +410,6 @@
       mobileToggle.addEventListener("click", () => {
         leftPanel.classList.toggle("collapsed");
       });
-
-      function escapeHtml(s) {
-        return s.replace(/[&<>"']/g, ch => ({
-          "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"
-        }[ch]));
-      }
 
       function parseNames() {
         const raw = namesInput.value.split(",").map(v => v.trim()).filter(Boolean);
@@ -539,14 +533,12 @@
         }
         addSegment(leftWall[0].x, leftWall[0].y, rightWall[0].x, rightWall[0].y, 30);
 
-        // 초반 회전장애물 많이
         addRotor(1020, baseY + 1200, 2, 150, 12, 0.9, 0.1);
         addRotor(1250, baseY + 1500, 4, 110, 12, -0.8, 0.2);
         addRotor(1470, baseY + 1850, 2, 150, 12, 0.95, 0.8);
         addRotor(1090, baseY + 2400, 4, 95, 12, -0.9, 0.4);
         addRotor(1400, baseY + 2750, 2, 170, 12, 0.85, 1.2);
 
-        // 벽부착 막대들
         {
           const p = polylinePoint(leftWall, 1, 0.45);
           addSegment(p.x, p.y, p.x + 340, p.y + 300, 18);
@@ -564,26 +556,24 @@
           addSegment(p.x, p.y, p.x - 300, p.y + 270, 18);
         }
 
-        // 2갈래 분기: 가운데 비움
-        addSegment(1160, baseY + 7200, 990, baseY + 9100, 20);
-        addSegment(1340, baseY + 7200, 1510, baseY + 9100, 20);
+        // 2갈래길 - 중앙을 비우고 막힌 길 없음
+        addSegment(1160, baseY + 7200, 1020, baseY + 9100, 20);
+        addSegment(1340, baseY + 7200, 1480, baseY + 9100, 20);
 
-        // 분기 좌측 장애물
-        addSegment(860, baseY + 7920, 1080, baseY + 8160, 18);
-        addRotor(980, baseY + 8780, 4, 95, 12, 0.88, 0.3);
+        // 왼쪽 길: 벽부착형만
+        addSegment(830, baseY + 8000, 1060, baseY + 8200, 18);
+        addRotor(980, baseY + 8850, 4, 90, 12, 0.82, 0.3);
 
-        // 분기 우측 장애물
-        addSegment(1640, baseY + 8140, 1420, baseY + 8380, 18);
-        addRotor(1520, baseY + 8920, 4, 95, 12, -0.88, 0.5);
+        // 오른쪽 길: 벽부착형만
+        addSegment(1670, baseY + 8200, 1440, baseY + 8400, 18);
+        addRotor(1520, baseY + 9000, 4, 90, 12, -0.82, 0.5);
 
-        // 다시 모으기
-        addSegment(990, baseY + 9100, 1180, baseY + 10900, 20);
-        addSegment(1510, baseY + 9100, 1320, baseY + 10900, 20);
+        // 중앙 재합류
+        addSegment(1020, baseY + 9100, 1170, baseY + 10850, 20);
+        addSegment(1480, baseY + 9100, 1330, baseY + 10850, 20);
 
-        // 발사 패드1
         addLaunchPad(1250, baseY + 11350);
 
-        // 중반 장애물
         {
           const p = polylinePoint(leftWall, 5, 0.18);
           addSegment(p.x, p.y, p.x + 300, p.y + 250, 18);
@@ -597,16 +587,13 @@
           addSegment(p.x, p.y, p.x + 320, p.y + 260, 18);
         }
 
-        // 회전 존
         addRotor(1250, baseY + 14100, 2, 190, 14, 0.82, 0.2);
         addRotor(1010, baseY + 14780, 4, 95, 12, -0.95, 0.8);
         addRotor(1490, baseY + 14780, 4, 95, 12, 0.95, 0.1);
         addRotor(1250, baseY + 15420, 2, 170, 12, -0.9, 0.4);
 
-        // 발사 패드2
         addLaunchPad(1250, baseY + 16850);
 
-        // 중후반 벽부착
         {
           const p = polylinePoint(leftWall, 7, 0.20);
           addSegment(p.x, p.y, p.x + 290, p.y + 250, 18);
@@ -616,13 +603,11 @@
           addSegment(p.x, p.y, p.x - 280, p.y + 250, 18);
         }
 
-        // 장식
         addSegment(1050, baseY + 18440, 1110, baseY + 18580, 10, "accent");
         addSegment(1170, baseY + 18440, 1230, baseY + 18580, 10, "accent");
         addSegment(1290, baseY + 18440, 1350, baseY + 18580, 10, "accent");
         addSegment(1410, baseY + 18440, 1470, baseY + 18580, 10, "accent");
 
-        // 마지막 깔때기
         const leftEnd = leftWall[leftWall.length - 1];
         const rightEnd = rightWall[rightWall.length - 1];
         addSegment(leftEnd.x, leftEnd.y, 1210, baseY + 21920, 22);
@@ -674,6 +659,7 @@
             capturePadIndex: -1,
             launchQueued: false,
             launchAt: 0,
+            launchCooldownUntil: 0,
             flashUntil: 0,
             slowTimer: 0
           };
@@ -713,6 +699,12 @@
         setInitialCamera(true);
       }
 
+      function escapeHtml(s) {
+        return s.replace(/[&<>"']/g, ch => ({
+          "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"
+        }[ch]));
+      }
+
       function updateRankBoard() {
         if (!rankings.length) {
           rankText.innerHTML = started ? "아직 통과한 공 없음" : "아직 시작 전";
@@ -725,7 +717,7 @@
         const raw = parseNames();
         shuffledNames = shuffleArray(raw);
         rebuildGame(true);
-        statusBar.textContent = `셔플 완료\n${perfMode === "full" ? "일반 모드" : perfMode === "lite" ? "경량 모드" : "초경량 모드"}`;
+        statusBar.textContent = "셔플 완료";
         updateRankBoard();
       }
 
@@ -734,7 +726,7 @@
         started = true;
         followEnabled = false;
         startTime = performance.now();
-        statusBar.textContent = `시작!\n${perfMode === "full" ? "일반 모드" : perfMode === "lite" ? "경량 모드" : "초경량 모드"}`;
+        statusBar.textContent = "시작!";
 
         const followZoom = Math.min(scene.width / 1320, scene.height / 2000);
         camera.targetZoom = followZoom;
@@ -949,10 +941,11 @@
               b.captured = false;
               b.launchQueued = false;
               b.flashUntil = now + 450;
+              b.launchCooldownUntil = now + 850;
               const side = Math.random() < 0.5 ? -1 : 1;
-              b.vx = side * (180 + Math.random() * 140);
-              b.vy = 760 + Math.random() * 160;
-              b.av = (Math.random() - 0.5) * 6;
+              b.vx = side * (90 + Math.random() * 80);
+              b.vy = 980 + Math.random() * 180;
+              b.av = (Math.random() - 0.5) * 4;
             }
             continue;
           }
@@ -1025,6 +1018,7 @@
           }
 
           for (let p = 0; p < launchPads.length; p++) {
+            if (now < b.launchCooldownUntil) continue;
             const pad = launchPads[p];
             const dx = b.x - pad.x;
             const dy = b.y - pad.y;
@@ -1328,9 +1322,7 @@
         accumulator += dt;
 
         while (accumulator >= FIXED_DT) {
-          for (let s = 0; s < 2; s++) {
-            stepPhysics(FIXED_DT / 2, now);
-          }
+          stepPhysics(FIXED_DT, now);
           accumulator -= FIXED_DT;
         }
 
@@ -1341,11 +1333,8 @@
       }
 
       function setFastForward(on) {
-        isFastForward = on;
         timeScale = on ? 1.5 : 1.0;
-        const modeText = perfMode === "full" ? "일반 모드" : perfMode === "lite" ? "경량 모드" : "초경량 모드";
-        const speedText = on ? "1.5배속" : "일반속도";
-        statusBar.textContent = `${modeText}\n${speedText}`;
+        statusBar.textContent = on ? "1.5배속" : "일반속도";
       }
 
       shuffleBtn.addEventListener("click", doShuffle);
