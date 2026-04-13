@@ -571,8 +571,14 @@
           const p = polylinePoint(leftWall, 1, 0.45);
           addSegment(p.x, p.y, p.x + 340, p.y + 300, 18);
         }
-       
-
+       {
+          const p = polylinePoint(rightWall, 2, 0.55);
+          addSegment(p.x, p.y, p.x - 300, p.y + 280, 18);
+        }
+        {
+          const p = polylinePoint(leftWall, 3, 0.52);
+          addSegment(p.x, p.y, p.x + 250, p.y + 220, 18);
+        }
         // 사진처럼 끼던 병목 제거:
         // 짧은 세로벽 삭제하고, 바깥 벽에 붙은 짧은 유도벽만 사용
         
@@ -582,10 +588,7 @@
         }
 
         // 2갈래 중앙 완전 비움
-        addSegment(900,  baseY + 7600, 900,  baseY + 10100, 20);
-        addSegment(1600, baseY + 7600, 1600, baseY + 10100, 20);
-
-        addSegment(820,  baseY + 8150, 1060, baseY + 8360, 18);
+        addSegment(900,  baseY + 7600, 900,  baseY + 10100, 20)
         addRotor(980,    baseY + 9150, 4, 90, 12, 0.82, 0.3);
 
         addSegment(1680, baseY + 8350, 1440, baseY + 8560, 18);
