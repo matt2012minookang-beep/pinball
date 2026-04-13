@@ -571,17 +571,11 @@
           const p = polylinePoint(leftWall, 1, 0.45);
           addSegment(p.x, p.y, p.x + 340, p.y + 300, 18);
         }
-        {
-          const p = polylinePoint(rightWall, 2, 0.55);
-          addSegment(p.x, p.y, p.x - 300, p.y + 280, 18);
-        }
+       
 
         // 사진처럼 끼던 병목 제거:
         // 짧은 세로벽 삭제하고, 바깥 벽에 붙은 짧은 유도벽만 사용
-        {
-          const p = polylinePoint(leftWall, 3, 0.52);
-          addSegment(p.x, p.y, p.x + 250, p.y + 220, 18);
-        }
+        
         {
           const p = polylinePoint(rightWall, 4, 0.46);
           addSegment(p.x, p.y, p.x - 250, p.y + 220, 18);
