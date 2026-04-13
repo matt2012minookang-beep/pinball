@@ -2,583 +2,1376 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-  />
-  <title>한국 중심 세계지도</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>뽑기게임</title>
   <style>
+    * { box-sizing: border-box; }
     html, body {
       margin: 0;
       width: 100%;
       height: 100%;
       overflow: hidden;
-      background: #0b1f4d;
+      background:
+        radial-gradient(circle at 50% 8%, rgba(255,255,255,0.06), transparent 16%),
+        radial-gradient(circle at 20% 50%, rgba(255,255,255,0.03), transparent 22%),
+        radial-gradient(circle at 80% 50%, rgba(255,255,255,0.03), transparent 22%),
+        #020202;
+      color: #fff;
+      font-family: "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
       touch-action: none;
-      font-family: Arial, "Malgun Gothic", sans-serif;
     }
 
-    #map {
+    #app {
       width: 100vw;
       height: 100vh;
-      background: #0b1f4d;
-      cursor: grab;
-      position: relative;
-      overflow: hidden;
+      display: flex;
+      gap: 12px;
+      padding: 12px;
     }
 
-    #map:active {
-      cursor: grabbing;
+    .panel {
+      background: rgba(120,120,120,0.14);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 20px;
+      box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,0.02),
+        0 0 22px rgba(255,255,255,0.04);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
     }
 
-    svg {
-      display: block;
+    #leftPanel {
+      width: 290px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex-shrink: 0;
+      z-index: 20;
+      transition: transform .2s ease, opacity .2s ease;
+    }
+
+    #miniPanel {
+      padding: 10px;
+      height: 220px;
+    }
+
+    #miniTitle {
+      font-size: 14px;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+
+    #miniMap {
       width: 100%;
-      height: 100%;
-      background: #0b1f4d;
+      height: 184px;
+      display: block;
+      background: #050505;
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 12px;
     }
 
-    .land {
-      fill: #e7d8b4;
-      stroke: #4f4330;
-      stroke-width: 0.6;
-      vector-effect: non-scaling-stroke;
+    #controlPanel {
+      flex: 1;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-height: 0;
     }
 
-    .country-label {
-      fill: #2e261b;
-      font-weight: 700;
-      text-anchor: middle;
-      dominant-baseline: middle;
-      pointer-events: none;
-      user-select: none;
-      paint-order: stroke;
-      stroke: rgba(245, 239, 224, 0.95);
-      stroke-width: 2.6px;
-      stroke-linejoin: round;
-      vector-effect: non-scaling-stroke;
+    .label {
+      font-size: 12px;
+      color: #dddddd;
+      margin-bottom: 5px;
+      font-weight: 800;
     }
 
-    .loading {
+    textarea, input {
+      width: 100%;
+      border: none;
+      outline: none;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+      padding: 11px 12px;
+      font-size: 14px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
+    }
+
+    textarea {
+      resize: none;
+      height: 118px;
+      line-height: 1.45;
+    }
+
+    input { height: 42px; }
+
+    button {
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      color: #fff;
+      font-weight: 900;
+      background: linear-gradient(180deg, rgba(255,255,255,0.18), rgba(255,255,255,0.08));
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.14),
+        0 8px 18px rgba(0,0,0,0.24),
+        0 0 16px rgba(255,255,255,0.04);
+      transition: transform .08s ease, filter .12s ease;
+    }
+
+    button:hover { filter: brightness(1.08); }
+    button:active { transform: translateY(1px); }
+
+    #shuffleBtn { height: 54px; font-size: 24px; }
+    #startBtn { height: 66px; font-size: 32px; }
+
+    #hint {
+      white-space: pre-line;
+      font-size: 11px;
+      line-height: 1.45;
+      color: #d9d9d9;
+      opacity: 0.92;
+    }
+
+    #rightWrap {
+      position: relative;
+      flex: 1;
+      overflow: hidden;
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background:
+        radial-gradient(circle at 50% 6%, rgba(255,255,255,0.05), transparent 14%),
+        #030303;
+      box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,0.02),
+        0 0 28px rgba(255,255,255,0.03);
+      min-width: 0;
+    }
+
+    #scene {
       position: absolute;
       inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #ffffff;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    #rankBoard {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 230px;
+      max-height: calc(100% - 28px);
+      overflow: auto;
+      padding: 14px;
+      z-index: 12;
+    }
+
+    #rankBoardTitle {
       font-size: 20px;
-      background: #0b1f4d;
-      z-index: 10;
+      font-weight: 900;
+      margin-bottom: 8px;
     }
 
-    .hidden {
+    #rankText {
+      font-size: 16px;
+      line-height: 1.55;
+      font-weight: 800;
+    }
+
+    #winnerBanner {
+      position: absolute;
+      left: 50%;
+      bottom: 16px;
+      transform: translateX(-50%);
+      z-index: 12;
+      padding: 12px 20px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.10);
+      border: 1px solid rgba(255,255,255,0.24);
+      box-shadow: 0 0 22px rgba(255,255,255,0.10);
+      font-size: 28px;
+      font-weight: 900;
+      opacity: 0;
+      transition: opacity .2s ease;
+      pointer-events: none;
+      text-align: center;
+    }
+
+    #winnerBanner.show { opacity: 1; }
+
+    #statusBar {
+      position: absolute;
+      left: 14px;
+      bottom: 14px;
+      z-index: 12;
+      padding: 10px 14px;
+      font-size: 12px;
+      white-space: pre-line;
+    }
+
+    #mobileToggle {
       display: none;
+      position: absolute;
+      left: 12px;
+      top: 12px;
+      z-index: 30;
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      font-size: 20px;
     }
 
-    .error {
-      color: #ffd6d6;
+    @media (max-width: 960px) {
+      #app {
+        gap: 8px;
+        padding: 8px;
+      }
+
+      #mobileToggle {
+        display: block;
+      }
+
+      #leftPanel {
+        position: absolute;
+        left: 8px;
+        top: 72px;
+        bottom: 8px;
+        width: min(280px, calc(100vw - 16px));
+        max-width: 78vw;
+      }
+
+      #leftPanel.collapsed {
+        transform: translateX(calc(-100% - 14px));
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      #miniPanel {
+        height: 180px;
+      }
+
+      #miniMap {
+        height: 144px;
+      }
+
+      #rankBoard {
+        width: 170px;
+        padding: 12px;
+      }
+
+      #rankBoardTitle {
+        font-size: 17px;
+      }
+
+      #rankText {
+        font-size: 13px;
+      }
+
+      #winnerBanner {
+        font-size: 20px;
+        max-width: calc(100% - 90px);
+      }
+
+      #statusBar {
+        font-size: 11px;
+        max-width: 70vw;
+      }
     }
   </style>
 </head>
 <body>
-  <div id="map">
-    <div id="loading" class="loading">지도를 불러오는 중...</div>
-    <svg id="svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid meet">
-      <g id="viewport">
-        <rect x="-5000" y="-5000" width="10000" height="10000" fill="#0b1f4d"></rect>
+  <div id="app">
+    <button id="mobileToggle">☰</button>
 
-        <g id="world">
-          <rect x="0" y="0" width="1600" height="900" fill="#0b1f4d"></rect>
-          <g id="countries"></g>
-          <g id="labels"></g>
-        </g>
-      </g>
-    </svg>
+    <div id="leftPanel">
+      <div id="miniPanel" class="panel">
+        <div id="miniTitle">전체 맵</div>
+        <canvas id="miniMap" width="296" height="184"></canvas>
+      </div>
+
+      <div id="controlPanel" class="panel">
+        <div>
+          <div class="label">이름 입력 (쉼표 구분, 이름*개수 지원)</div>
+          <textarea id="namesInput">1,2,3,4,5*5</textarea>
+        </div>
+
+        <div>
+          <div class="label">몇 번째가 당첨인지</div>
+          <input id="targetInput" type="number" min="1" value="10" />
+        </div>
+
+        <button id="shuffleBtn">셔플</button>
+        <button id="startBtn">시작</button>
+
+        <div id="hint">2갈래 중앙 완전 비움
+막힌길 제거
+발사패드 아래 발사 수정
+누르고 있으면 1.5배속
+공 많으면 자동 경량 모드</div>
+      </div>
+    </div>
+
+    <div id="rightWrap">
+      <canvas id="scene"></canvas>
+
+      <div id="rankBoard" class="panel">
+        <div id="rankBoardTitle">현재 순위</div>
+        <div id="rankText">아직 시작 전</div>
+      </div>
+
+      <div id="winnerBanner"></div>
+      <div id="statusBar" class="panel">대기 중</div>
+    </div>
   </div>
 
   <script>
-    const svg = document.getElementById("svg");
-    const world = document.getElementById("world");
-    const countriesGroup = document.getElementById("countries");
-    const labelsGroup = document.getElementById("labels");
-    const loading = document.getElementById("loading");
+    (() => {
+      const rightWrap = document.getElementById("rightWrap");
+      const leftPanel = document.getElementById("leftPanel");
+      const mobileToggle = document.getElementById("mobileToggle");
 
-    const VIEW_W = 1600;
-    const VIEW_H = 900;
-    const WORLD_W = 1600;
-    const WORLD_H = 900;
+      const scene = document.getElementById("scene");
+      const ctx = scene.getContext("2d");
+      const miniMap = document.getElementById("miniMap");
+      const miniCtx = miniMap.getContext("2d");
 
-    let scale = 1;
-    let minScale = 1;
-    const maxScale = 60;
-    let translateX = 0;
-    let translateY = 0;
+      const namesInput = document.getElementById("namesInput");
+      const targetInput = document.getElementById("targetInput");
+      const shuffleBtn = document.getElementById("shuffleBtn");
+      const startBtn = document.getElementById("startBtn");
+      const rankText = document.getElementById("rankText");
+      const winnerBanner = document.getElementById("winnerBanner");
+      const statusBar = document.getElementById("statusBar");
 
-    let isDragging = false;
-    let lastX = 0;
-    let lastY = 0;
+      const WORLD_W = 2500;
+      let WORLD_TOP = -6500;
+      let WORLD_BOTTOM = 24000;
 
-    let pinchStartDist = 0;
-    let pinchStartScale = 1;
-    let pinchStartTX = 0;
-    let pinchStartTY = 0;
-    let pinchCenter = null;
+      const DOWN_FORCE = 760;
+      const AIR = 0.002;
+      const RESTITUTION = 0.72;
+      const TANGENT_FRICTION = 0.988;
+      const MAX_DT = 1 / 30;
+      const FIXED_DT = 1 / 180;
 
-    const labelItems = [];
-    const regionNames = new Intl.DisplayNames(["ko"], { type: "region" });
+      const LEFT_LIMIT = 260;
+      const RIGHT_LIMIT = WORLD_W - 260;
 
-    const nameOverrides = {
-      XK: "코소보",
-      PS: "팔레스타인",
-      TW: "대만",
-      VA: "바티칸",
-      CZ: "체코",
-      SZ: "에스와티니",
-      TL: "동티모르",
-      MM: "미얀마",
-      LA: "라오스",
-      MD: "몰도바",
-      RU: "러시아",
-      KR: "대한민국",
-      KP: "조선민주주의인민공화국",
-      US: "미국",
-      GB: "영국",
-      AE: "아랍에미리트",
-      CD: "콩고 민주 공화국",
-      CG: "콩고 공화국",
-      CI: "코트디부아르",
-      SY: "시리아",
-      IR: "이란",
-      TZ: "탄자니아",
-      VN: "베트남",
-      BO: "볼리비아",
-      VE: "베네수엘라",
-      BN: "브루나이",
-      FM: "미크로네시아",
-      CV: "카보베르데",
-      ST: "상투메 프린시페",
-      GQ: "적도 기니",
-      CF: "중앙아프리카공화국",
-      DO: "도미니카 공화국",
-      SS: "남수단"
-    };
+      let timeScale = 1.0;
 
-    function project(lon, lat) {
-      const x = ((lon + 180) / 360) * WORLD_W;
-      const y = ((90 - lat) / 180) * WORLD_H;
-      return [x, y];
-    }
+      const camera = {
+        x: WORLD_W / 2,
+        y: 1500,
+        zoom: 1,
+        targetX: WORLD_W / 2,
+        targetY: 1500,
+        targetZoom: 1
+      };
 
-    function normalizeLon180(lon) {
-      let v = lon;
-      while (v < -180) v += 360;
-      while (v > 180) v -= 360;
-      return v;
-    }
+      let segments = [];
+      let pegs = [];
+      let rotors = [];
+      let launchPads = [];
+      let finishSensor = null;
+      let balls = [];
+      let rankings = [];
+      let shuffledNames = [];
+      let started = false;
+      let targetRank = 10;
+      let winnerInfo = null;
+      let followEnabled = false;
+      let startTime = 0;
+      let lastTime = 0;
+      let accumulator = 0;
 
-    function splitRingAtDateline(ring) {
-      if (!ring || ring.length < 2) return [ring];
+      let perfMode = "full";
 
-      const segments = [];
-      let current = [ring[0]];
+      const ballColors = ["#ffffff","#efefef","#d8d8d8","#f4f4f4","#cccccc","#e6e6e6"];
 
-      for (let i = 1; i < ring.length; i++) {
-        const prev = ring[i - 1];
-        const curr = ring[i];
+      function resize() {
+        const rect = rightWrap.getBoundingClientRect();
+        scene.width = Math.max(100, Math.floor(rect.width));
+        scene.height = Math.max(100, Math.floor(rect.height));
+        if (!started) setInitialCamera(true);
+      }
 
-        const prevLon = normalizeLon180(prev[0]);
-        const currLon = normalizeLon180(curr[0]);
-        const jump = Math.abs(currLon - prevLon);
-
-        if (jump > 180) {
-          if (current.length >= 3) segments.push(current);
-          current = [curr];
+      function updateMobileState() {
+        if (window.innerWidth <= 960) {
+          leftPanel.classList.add("collapsed");
         } else {
-          current.push(curr);
+          leftPanel.classList.remove("collapsed");
         }
       }
 
-      if (current.length >= 3) segments.push(current);
-      return segments;
-    }
+      mobileToggle.addEventListener("click", () => {
+        leftPanel.classList.toggle("collapsed");
+      });
 
-    function buildPathFromRing(ring) {
-      if (!ring || !ring.length) return "";
-
-      let d = "";
-      for (let i = 0; i < ring.length; i++) {
-        const [lon, lat] = ring[i];
-        const [x, y] = project(lon, lat);
-        d += (i === 0 ? "M" : "L") + x + " " + y + " ";
-      }
-      d += "Z ";
-      return d;
-    }
-
-    function geometryToPath(geometry) {
-      let d = "";
-
-      if (geometry.type === "Polygon") {
-        for (const ring of geometry.coordinates) {
-          const pieces = splitRingAtDateline(ring);
-          for (const piece of pieces) d += buildPathFromRing(piece);
+      function parseNames() {
+        const raw = namesInput.value.split(",").map(v => v.trim()).filter(Boolean);
+        const out = [];
+        for (const token of raw) {
+          const m = token.match(/^(.*?)\*(\d+)$/);
+          if (m) {
+            const label = m[1].trim() || "공";
+            const count = Math.max(1, Math.min(7000, parseInt(m[2], 10) || 1));
+            for (let i = 0; i < count; i++) out.push(label);
+          } else {
+            out.push(token);
+          }
         }
-      } else if (geometry.type === "MultiPolygon") {
-        for (const polygon of geometry.coordinates) {
-          for (const ring of polygon) {
-            const pieces = splitRingAtDateline(ring);
-            for (const piece of pieces) d += buildPathFromRing(piece);
+        return out.length ? out : ["1","2","3"];
+      }
+
+      function shuffleArray(arr) {
+        const a = [...arr];
+        for (let i = a.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+      }
+
+      function updatePerfMode() {
+        const n = balls.length;
+        if (n > 1600) perfMode = "ultra";
+        else if (n > 700) perfMode = "lite";
+        else perfMode = "full";
+      }
+
+      function resetWorld() {
+        segments = [];
+        pegs = [];
+        rotors = [];
+        launchPads = [];
+        finishSensor = null;
+        balls = [];
+        rankings = [];
+        started = false;
+        followEnabled = false;
+        startTime = 0;
+        winnerInfo = null;
+        winnerBanner.classList.remove("show");
+        winnerBanner.textContent = "";
+        rankText.innerHTML = "아직 시작 전";
+        statusBar.textContent = "대기 중";
+      }
+
+      function addSegment(x1, y1, x2, y2, thickness = 20, kind = "wall") {
+        segments.push({ x1, y1, x2, y2, thickness, kind });
+      }
+
+      function addPeg(x, y, r = 11) {
+        pegs.push({ x, y, r });
+      }
+
+      function addRotor(x, y, blades = 2, bladeLength = 180, thickness = 14, speed = 1.0, initialAngle = 0) {
+        rotors.push({ x, y, blades, bladeLength, thickness, speed, angle: initialAngle });
+      }
+
+      function addLaunchPad(x, y, r = 60) {
+        launchPads.push({ x, y, r, pulse: Math.random() * Math.PI * 2 });
+        addSegment(x - 90, y - 60, x - 20, y + 10, 16);
+        addSegment(x + 90, y - 60, x + 20, y + 10, 16);
+        addSegment(x - 20, y + 14, x - 58, y + 122, 14);
+        addSegment(x + 20, y + 14, x + 58, y + 122, 14);
+      }
+
+      function setFinishSensor(x, y, w, h) {
+        finishSensor = { x, y, w, h };
+      }
+
+      function lerp(a, b, t) {
+        return a + (b - a) * t;
+      }
+
+      function polylinePoint(points, segIndex, t) {
+        const a = points[segIndex];
+        const b = points[segIndex + 1];
+        return { x: lerp(a.x, b.x, t), y: lerp(a.y, b.y, t) };
+      }
+
+      function buildMap(spawnRows) {
+        resetWorld();
+
+        const topBuffer = Math.max(6500, spawnRows * 82 + 3400);
+        WORLD_TOP = -topBuffer;
+
+        const baseY = 1800;
+
+        const leftWall = [
+          { x: 820, y: WORLD_TOP },
+          { x: 820, y: baseY + 200 },
+          { x: 960, y: baseY + 1800 },
+          { x: 960, y: baseY + 4300 },
+          { x: 760, y: baseY + 6900 },
+          { x: 760, y: baseY + 9800 },
+          { x: 940, y: baseY + 12600 },
+          { x: 940, y: baseY + 15600 },
+          { x: 870, y: baseY + 20500 }
+        ];
+
+        const rightWall = [
+          { x: 1680, y: WORLD_TOP },
+          { x: 1680, y: baseY + 200 },
+          { x: 1820, y: baseY + 1800 },
+          { x: 1820, y: baseY + 4300 },
+          { x: 1620, y: baseY + 6900 },
+          { x: 1620, y: baseY + 9800 },
+          { x: 1800, y: baseY + 12600 },
+          { x: 1800, y: baseY + 15600 },
+          { x: 1730, y: baseY + 20500 }
+        ];
+
+        for (let i = 0; i < leftWall.length - 1; i++) {
+          addSegment(leftWall[i].x, leftWall[i].y, leftWall[i + 1].x, leftWall[i + 1].y, 30);
+          addSegment(rightWall[i].x, rightWall[i].y, rightWall[i + 1].x, rightWall[i + 1].y, 30);
+        }
+        addSegment(leftWall[0].x, leftWall[0].y, rightWall[0].x, rightWall[0].y, 30);
+
+        addRotor(1020, baseY + 1200, 2, 150, 12, 0.9, 0.1);
+        addRotor(1250, baseY + 1500, 4, 110, 12, -0.8, 0.2);
+        addRotor(1470, baseY + 1850, 2, 150, 12, 0.95, 0.8);
+        addRotor(1090, baseY + 2400, 4, 95, 12, -0.9, 0.4);
+        addRotor(1400, baseY + 2750, 2, 170, 12, 0.85, 1.2);
+
+        {
+          const p = polylinePoint(leftWall, 1, 0.45);
+          addSegment(p.x, p.y, p.x + 340, p.y + 300, 18);
+        }
+        {
+          const p = polylinePoint(rightWall, 2, 0.55);
+          addSegment(p.x, p.y, p.x - 300, p.y + 280, 18);
+        }
+        {
+          const p = polylinePoint(leftWall, 3, 0.50);
+          addSegment(p.x, p.y, p.x + 330, p.y + 290, 18);
+        }
+        {
+          const p = polylinePoint(rightWall, 4, 0.48);
+          addSegment(p.x, p.y, p.x - 300, p.y + 270, 18);
+        }
+
+        // 중앙 막는 벽 없음. 분기 양옆만.
+        addSegment(900,  baseY + 7600, 900,  baseY + 10100, 20);
+        addSegment(1600, baseY + 7600, 1600, baseY + 10100, 20);
+
+        // 좌측 가지
+        addSegment(820,  baseY + 8150, 1090, baseY + 8400, 18);
+        addRotor(980,    baseY + 9150, 4, 90, 12, 0.82, 0.3);
+
+        // 우측 가지
+        addSegment(1680, baseY + 8350, 1410, baseY + 8600, 18);
+        addRotor(1520,   baseY + 9350, 4, 90, 12, -0.82, 0.5);
+
+        // 아래서 넓게 재합류
+        addSegment(900,  baseY + 10100, 1160, baseY + 11150, 20);
+        addSegment(1600, baseY + 10100, 1340, baseY + 11150, 20);
+
+        addLaunchPad(1250, baseY + 11750);
+
+        {
+          const p = polylinePoint(leftWall, 5, 0.18);
+          addSegment(p.x, p.y, p.x + 300, p.y + 250, 18);
+        }
+        {
+          const p = polylinePoint(rightWall, 5, 0.55);
+          addSegment(p.x, p.y, p.x - 280, p.y + 240, 18);
+        }
+        {
+          const p = polylinePoint(leftWall, 6, 0.22);
+          addSegment(p.x, p.y, p.x + 320, p.y + 260, 18);
+        }
+
+        addRotor(1250, baseY + 14500, 2, 190, 14, 0.82, 0.2);
+        addRotor(1010, baseY + 15180, 4, 95, 12, -0.95, 0.8);
+        addRotor(1490, baseY + 15180, 4, 95, 12, 0.95, 0.1);
+        addRotor(1250, baseY + 15820, 2, 170, 12, -0.9, 0.4);
+
+        addLaunchPad(1250, baseY + 17250);
+
+        {
+          const p = polylinePoint(leftWall, 7, 0.20);
+          addSegment(p.x, p.y, p.x + 290, p.y + 250, 18);
+        }
+        {
+          const p = polylinePoint(rightWall, 7, 0.42);
+          addSegment(p.x, p.y, p.x - 280, p.y + 250, 18);
+        }
+
+        addSegment(1050, baseY + 18840, 1110, baseY + 18980, 10, "accent");
+        addSegment(1170, baseY + 18840, 1230, baseY + 18980, 10, "accent");
+        addSegment(1290, baseY + 18840, 1350, baseY + 18980, 10, "accent");
+        addSegment(1410, baseY + 18840, 1470, baseY + 18980, 10, "accent");
+
+        const leftEnd = leftWall[leftWall.length - 1];
+        const rightEnd = rightWall[rightWall.length - 1];
+        addSegment(leftEnd.x, leftEnd.y, 1210, baseY + 21920, 22);
+        addSegment(rightEnd.x, rightEnd.y, 1290, baseY + 21920, 22);
+
+        setFinishSensor(1250, baseY + 22040, 135, 100);
+        WORLD_BOTTOM = baseY + 22550;
+
+        for (let y = baseY + 3600; y <= baseY + 19800; y += 1200) {
+          const row = Math.floor((y - (baseY + 3600)) / 1200);
+          const cols = row % 2 === 0 ? 4 : 3;
+          const sx = cols === 4 ? 1080 : 1140;
+          for (let i = 0; i < cols; i++) {
+            addPeg(sx + i * 120, y, 10);
           }
         }
       }
 
-      return d;
-    }
+      function buildBalls(names) {
+        const r = 24;
+        const spawnLeft = 930;
+        const spawnRight = 1570;
+        const gapX = 52;
+        const gapY = 60;
+        const cols = Math.max(1, Math.floor((spawnRight - spawnLeft) / gapX));
+        const rows = Math.ceil(names.length / cols);
+        const startY = WORLD_TOP + 320;
 
-    function polygonArea(points) {
-      let area = 0;
-      const n = points.length;
-      for (let i = 0; i < n; i++) {
-        const [x1, y1] = points[i];
-        const [x2, y2] = points[(i + 1) % n];
-        area += x1 * y2 - x2 * y1;
+        balls = names.map((name, i) => {
+          const row = Math.floor(i / cols);
+          const col = i % cols;
+          const rowCount = Math.min(cols, names.length - row * cols);
+          const totalWidth = (rowCount - 1) * gapX;
+          const x0 = (WORLD_W / 2) - totalWidth / 2;
+
+          return {
+            x: x0 + col * gapX,
+            y: startY + row * gapY,
+            vx: 0,
+            vy: 0,
+            r,
+            angle: 0,
+            av: 0,
+            name,
+            color: ballColors[i % ballColors.length],
+            finished: false,
+            finishOrder: 0,
+            captured: false,
+            capturePadIndex: -1,
+            launchQueued: false,
+            launchAt: 0,
+            launchCooldownUntil: 0,
+            flashUntil: 0,
+            slowTimer: 0
+          };
+        });
+
+        updatePerfMode();
+        return rows;
       }
-      return Math.abs(area) * 0.5;
-    }
 
-    function getGeometryProjectedPieces(geometry) {
-      const out = [];
+      function setInitialCamera(instant = true) {
+        const vw = scene.width;
+        const vh = scene.height;
+        const z = Math.min(vw / (WORLD_W + 260), vh / 3900);
 
-      if (geometry.type === "Polygon") {
-        for (const ring of geometry.coordinates) {
-          const pieces = splitRingAtDateline(ring);
-          for (const piece of pieces) {
-            out.push(piece.map(([lon, lat]) => project(lon, lat)));
+        camera.targetX = WORLD_W / 2;
+        camera.targetY = WORLD_TOP + 1850;
+        camera.targetZoom = z;
+
+        if (instant) {
+          camera.x = camera.targetX;
+          camera.y = camera.targetY;
+          camera.zoom = camera.targetZoom;
+        }
+      }
+
+      function rebuildGame(useCurrentShuffle) {
+        targetRank = Math.max(1, parseInt(targetInput.value || "1", 10));
+        const rawNames = parseNames();
+        if (!useCurrentShuffle || shuffledNames.length !== rawNames.length) {
+          shuffledNames = [...rawNames];
+        }
+
+        const estimatedCols = Math.max(1, Math.floor((1570 - 930) / 52));
+        const spawnRows = Math.ceil(shuffledNames.length / estimatedCols);
+        buildMap(spawnRows);
+        buildBalls(shuffledNames);
+        setInitialCamera(true);
+      }
+
+      function escapeHtml(s) {
+        return s.replace(/[&<>"']/g, ch => ({
+          "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"
+        }[ch]));
+      }
+
+      function updateRankBoard() {
+        if (!rankings.length) {
+          rankText.innerHTML = started ? "아직 통과한 공 없음" : "아직 시작 전";
+          return;
+        }
+        rankText.innerHTML = rankings.slice(0, 15).map((b, i) => `${i + 1}등: ${escapeHtml(b.name)}`).join("<br>");
+      }
+
+      function doShuffle() {
+        const raw = parseNames();
+        shuffledNames = shuffleArray(raw);
+        rebuildGame(true);
+        statusBar.textContent = "셔플 완료";
+        updateRankBoard();
+      }
+
+      function startGame() {
+        if (started) return;
+        started = true;
+        followEnabled = false;
+        startTime = performance.now();
+        statusBar.textContent = "시작!";
+
+        const followZoom = Math.min(scene.width / 1320, scene.height / 2000);
+        camera.targetZoom = followZoom;
+
+        for (const b of balls) {
+          b.vx = (Math.random() - 0.5) * 8;
+          b.vy = 0;
+          b.av = 0;
+        }
+      }
+
+      function getLeaderBall() {
+        let leader = null;
+        let maxY = -Infinity;
+        for (const b of balls) {
+          if (!b.finished && b.y > maxY) {
+            maxY = b.y;
+            leader = b;
           }
         }
-      } else if (geometry.type === "MultiPolygon") {
-        for (const polygon of geometry.coordinates) {
-          for (const ring of polygon) {
-            const pieces = splitRingAtDateline(ring);
-            for (const piece of pieces) {
-              out.push(piece.map(([lon, lat]) => project(lon, lat)));
+        return leader || balls.find(b => b.finished) || balls[0] || null;
+      }
+
+      function getSlowestRemainingBall() {
+        let slowest = null;
+        let minY = Infinity;
+        for (const b of balls) {
+          if (!b.finished && b.y < minY) {
+            minY = b.y;
+            slowest = b;
+          }
+        }
+        return slowest || getLeaderBall();
+      }
+
+      function updateCamera(now) {
+        if (!started) {
+          camera.x += (camera.targetX - camera.x) * 0.08;
+          camera.y += (camera.targetY - camera.y) * 0.08;
+          camera.zoom += (camera.targetZoom - camera.zoom) * 0.08;
+          return;
+        }
+
+        if (!followEnabled && now - startTime >= 1200) {
+          followEnabled = true;
+        }
+
+        if (!followEnabled) {
+          camera.targetX = WORLD_W / 2;
+          camera.targetY = WORLD_TOP + 2200;
+        } else {
+          const focusBall = rankings.length >= 1 ? getSlowestRemainingBall() : getLeaderBall();
+          if (focusBall) {
+            camera.targetX = Math.max(560, Math.min(WORLD_W - 560, focusBall.x));
+            camera.targetY = Math.max(WORLD_TOP + 1500, Math.min(WORLD_BOTTOM - 1350, focusBall.y));
+          }
+        }
+
+        camera.x += (camera.targetX - camera.x) * 0.12;
+        camera.y += (camera.targetY - camera.y) * 0.12;
+        camera.zoom += (camera.targetZoom - camera.zoom) * 0.05;
+      }
+
+      function closestPointOnSegment(px, py, x1, y1, x2, y2) {
+        const dx = x2 - x1;
+        const dy = y2 - y1;
+        const lenSq = dx * dx + dy * dy;
+        if (lenSq === 0) return { x: x1, y: y1, t: 0 };
+        let t = ((px - x1) * dx + (py - y1) * dy) / lenSq;
+        t = Math.max(0, Math.min(1, t));
+        return { x: x1 + dx * t, y: y1 + dy * t, t };
+      }
+
+      function resolveBallSegment(ball, x1, y1, x2, y2, thickness) {
+        const cp = closestPointOnSegment(ball.x, ball.y, x1, y1, x2, y2);
+        let dx = ball.x - cp.x;
+        let dy = ball.y - cp.y;
+        let dist = Math.hypot(dx, dy);
+        const minDist = ball.r + thickness * 0.5;
+
+        if (dist === 0) {
+          dx = 0; dy = -1; dist = 1;
+        }
+
+        if (dist < minDist) {
+          const nx = dx / dist;
+          const ny = dy / dist;
+          const overlap = minDist - dist;
+
+          ball.x += nx * overlap;
+          ball.y += ny * overlap;
+
+          const vn = ball.vx * nx + ball.vy * ny;
+          if (vn < 0) {
+            const bounce = -(1 + RESTITUTION) * vn;
+            ball.vx += nx * bounce;
+            ball.vy += ny * bounce;
+          }
+
+          const tx = -ny;
+          const ty = nx;
+          const vt = ball.vx * tx + ball.vy * ty;
+          ball.vx -= tx * vt * (1 - TANGENT_FRICTION);
+          ball.vy -= ty * vt * (1 - TANGENT_FRICTION);
+        }
+      }
+
+      function resolveBallPeg(ball, peg) {
+        let dx = ball.x - peg.x;
+        let dy = ball.y - peg.y;
+        let dist = Math.hypot(dx, dy);
+        const minDist = ball.r + peg.r;
+
+        if (dist === 0) {
+          dx = 0; dy = -1; dist = 1;
+        }
+
+        if (dist < minDist) {
+          const nx = dx / dist;
+          const ny = dy / dist;
+          const overlap = minDist - dist;
+
+          ball.x += nx * overlap;
+          ball.y += ny * overlap;
+
+          const vn = ball.vx * nx + ball.vy * ny;
+          if (vn < 0) {
+            const bounce = -(1 + 0.82) * vn;
+            ball.vx += nx * bounce;
+            ball.vy += ny * bounce;
+          }
+        }
+      }
+
+      function resolveBallBall(a, b) {
+        let dx = b.x - a.x;
+        let dy = b.y - a.y;
+        let dist = Math.hypot(dx, dy);
+        const minDist = a.r + b.r;
+
+        if (dist === 0) {
+          dx = 1; dy = 0; dist = 1;
+        }
+
+        if (dist < minDist) {
+          const nx = dx / dist;
+          const ny = dy / dist;
+          const overlap = minDist - dist;
+          const push = overlap * 0.5;
+
+          a.x -= nx * push;
+          a.y -= ny * push;
+          b.x += nx * push;
+          b.y += ny * push;
+
+          const rvx = b.vx - a.vx;
+          const rvy = b.vy - a.vy;
+          const vn = rvx * nx + rvy * ny;
+          if (vn < 0) {
+            const impulse = -(1 + 0.88) * vn * 0.5;
+            a.vx -= nx * impulse;
+            a.vy -= ny * impulse;
+            b.vx += nx * impulse;
+            b.vy += ny * impulse;
+          }
+        }
+      }
+
+      function rotorBlades(rotor) {
+        const blades = [];
+        const count = rotor.blades;
+        const half = rotor.bladeLength * 0.5;
+        for (let i = 0; i < count; i++) {
+          const ang = rotor.angle + (Math.PI * 2 * i / count);
+          const cos = Math.cos(ang);
+          const sin = Math.sin(ang);
+          blades.push({
+            x1: rotor.x - cos * half,
+            y1: rotor.y - sin * half,
+            x2: rotor.x + cos * half,
+            y2: rotor.y + sin * half,
+            thickness: rotor.thickness
+          });
+        }
+        return blades;
+      }
+
+      function pointInRect(px, py, x, y, w, h) {
+        return px >= x - w / 2 && px <= x + w / 2 && py >= y - h / 2 && py <= y + h / 2;
+      }
+
+      function stepPhysics(dt, now) {
+        if (!started) return;
+
+        for (const rotor of rotors) rotor.angle += rotor.speed * dt;
+
+        for (const b of balls) {
+          if (b.finished) continue;
+
+          if (b.captured) {
+            const pad = launchPads[b.capturePadIndex];
+            if (pad) {
+              b.x = pad.x;
+              b.y = pad.y;
+              b.vx = 0;
+              b.vy = 0;
+              b.av = 0;
+              b.angle += 2.2 * dt;
+            }
+
+            if (b.launchQueued && now >= b.launchAt) {
+              b.captured = false;
+              b.launchQueued = false;
+              b.flashUntil = now + 450;
+              b.launchCooldownUntil = now + 850;
+              const side = Math.random() < 0.5 ? -1 : 1;
+              b.vx = side * (90 + Math.random() * 80);
+              b.vy = 980 + Math.random() * 180;
+              b.av = (Math.random() - 0.5) * 4;
+            }
+            continue;
+          }
+
+          b.vy += DOWN_FORCE * dt;
+          b.vx *= (1 - AIR);
+          b.vy *= (1 - AIR * 0.3);
+          b.angle += b.av * dt;
+
+          b.x += b.vx * dt;
+          b.y += b.vy * dt;
+        }
+
+        const iterations = perfMode === "full" ? 5 : perfMode === "lite" ? 3 : 2;
+        const doBallBall = perfMode === "full";
+        const visibleRotorOnly = perfMode !== "full";
+
+        for (let iter = 0; iter < iterations; iter++) {
+          for (const b of balls) {
+            if (b.finished || b.captured) continue;
+
+            if (b.x < LEFT_LIMIT + b.r) { b.x = LEFT_LIMIT + b.r; b.vx = Math.abs(b.vx) * 0.35; }
+            if (b.x > RIGHT_LIMIT - b.r) { b.x = RIGHT_LIMIT - b.r; b.vx = -Math.abs(b.vx) * 0.35; }
+            if (b.y < WORLD_TOP + b.r) { b.y = WORLD_TOP + b.r; b.vy = Math.abs(b.vy) * 0.2; }
+
+            for (const seg of segments) {
+              resolveBallSegment(b, seg.x1, seg.y1, seg.x2, seg.y2, seg.thickness);
+            }
+
+            if (perfMode !== "ultra") {
+              for (const peg of pegs) {
+                if (Math.abs(peg.y - b.y) < 700) resolveBallPeg(b, peg);
+              }
+            }
+
+            for (const rotor of rotors) {
+              if (visibleRotorOnly && Math.abs(rotor.y - b.y) > 900) continue;
+              const blades = rotorBlades(rotor);
+              for (const blade of blades) {
+                resolveBallSegment(b, blade.x1, blade.y1, blade.x2, blade.y2, blade.thickness);
+              }
+            }
+          }
+
+          if (doBallBall) {
+            for (let i = 0; i < balls.length; i++) {
+              const a = balls[i];
+              if (a.finished || a.captured) continue;
+              for (let j = i + 1; j < balls.length; j++) {
+                const b = balls[j];
+                if (b.finished || b.captured) continue;
+                if (Math.abs(a.y - b.y) > 120 || Math.abs(a.x - b.x) > 120) continue;
+                resolveBallBall(a, b);
+              }
             }
           }
         }
-      }
 
-      return out.filter(piece => piece.length >= 3);
-    }
+        for (const b of balls) {
+          if (b.finished || b.captured) continue;
 
-    function getLabelPlacement(geometry) {
-      const pieces = getGeometryProjectedPieces(geometry);
-      if (!pieces.length) return null;
+          const speed = Math.hypot(b.vx, b.vy);
+          if (speed < 12 && b.y > WORLD_TOP + 800) b.slowTimer += dt;
+          else b.slowTimer = 0;
 
-      let bestPiece = pieces[0];
-      let bestArea = polygonArea(bestPiece);
+          if (b.slowTimer > 0.26) {
+            b.vy += 80 + Math.random() * 20;
+            b.vx += (Math.random() - 0.5) * 8;
+            b.slowTimer = 0.04;
+          }
 
-      for (let i = 1; i < pieces.length; i++) {
-        const area = polygonArea(pieces[i]);
-        if (area > bestArea) {
-          bestArea = area;
-          bestPiece = pieces[i];
+          for (let p = 0; p < launchPads.length; p++) {
+            if (now < b.launchCooldownUntil) continue;
+            const pad = launchPads[p];
+            const dx = b.x - pad.x;
+            const dy = b.y - pad.y;
+            const dist = Math.hypot(dx, dy);
+            if (dist < pad.r - b.r * 0.12) {
+              b.captured = true;
+              b.capturePadIndex = p;
+              b.launchQueued = true;
+              b.launchAt = now + 1000;
+              b.x = pad.x;
+              b.y = pad.y;
+              b.vx = 0;
+              b.vy = 0;
+              break;
+            }
+          }
+
+          if (finishSensor && pointInRect(b.x, b.y, finishSensor.x, finishSensor.y, finishSensor.w, finishSensor.h)) {
+            b.finished = true;
+            b.finishOrder = rankings.length + 1;
+            rankings.push(b);
+            b.vx = 0;
+            b.vy = 0;
+
+            if (!winnerInfo && b.finishOrder === targetRank) {
+              winnerInfo = { rank: b.finishOrder, name: b.name };
+              winnerBanner.textContent = `${winnerInfo.rank}번째 통과 - ${winnerInfo.name} win!`;
+              winnerBanner.classList.add("show");
+              statusBar.textContent = `${b.finishOrder}번째 당첨: ${b.name}`;
+            } else {
+              statusBar.textContent = `${b.finishOrder}등 통과: ${b.name}`;
+            }
+            updateRankBoard();
+          }
         }
       }
 
-      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-      for (const [x, y] of bestPiece) {
-        if (x < minX) minX = x;
-        if (y < minY) minY = y;
-        if (x > maxX) maxX = x;
-        if (y > maxY) maxY = y;
+      function worldToScreen(x, y) {
+        return {
+          x: (x - camera.x) * camera.zoom + scene.width / 2,
+          y: (y - camera.y) * camera.zoom + scene.height / 2
+        };
       }
 
-      return {
-        x: (minX + maxX) / 2,
-        y: (minY + maxY) / 2,
-        width: maxX - minX,
-        height: maxY - minY,
-        area: bestArea
+      function drawBackground() {
+        ctx.clearRect(0, 0, scene.width, scene.height);
+        const glow = ctx.createRadialGradient(scene.width / 2, 70, 10, scene.width / 2, 70, scene.height * 0.7);
+        glow.addColorStop(0, "rgba(255,255,255,0.06)");
+        glow.addColorStop(1, "rgba(255,255,255,0)");
+        ctx.fillStyle = glow;
+        ctx.fillRect(0, 0, scene.width, scene.height);
+      }
+
+      function drawChamberFill() {
+        const tl = worldToScreen(LEFT_LIMIT, WORLD_TOP);
+        const br = worldToScreen(RIGHT_LIMIT, WORLD_BOTTOM);
+        ctx.fillStyle = "#101010";
+        ctx.fillRect(tl.x, tl.y, br.x - tl.x, br.y - tl.y);
+      }
+
+      function drawSegmentObj(seg) {
+        const p1 = worldToScreen(seg.x1, seg.y1);
+        const p2 = worldToScreen(seg.x2, seg.y2);
+        const angle = Math.atan2(p2.y - p1.y, p2.x - p1.x);
+        const len = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+
+        ctx.save();
+        ctx.translate((p1.x + p2.x) / 2, (p1.y + p2.y) / 2);
+        ctx.rotate(angle);
+
+        let fillA = "rgba(255,255,255,0.98)";
+        let fillB = "rgba(214,214,214,0.84)";
+        let shadow = "rgba(255,255,255,0.14)";
+
+        if (seg.kind === "accent") {
+          fillA = "rgba(40,220,255,0.95)";
+          fillB = "rgba(0,150,255,0.85)";
+          shadow = "rgba(0,180,255,0.45)";
+        }
+
+        const g = ctx.createLinearGradient(-len / 2, 0, len / 2, 0);
+        g.addColorStop(0, fillA);
+        g.addColorStop(1, fillB);
+
+        ctx.fillStyle = g;
+        ctx.shadowColor = shadow;
+        ctx.shadowBlur = seg.kind === "accent" ? 18 : 10;
+        ctx.fillRect(-len / 2, -(seg.thickness * camera.zoom) / 2, len, seg.thickness * camera.zoom);
+        ctx.shadowBlur = 0;
+        ctx.restore();
+      }
+
+      function drawPeg(peg) {
+        const p = worldToScreen(peg.x, peg.y);
+        const r = peg.r * camera.zoom;
+        if (r < 1) return;
+
+        const g = ctx.createRadialGradient(p.x - r * 0.35, p.y - r * 0.35, r * 0.12, p.x, p.y, r);
+        g.addColorStop(0, "#7ef2ff");
+        g.addColorStop(0.6, "#25cfff");
+        g.addColorStop(1, "#0e8fff");
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+        ctx.fillStyle = g;
+        ctx.shadowColor = "rgba(0,180,255,0.45)";
+        ctx.shadowBlur = 12;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+
+      function drawLaunchPad(pad, now) {
+        const p = worldToScreen(pad.x, pad.y);
+        const r = pad.r * camera.zoom;
+        if (r < 2) return;
+
+        const pulse = 0.5 + 0.5 * Math.sin(now * 0.005 + pad.pulse);
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(0,180,255,${0.12 + pulse * 0.12})`;
+        ctx.fill();
+
+        ctx.strokeStyle = `rgba(80,220,255,${0.85 + pulse * 0.15})`;
+        ctx.lineWidth = Math.max(2, r * 0.09);
+        ctx.shadowColor = "rgba(0,180,255,0.9)";
+        ctx.shadowBlur = 28;
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, r * 0.52, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(100,230,255,0.18)";
+        ctx.fill();
+        ctx.restore();
+      }
+
+      function drawRotor(rotor) {
+        const blades = rotorBlades(rotor);
+        for (const blade of blades) {
+          drawSegmentObj({ ...blade, kind: "accent" });
+        }
+      }
+
+      function drawBall(ball, now) {
+        const p = worldToScreen(ball.x, ball.y);
+        const r = ball.r * camera.zoom;
+        if (p.x < -r * 4 || p.x > scene.width + r * 4 || p.y < -r * 4 || p.y > scene.height + r * 4) return;
+
+        const flash = ball.flashUntil && now < ball.flashUntil;
+        const captured = ball.captured;
+        const g = ctx.createRadialGradient(p.x - r * 0.35, p.y - r * 0.45, r * 0.12, p.x, p.y, r);
+        g.addColorStop(0, "#ffffff");
+        g.addColorStop(0.45, captured ? "#9fe8ff" : (flash ? "#9fe8ff" : ball.color));
+        g.addColorStop(1, captured ? "#00ccff" : (flash ? "#00a8ff" : "#777777"));
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+        ctx.fillStyle = g;
+        ctx.shadowColor = (flash || captured) ? "rgba(0,180,255,0.55)" : "rgba(255,255,255,0.16)";
+        ctx.shadowBlur = (flash || captured) ? 26 : 16;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        ctx.strokeStyle = "rgba(0,0,0,0.45)";
+        ctx.lineWidth = Math.max(1, r * 0.08);
+        ctx.stroke();
+
+        if (camera.zoom > 0.3 && balls.length <= 250) {
+          ctx.translate(p.x, p.y);
+          ctx.rotate(ball.angle);
+          ctx.fillStyle = "#111";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.font = `900 ${Math.max(8, r * 0.5)}px Malgun Gothic, sans-serif`;
+          let txt = ball.name;
+          if (txt.length > 3) txt = txt.slice(0, 3);
+          ctx.fillText(txt, 0, 0);
+        }
+        ctx.restore();
+      }
+
+      function drawBlastText(now) {
+        ctx.save();
+        ctx.fillStyle = "rgba(120,230,255,0.95)";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.font = "900 24px Malgun Gothic, sans-serif";
+        ctx.shadowColor = "rgba(0,180,255,0.8)";
+        ctx.shadowBlur = 16;
+
+        for (const b of balls) {
+          if (b.flashUntil && now < b.flashUntil) {
+            const p = worldToScreen(b.x, b.y - 90);
+            if (p.x >= -100 && p.x <= scene.width + 100 && p.y >= -100 && p.y <= scene.height + 100) {
+              ctx.fillText("팡!", p.x, p.y);
+            }
+          }
+        }
+        ctx.restore();
+      }
+
+      function drawFinishSensor() {
+        if (!finishSensor) return;
+        const tl = worldToScreen(finishSensor.x - finishSensor.w / 2, finishSensor.y - finishSensor.h / 2);
+        const br = worldToScreen(finishSensor.x + finishSensor.w / 2, finishSensor.y + finishSensor.h / 2);
+        ctx.save();
+        ctx.setLineDash([8, 8]);
+        ctx.strokeStyle = "rgba(255,255,255,0.7)";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(tl.x, tl.y, br.x - tl.x, br.y - tl.y);
+        ctx.restore();
+      }
+
+      function drawMainScene(now) {
+        drawBackground();
+        drawChamberFill();
+        for (const seg of segments) drawSegmentObj(seg);
+        for (const peg of pegs) drawPeg(peg);
+        for (const rotor of rotors) drawRotor(rotor);
+        for (const pad of launchPads) drawLaunchPad(pad, now);
+        for (const ball of balls) drawBall(ball, now);
+        drawFinishSensor();
+        drawBlastText(now);
+      }
+
+      function drawMiniMap() {
+        const mw = miniMap.width;
+        const mh = miniMap.height;
+        miniCtx.clearRect(0, 0, mw, mh);
+        miniCtx.fillStyle = "#050505";
+        miniCtx.fillRect(0, 0, mw, mh);
+
+        const pad = 8;
+        const scale = Math.min((mw - pad * 2) / WORLD_W, (mh - pad * 2) / (WORLD_BOTTOM - WORLD_TOP));
+        const mx = x => pad + x * scale;
+        const my = y => pad + (y - WORLD_TOP) * scale;
+
+        miniCtx.fillStyle = "#101010";
+        miniCtx.fillRect(mx(LEFT_LIMIT), my(WORLD_TOP), (RIGHT_LIMIT - LEFT_LIMIT) * scale, (WORLD_BOTTOM - WORLD_TOP) * scale);
+
+        for (const seg of segments) {
+          miniCtx.strokeStyle = seg.kind === "accent" ? "rgba(60,220,255,0.95)" : "rgba(255,255,255,0.88)";
+          miniCtx.lineWidth = 1;
+          miniCtx.beginPath();
+          miniCtx.moveTo(mx(seg.x1), my(seg.y1));
+          miniCtx.lineTo(mx(seg.x2), my(seg.y2));
+          miniCtx.stroke();
+        }
+
+        miniCtx.strokeStyle = "rgba(80,220,255,0.95)";
+        for (const rotor of rotors) {
+          const blades = rotorBlades(rotor);
+          for (const blade of blades) {
+            miniCtx.beginPath();
+            miniCtx.moveTo(mx(blade.x1), my(blade.y1));
+            miniCtx.lineTo(mx(blade.x2), my(blade.y2));
+            miniCtx.stroke();
+          }
+        }
+
+        miniCtx.strokeStyle = "rgba(80,220,255,0.9)";
+        for (const lp of launchPads) {
+          miniCtx.beginPath();
+          miniCtx.arc(mx(lp.x), my(lp.y), Math.max(2, lp.r * scale), 0, Math.PI * 2);
+          miniCtx.stroke();
+        }
+
+        miniCtx.fillStyle = "rgba(60,220,255,0.8)";
+        for (const peg of pegs) {
+          miniCtx.beginPath();
+          miniCtx.arc(mx(peg.x), my(peg.y), Math.max(0.8, peg.r * scale), 0, Math.PI * 2);
+          miniCtx.fill();
+        }
+
+        for (const ball of balls) {
+          miniCtx.beginPath();
+          miniCtx.fillStyle = ball.finished ? "#ffffff" : "#d0d0d0";
+          miniCtx.arc(mx(ball.x), my(ball.y), Math.max(1.0, ball.r * scale), 0, Math.PI * 2);
+          miniCtx.fill();
+        }
+
+        const viewWorldW = scene.width / camera.zoom;
+        const viewWorldH = scene.height / camera.zoom;
+        const vx = camera.x - viewWorldW / 2;
+        const vy = camera.y - viewWorldH / 2;
+
+        miniCtx.strokeStyle = "rgba(255,255,255,0.95)";
+        miniCtx.lineWidth = 1.2;
+        miniCtx.strokeRect(mx(vx), my(vy), viewWorldW * scale, viewWorldH * scale);
+      }
+
+      function gameLoop(now) {
+        if (!lastTime) lastTime = now;
+        let dt = (now - lastTime) / 1000;
+        lastTime = now;
+
+        dt *= timeScale;
+        dt = Math.min(dt, MAX_DT * 1.5);
+        accumulator += dt;
+
+        while (accumulator >= FIXED_DT) {
+          stepPhysics(FIXED_DT, now);
+          accumulator -= FIXED_DT;
+        }
+
+        updateCamera(now);
+        drawMainScene(now);
+        drawMiniMap();
+        requestAnimationFrame(gameLoop);
+      }
+
+      function setFastForward(on) {
+        timeScale = on ? 1.5 : 1.0;
+        statusBar.textContent = on ? "1.5배속" : "일반속도";
+      }
+
+      shuffleBtn.addEventListener("click", doShuffle);
+      startBtn.addEventListener("click", startGame);
+
+      namesInput.addEventListener("change", () => {
+        shuffledNames = parseNames();
+        rebuildGame(true);
+      });
+
+      targetInput.addEventListener("change", () => {
+        targetRank = Math.max(1, parseInt(targetInput.value || "1", 10));
+      });
+
+      const fastStart = (e) => {
+        if (e.target.closest("#leftPanel")) return;
+        setFastForward(true);
       };
-    }
+      const fastEnd = () => setFastForward(false);
 
-    function chooseLabelZoom(area, width, height, name) {
-      const len = (name || "").length;
+      rightWrap.addEventListener("pointerdown", fastStart);
+      window.addEventListener("pointerup", fastEnd);
+      window.addEventListener("pointercancel", fastEnd);
+      window.addEventListener("blur", fastEnd);
 
-      if (area > 12000 && width > 65 && height > 18) return 1.0;
-      if (area > 6000 && width > 45 && height > 14) return 1.25;
-      if (area > 2500 && width > 28 && height > 10) return 1.7;
-      if (area > 900 && width > 18 && height > 8) return 2.2;
-      if (area > 300 && width > 10 && height > 6) return 3.0;
-      if (area > 120) return 4.3;
-      if (area > 45) return 6.2;
-      if (len <= 5) return 8.0;
-      if (len <= 10) return 10.0;
-      return 12.0;
-    }
+      window.addEventListener("resize", () => {
+        resize();
+        updateMobileState();
+      });
 
-    function chooseFontSize(area, width, height, name) {
-      const estimated = Math.max(8, Math.min(26, Math.sqrt(area) * 0.16));
-      const widthLimited = Math.max(7, Math.min(estimated, width / Math.max(1.8, name.length * 0.55)));
-      const heightLimited = Math.max(7, Math.min(widthLimited, height * 0.78));
-      return Math.max(7, Math.min(26, heightLimited));
-    }
-
-    function getCountryCode(feature) {
-      const p = feature.properties || {};
-      const candidates = [
-        p["ISO3166-1-Alpha-2"],
-        p.iso_a2,
-        p.ISO_A2,
-        p.ISO2,
-        p.iso2,
-        p["iso2"],
-        p["WB_A2"],
-        p["ADM0_A3_US"],
-        p["GU_A3"],
-        p["SU_A3"]
-      ];
-
-      for (const code of candidates) {
-        if (typeof code === "string") {
-          const c = code.trim().toUpperCase();
-          if (/^[A-Z]{2}$/.test(c)) return c;
-        }
-      }
-
-      return null;
-    }
-
-    function getEnglishCountryName(feature) {
-      const p = feature.properties || {};
-      return (
-        p.ADMIN ||
-        p.admin ||
-        p.NAME ||
-        p.name ||
-        p.SOVEREIGNT ||
-        p.sovereignt ||
-        p.BRK_NAME ||
-        p.brk_name ||
-        "이름없음"
-      );
-    }
-
-    function getCountryNameKo(feature) {
-      const code = getCountryCode(feature);
-      if (code) {
-        if (nameOverrides[code]) return nameOverrides[code];
-        try {
-          const ko = regionNames.of(code);
-          if (ko && ko !== code) return ko;
-        } catch (e) {}
-      }
-      return getEnglishCountryName(feature);
-    }
-
-    function clampTranslate() {
-      const scaledW = WORLD_W * scale;
-      const scaledH = WORLD_H * scale;
-
-      if (scaledW <= VIEW_W) {
-        translateX = (VIEW_W - scaledW) / 2;
-      } else {
-        const minX = VIEW_W - scaledW;
-        const maxX = 0;
-        if (translateX < minX) translateX = minX;
-        if (translateX > maxX) translateX = maxX;
-      }
-
-      if (scaledH <= VIEW_H) {
-        translateY = (VIEW_H - scaledH) / 2;
-      } else {
-        const minY = VIEW_H - scaledH;
-        const maxY = 0;
-        if (translateY < minY) translateY = minY;
-        if (translateY > maxY) translateY = maxY;
-      }
-    }
-
-    function setTransform() {
-      clampTranslate();
-      world.setAttribute("transform", `translate(${translateX} ${translateY}) scale(${scale})`);
-      updateLabelsVisibility();
-    }
-
-    function updateLabelsVisibility() {
-      for (const item of labelItems) {
-        item.el.style.display = scale >= item.minZoom ? "" : "none";
-      }
-    }
-
-    function zoomAt(clientX, clientY, factor) {
-      const rect = svg.getBoundingClientRect();
-      const px = ((clientX - rect.left) / rect.width) * VIEW_W;
-      const py = ((clientY - rect.top) / rect.height) * VIEW_H;
-
-      const newScale = Math.max(minScale, Math.min(maxScale, scale * factor));
-      const actualFactor = newScale / scale;
-      if (actualFactor === 1) return;
-
-      translateX = px - (px - translateX) * actualFactor;
-      translateY = py - (py - translateY) * actualFactor;
-      scale = newScale;
-      setTransform();
-    }
-
-    function getTouchDistance(t1, t2) {
-      const dx = t1.clientX - t2.clientX;
-      const dy = t1.clientY - t2.clientY;
-      return Math.hypot(dx, dy);
-    }
-
-    function getTouchCenter(t1, t2) {
-      return {
-        x: (t1.clientX + t2.clientX) / 2,
-        y: (t1.clientY + t2.clientY) / 2
-      };
-    }
-
-    svg.addEventListener("wheel", (e) => {
-      e.preventDefault();
-      const factor = e.deltaY < 0 ? 1.22 : 1 / 1.22;
-      zoomAt(e.clientX, e.clientY, factor);
-    }, { passive: false });
-
-    svg.addEventListener("pointerdown", (e) => {
-      if (e.pointerType !== "mouse" || e.button === 0) {
-        isDragging = true;
-        lastX = e.clientX;
-        lastY = e.clientY;
-        svg.setPointerCapture(e.pointerId);
-      }
-    });
-
-    svg.addEventListener("pointermove", (e) => {
-      if (!isDragging) return;
-
-      const rect = svg.getBoundingClientRect();
-      const dx = e.clientX - lastX;
-      const dy = e.clientY - lastY;
-
-      lastX = e.clientX;
-      lastY = e.clientY;
-
-      translateX += dx * (VIEW_W / rect.width);
-      translateY += dy * (VIEW_H / rect.height);
-      setTransform();
-    });
-
-    function endDrag() {
-      isDragging = false;
-    }
-
-    svg.addEventListener("pointerup", endDrag);
-    svg.addEventListener("pointercancel", endDrag);
-    svg.addEventListener("pointerleave", endDrag);
-
-    svg.addEventListener("touchstart", (e) => {
-      if (e.touches.length === 2) {
-        pinchStartDist = getTouchDistance(e.touches[0], e.touches[1]);
-        pinchStartScale = scale;
-        pinchStartTX = translateX;
-        pinchStartTY = translateY;
-        pinchCenter = getTouchCenter(e.touches[0], e.touches[1]);
-      }
-    }, { passive: false });
-
-    svg.addEventListener("touchmove", (e) => {
-      if (e.touches.length === 2) {
-        e.preventDefault();
-
-        const dist = getTouchDistance(e.touches[0], e.touches[1]);
-        const center = getTouchCenter(e.touches[0], e.touches[1]);
-        const factor = dist / pinchStartDist;
-
-        const rect = svg.getBoundingClientRect();
-        const px = ((center.x - rect.left) / rect.width) * VIEW_W;
-        const py = ((center.y - rect.top) / rect.height) * VIEW_H;
-
-        const newScale = Math.max(minScale, Math.min(maxScale, pinchStartScale * factor));
-        const actualFactor = newScale / pinchStartScale;
-
-        translateX = px - (px - pinchStartTX) * actualFactor;
-        translateY = py - (py - pinchStartTY) * actualFactor;
-
-        if (pinchCenter) {
-          const prevPx = ((pinchCenter.x - rect.left) / rect.width) * VIEW_W;
-          const prevPy = ((pinchCenter.y - rect.top) / rect.height) * VIEW_H;
-          translateX += px - prevPx;
-          translateY += py - prevPy;
-        }
-
-        scale = newScale;
-        pinchCenter = center;
-        setTransform();
-      }
-    }, { passive: false });
-
-    function centerOnKorea(initialScale) {
-      const koreaLon = 127.7669;
-      const koreaLat = 35.9078;
-      const [kx, ky] = project(koreaLon, koreaLat);
-
-      scale = Math.max(minScale, Math.min(maxScale, initialScale));
-      translateX = VIEW_W / 2 - kx * scale;
-      translateY = VIEW_H / 2 - ky * scale;
-      setTransform();
-    }
-
-    async function loadWorld() {
-      try {
-        const res = await fetch("https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson");
-        const geojson = await res.json();
-
-        for (const feature of geojson.features) {
-          const geometry = feature.geometry;
-          if (!geometry) continue;
-
-          const d = geometryToPath(geometry);
-          if (!d) continue;
-
-          const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-          path.setAttribute("d", d);
-          path.setAttribute("class", "land");
-          countriesGroup.appendChild(path);
-
-          const labelPos = getLabelPlacement(geometry);
-          if (!labelPos) continue;
-
-          const name = getCountryNameKo(feature);
-          const fontSize = chooseFontSize(labelPos.area, labelPos.width, labelPos.height, name);
-          const minZoomForLabel = chooseLabelZoom(labelPos.area, labelPos.width, labelPos.height, name);
-
-          const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-          text.setAttribute("x", labelPos.x);
-          text.setAttribute("y", labelPos.y);
-          text.setAttribute("class", "country-label");
-          text.setAttribute("font-size", fontSize.toFixed(1));
-          text.textContent = name;
-
-          labelsGroup.appendChild(text);
-          labelItems.push({
-            el: text,
-            minZoom: minZoomForLabel
-          });
-        }
-
-        loading.classList.add("hidden");
-
-        minScale = 1;
-        centerOnKorea(2.2);
-      } catch (err) {
-        loading.textContent = "지도 데이터를 불러오지 못했습니다.";
-        loading.classList.add("error");
-        console.error(err);
-      }
-    }
-
-    loadWorld();
+      resize();
+      updateMobileState();
+      shuffledNames = parseNames();
+      rebuildGame(true);
+      updateRankBoard();
+      requestAnimationFrame(gameLoop);
+    })();
   </script>
 </body>
 </html>
