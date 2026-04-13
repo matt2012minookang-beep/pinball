@@ -43,7 +43,7 @@
     }
 
     #leftPanel {
-      width: 290px;
+      width: 300px;
       display: flex;
       flex-direction: column;
       gap: 12px;
@@ -107,6 +107,24 @@
     }
 
     input { height: 42px; }
+
+    .row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .miniBtn {
+      flex: 0 0 auto;
+      padding: 0 12px;
+      height: 42px;
+      font-size: 13px;
+      border-radius: 12px;
+    }
+
+    .targetInputWrap {
+      flex: 1;
+    }
 
     button {
       border: none;
@@ -301,17 +319,24 @@
 
         <div>
           <div class="label">몇 번째가 당첨인지</div>
-          <input id="targetInput" type="number" min="1" value="10" />
+          <div class="row">
+            <button id="firstBtn" class="miniBtn">첫번째</button>
+            <button id="lastBtn" class="miniBtn">마지막</button>
+          </div>
+          <div style="height:8px;"></div>
+          <div class="targetInputWrap">
+            <input id="targetInput" type="number" min="1" value="10" />
+          </div>
         </div>
 
         <button id="shuffleBtn">셔플</button>
         <button id="startBtn">시작</button>
 
-        <div id="hint">2갈래 중앙 완전 비움
-막힌길 제거
-발사패드 아래 발사 수정
-누르고 있으면 1.5배속
-공 많으면 자동 경량 모드</div>
+        <div id="hint">첫번째 / 마지막 버튼 추가
+마지막 = 현재 공 총개수
+숫자 직접 입력 가능
+막힌 병목 구간 제거
+누르고 있으면 1.5배속</div>
       </div>
     </div>
 
@@ -341,6 +366,8 @@
 
       const namesInput = document.getElementById("namesInput");
       const targetInput = document.getElementById("targetInput");
+      const firstBtn = document.getElementById("firstBtn");
+      const lastBtn = document.getElementById("lastBtn");
       const shuffleBtn = document.getElementById("shuffleBtn");
       const startBtn = document.getElementById("startBtn");
       const rankText = document.getElementById("rankText");
@@ -400,11 +427,8 @@
       }
 
       function updateMobileState() {
-        if (window.innerWidth <= 960) {
-          leftPanel.classList.add("collapsed");
-        } else {
-          leftPanel.classList.remove("collapsed");
-        }
+        if (window.innerWidth <= 960) leftPanel.classList.add("collapsed");
+        else leftPanel.classList.remove("collapsed");
       }
 
       mobileToggle.addEventListener("click", () => {
@@ -425,6 +449,10 @@
           }
         }
         return out.length ? out : ["1","2","3"];
+      }
+
+      function getBallCountFromInput() {
+        return parseNames().length;
       }
 
       function shuffleArray(arr) {
@@ -547,28 +575,28 @@
           const p = polylinePoint(rightWall, 2, 0.55);
           addSegment(p.x, p.y, p.x - 300, p.y + 280, 18);
         }
+
+        // 사진처럼 끼던 병목 제거:
+        // 짧은 세로벽 삭제하고, 바깥 벽에 붙은 짧은 유도벽만 사용
         {
-          const p = polylinePoint(leftWall, 3, 0.50);
-          addSegment(p.x, p.y, p.x + 330, p.y + 290, 18);
+          const p = polylinePoint(leftWall, 3, 0.52);
+          addSegment(p.x, p.y, p.x + 250, p.y + 220, 18);
         }
         {
-          const p = polylinePoint(rightWall, 4, 0.48);
-          addSegment(p.x, p.y, p.x - 300, p.y + 270, 18);
+          const p = polylinePoint(rightWall, 4, 0.46);
+          addSegment(p.x, p.y, p.x - 250, p.y + 220, 18);
         }
 
-        // 중앙 막는 벽 없음. 분기 양옆만.
+        // 2갈래 중앙 완전 비움
         addSegment(900,  baseY + 7600, 900,  baseY + 10100, 20);
         addSegment(1600, baseY + 7600, 1600, baseY + 10100, 20);
 
-        // 좌측 가지
-        addSegment(820,  baseY + 8150, 1090, baseY + 8400, 18);
+        addSegment(820,  baseY + 8150, 1060, baseY + 8360, 18);
         addRotor(980,    baseY + 9150, 4, 90, 12, 0.82, 0.3);
 
-        // 우측 가지
-        addSegment(1680, baseY + 8350, 1410, baseY + 8600, 18);
+        addSegment(1680, baseY + 8350, 1440, baseY + 8560, 18);
         addRotor(1520,   baseY + 9350, 4, 90, 12, -0.82, 0.5);
 
-        // 아래서 넓게 재합류
         addSegment(900,  baseY + 10100, 1160, baseY + 11150, 20);
         addSegment(1600, baseY + 10100, 1340, baseY + 11150, 20);
 
@@ -686,7 +714,10 @@
       }
 
       function rebuildGame(useCurrentShuffle) {
-        targetRank = Math.max(1, parseInt(targetInput.value || "1", 10));
+        const count = getBallCountFromInput();
+        targetRank = Math.max(1, Math.min(count, parseInt(targetInput.value || "1", 10)));
+        targetInput.value = targetRank;
+
         const rawNames = parseNames();
         if (!useCurrentShuffle || shuffledNames.length !== rawNames.length) {
           shuffledNames = [...rawNames];
@@ -1337,8 +1368,23 @@
         statusBar.textContent = on ? "1.5배속" : "일반속도";
       }
 
+      firstBtn.addEventListener("click", () => {
+        targetInput.value = 1;
+      });
+
+      lastBtn.addEventListener("click", () => {
+        targetInput.value = getBallCountFromInput();
+      });
+
       shuffleBtn.addEventListener("click", doShuffle);
       startBtn.addEventListener("click", startGame);
+
+      namesInput.addEventListener("input", () => {
+        const count = getBallCountFromInput();
+        const current = parseInt(targetInput.value || "1", 10);
+        if (current > count) targetInput.value = count;
+        if (current < 1 || !Number.isFinite(current)) targetInput.value = 1;
+      });
 
       namesInput.addEventListener("change", () => {
         shuffledNames = parseNames();
@@ -1346,7 +1392,9 @@
       });
 
       targetInput.addEventListener("change", () => {
-        targetRank = Math.max(1, parseInt(targetInput.value || "1", 10));
+        const count = getBallCountFromInput();
+        targetRank = Math.max(1, Math.min(count, parseInt(targetInput.value || "1", 10)));
+        targetInput.value = targetRank;
       });
 
       const fastStart = (e) => {
