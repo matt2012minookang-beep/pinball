@@ -332,10 +332,10 @@
         <button id="shuffleBtn">셔플</button>
         <button id="startBtn">시작</button>
 
-        <div id="hint">첫번째 / 마지막 버튼 추가
+        <div id="hint">첫번째 / 마지막 버튼
 마지막 = 현재 공 총개수
-숫자 직접 입력 가능
-막힌 병목 구간 제거
+직접 몇번째 입력 가능
+막히던 왼쪽 사선 구조 삭제
 누르고 있으면 1.5배속</div>
       </div>
     </div>
@@ -571,25 +571,26 @@
           const p = polylinePoint(leftWall, 1, 0.45);
           addSegment(p.x, p.y, p.x + 340, p.y + 300, 18);
         }
-       {
-          const p = polylinePoint(rightWall, 2, 0.55);
-          addSegment(p.x, p.y, p.x - 300, p.y + 280, 18);
-        }
-        // 사진처럼 끼던 병목 제거:
-        // 짧은 세로벽 삭제하고, 바깥 벽에 붙은 짧은 유도벽만 사용
-        
+
+        // 왼쪽에 끼던 사선 구조 삭제됨
+        // 오른쪽 상단 사선 구조도 삭제됨
+
         {
           const p = polylinePoint(rightWall, 4, 0.46);
           addSegment(p.x, p.y, p.x - 250, p.y + 220, 18);
         }
 
         // 2갈래 중앙 완전 비움
-        addSegment(900,  baseY + 7600, 900,  baseY + 10100, 20)
-        addRotor(980,    baseY + 9150, 4, 90, 12, 0.82, 0.3);
+        addSegment(900,  baseY + 7600, 900,  baseY + 10100, 20);
+        addSegment(1600, baseY + 7600, 1600, baseY + 10100, 20);
 
-        addSegment(1680, baseY + 8350, 1440, baseY + 8560, 18);
-        addRotor(1520,   baseY + 9350, 4, 90, 12, -0.82, 0.5);
+        // 왼쪽 가지: 세로벽/사선막대 없음
+        addRotor(980, baseY + 9150, 4, 90, 12, 0.82, 0.3);
 
+        // 오른쪽 가지
+        addRotor(1520, baseY + 9350, 4, 90, 12, -0.82, 0.5);
+
+        // 아래서 넓게 재합류
         addSegment(900,  baseY + 10100, 1160, baseY + 11150, 20);
         addSegment(1600, baseY + 10100, 1340, baseY + 11150, 20);
 
