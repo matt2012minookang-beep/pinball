@@ -336,6 +336,7 @@
 마지막 = 현재 공 총개수
 직접 몇번째 입력 가능
 막히던 왼쪽 사선 구조 삭제
+빨간색 표시 막대 추가 삭제
 누르고 있으면 1.5배속</div>
       </div>
     </div>
@@ -591,10 +592,7 @@
 
         addLaunchPad(1250, baseY + 11750);
 
-        {
-          const p = polylinePoint(leftWall, 5, 0.18);
-          addSegment(p.x, p.y, p.x + 300, p.y + 250, 18);
-        }
+        // 빨간색으로 표시된 왼쪽 사선 막대 삭제됨
         {
           const p = polylinePoint(rightWall, 5, 0.55);
           addSegment(p.x, p.y, p.x - 280, p.y + 240, 18);
